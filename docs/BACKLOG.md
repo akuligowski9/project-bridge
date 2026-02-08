@@ -91,7 +91,7 @@ Build the configuration system that reads `projectbridge.config.yaml` and expose
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Critical
 - **Depends on:** PB-001
 - **Blocks:** PB-006, PB-007, PB-008, PB-012
@@ -754,5 +754,13 @@ Created the foundational Python package layout under `engine/projectbridge/` wit
 **Status:** Done
 
 Created JSON Schema at `docs/schema/analysis_output_v1.0.json` and Pydantic models in `engine/projectbridge/schema.py`. Schema defines `schema_version`, `strengths`, `gaps`, and `recommendations` with `Skill` and `Recommendation` sub-models. All fields required; missing fields raise `ValidationError`. Verified serialize/deserialize roundtrip, schema_version default, and validation of invalid payloads.
+
+---
+
+### PB-003: Implement configuration model
+
+**Status:** Done
+
+Created `engine/projectbridge/config/settings.py` with Pydantic-based config model loading from `projectbridge.config.yaml`. Sections: `ai` (provider, ollama_model), `analysis` (confidence_threshold, max_recommendations), `cache` (enabled, ttl_seconds), `export` (default_format). All fields have sensible defaults. Unknown keys produce warnings. Verified loading from YAML, defaults without config file, and unknown key warnings.
 
 ---
