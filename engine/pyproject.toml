@@ -13,5 +13,8 @@ dependencies = [
     "requests",
 ]
 
+[project.scripts]
+projectbridge = "projectbridge.cli:cli"
+
 [tool.setuptools.packages.find]
 where = ["."]

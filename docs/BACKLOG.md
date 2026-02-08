@@ -196,7 +196,7 @@ Implement the command-line interface as the primary user-facing entry point to P
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Critical
 - **Depends on:** PB-001, PB-002, PB-003
 - **Blocks:** PB-010, PB-017
@@ -219,7 +219,7 @@ Implement the recommendation engine described in Section 5.5 of the tech spec. I
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** PB-006, PB-007
 - **Blocks:** PB-012, PB-022
@@ -282,7 +282,7 @@ Build the orchestrator module that coordinates the full analysis pipeline: loadi
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** PB-002, PB-003, PB-004, PB-005, PB-006, PB-007, PB-009
 - **Blocks:** PB-008
@@ -802,5 +802,29 @@ Created `engine/projectbridge/analysis/taxonomy.py` with 71 skills across langua
 **Status:** Done
 
 Created `engine/projectbridge/ai/provider.py` with abstract `AIProvider` base class (`analyze_context`, `generate_recommendations`) and a provider registry with `get_provider()` factory. Created `engine/projectbridge/ai/no_ai.py` with `NoAIProvider` that generates heuristic recommendations from skill gaps without any API keys or network calls. Unknown provider names raise `ValueError`.
+
+---
+
+### PB-008: Build CLI contract
+
+**Status:** Done
+
+Created `engine/projectbridge/cli.py` with `projectbridge` console script entry point. Supports `analyze` (--job, --github-user, --output, --no-ai, --example) and `export` (--input, --output, --format, --example) commands. Added entry point in pyproject.toml. Non-zero exit codes on failure, zero on success.
+
+---
+
+### PB-009: Build recommendation engine
+
+**Status:** Done
+
+Created `engine/projectbridge/recommend/engine.py` with `generate_recommendations()` that delegates to the active AI provider, enforces max-3 skills per recommendation, caps total recommendations, and returns schema-valid `Recommendation` objects. Implemented alongside PB-008.
+
+---
+
+### PB-012: Implement engine orchestrator
+
+**Status:** Done
+
+Created `engine/projectbridge/orchestrator.py` with `run_analysis()` that coordinates the full pipeline: config loading, AI provider resolution, GitHub analysis, job parsing, core analysis, and recommendations. Includes bundled example data for --example mode. `PipelineError` identifies the failing stage. Callable from CLI and Python API. Implemented alongside PB-008.
 
 ---
