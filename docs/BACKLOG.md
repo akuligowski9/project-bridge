@@ -112,7 +112,7 @@ Implement the primary input processor that extracts signals from GitHub reposito
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Critical
 - **Depends on:** PB-001
 - **Blocks:** PB-006, PB-012
@@ -762,5 +762,13 @@ Created JSON Schema at `docs/schema/analysis_output_v1.0.json` and Pydantic mode
 **Status:** Done
 
 Created `engine/projectbridge/config/settings.py` with Pydantic-based config model loading from `projectbridge.config.yaml`. Sections: `ai` (provider, ollama_model), `analysis` (confidence_threshold, max_recommendations), `cache` (enabled, ttl_seconds), `export` (default_format). All fields have sensible defaults. Unknown keys produce warnings. Verified loading from YAML, defaults without config file, and unknown key warnings.
+
+---
+
+### PB-004: Build GitHub repository analyzer
+
+**Status:** Done
+
+Created `engine/projectbridge/input/github.py` with `GitHubAnalyzer` and `GitHubClient` classes. Extracts languages (with percentages), frameworks (React, Django, Flask, Express, etc.), project structures, and infrastructure signals (Docker, CI) from a user's public repos via the GitHub REST API. Custom exceptions for auth errors, user-not-found, rate limits, and connectivity issues. Rate limit tracking from response headers. Added `requests` dependency.
 
 ---
