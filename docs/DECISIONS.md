@@ -113,3 +113,23 @@ Each entry records the context, the decision, and the reasoning — so future co
 **Reasoning:** The purpose of ProjectBridge is gap analysis against a specific job, not general career advice. Scoping adjacents to job requirements keeps the output actionable — every adjacent skill shown is both learnable (close to existing skills) and relevant (the job wants it). This also keeps the gaps list concise.
 **Alternatives Considered:** Show all adjacents regardless of job requirements, show adjacents with a relevance score, separate "job-relevant adjacents" from "general growth paths."
 **Consequences:** Adjacent skills are a strict subset of job requirements. A developer's broader growth potential is not surfaced unless the job asks for it. This could be revisited if a "career exploration" mode is added (see Parking Lot).
+
+### DEC-010: AI providers as optional dependencies
+
+**Date:** 2026-02-08
+**Status:** Accepted
+**Context:** The OpenAI provider (PB-015) requires the `openai` Python package, but most users running `--no-ai` or using other providers don't need it. Making it a hard dependency would bloat the install and require all users to pull in OpenAI's SDK and its transitive deps (httpx, etc.).
+**Decision:** AI provider SDKs are optional dependencies (`pip install projectbridge[openai]`). The provider uses lazy imports and raises a descriptive `OpenAIProviderError` if the package is missing at instantiation time.
+**Reasoning:** This follows the pattern established by DEC-004 (AI provider isolation). The engine must work with `--no-ai` and shouldn't penalize users who don't need a specific provider. Lazy imports keep the module registerable without the SDK installed — `register_provider("openai", OpenAIProvider)` succeeds at import time, and the missing dependency is only surfaced when someone actually tries to use it.
+**Alternatives Considered:** Hard require all provider SDKs, separate installable packages per provider (e.g., `projectbridge-openai`).
+**Consequences:** Users must explicitly opt into provider dependencies. Error messages must clearly explain how to install the missing package. This pattern applies to future providers (Anthropic, Ollama).
+
+### DEC-011: JSON response mode for structured AI output
+
+**Date:** 2026-02-08
+**Status:** Accepted
+**Context:** The OpenAI provider must return structured data (enriched context dicts, recommendation arrays) that downstream code can parse reliably. LLMs can return malformed JSON, markdown-wrapped JSON, or free-form text.
+**Decision:** Use OpenAI's `response_format: {"type": "json_object"}` to guarantee valid JSON output, with prompts designed to specify the exact schema expected.
+**Reasoning:** JSON mode eliminates an entire class of parsing failures. Without it, the provider would need fragile regex extraction or retry logic to handle markdown fences, trailing text, or truncated output. The prompts are stored as editable template files so the expected schema can evolve without code changes.
+**Alternatives Considered:** Free-form responses with JSON extraction regex, function calling / tool use for structured output, Pydantic-based structured output mode.
+**Consequences:** Responses are always valid JSON but the internal structure still needs validation (the model may omit fields or use unexpected types). The `analyze_context` method includes a fallback path for non-JSON responses as a safety net.
