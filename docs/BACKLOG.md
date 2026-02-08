@@ -154,7 +154,7 @@ Build the analysis modules that compare GitHub-derived developer context against
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Critical
 - **Depends on:** PB-001, PB-003, PB-004, PB-005
 - **Blocks:** PB-009, PB-012
@@ -261,7 +261,7 @@ Build the data structure that maps known skills, technologies, and frameworks to
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** PB-001
 - **Blocks:** PB-006
@@ -778,5 +778,21 @@ Created `engine/projectbridge/input/github.py` with `GitHubAnalyzer` and `GitHub
 **Status:** Done
 
 Created `engine/projectbridge/input/job_description.py` with `parse_job_description()` and `JobRequirements` Pydantic model. Extracts `required_technologies`, `experience_domains`, and `architectural_expectations` via keyword matching with word-boundary regex. Handles bullet-list, prose, and mixed formats. Empty input raises `EmptyJobDescriptionError`. Covers 70+ technologies, 20+ domains, and 20+ architectural patterns.
+
+---
+
+### PB-006: Implement core analysis layer
+
+**Status:** Done
+
+Created `engine/projectbridge/analysis/engine.py` with `analyze()` function that compares developer context against job requirements. Produces `detected_skills` (intersection), `adjacent_skills` (reachable via taxonomy and required), and `missing_skills` (required but not detected or adjacent). Fully deterministic. Uses the skill taxonomy from PB-011.
+
+---
+
+### PB-011: Implement skill taxonomy and adjacency map
+
+**Status:** Done
+
+Created `engine/projectbridge/analysis/taxonomy.py` with 71 skills across language, framework, infrastructure, and tool categories. Each skill maps to adjacent skills representing natural growth paths. Data-driven dict constant — adding skills requires only data changes. Implemented alongside PB-006.
 
 ---
