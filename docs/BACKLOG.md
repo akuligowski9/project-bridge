@@ -174,7 +174,7 @@ Create the abstract base class for AI providers as specified in Section 5.4 of t
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Critical
 - **Depends on:** PB-001, PB-003
 - **Blocks:** PB-009, PB-012, PB-015, PB-020, PB-027
@@ -794,5 +794,13 @@ Created `engine/projectbridge/analysis/engine.py` with `analyze()` function that
 **Status:** Done
 
 Created `engine/projectbridge/analysis/taxonomy.py` with 71 skills across language, framework, infrastructure, and tool categories. Each skill maps to adjacent skills representing natural growth paths. Data-driven dict constant — adding skills requires only data changes. Implemented alongside PB-006.
+
+---
+
+### PB-007: Define AI provider base interface and NoAI fallback
+
+**Status:** Done
+
+Created `engine/projectbridge/ai/provider.py` with abstract `AIProvider` base class (`analyze_context`, `generate_recommendations`) and a provider registry with `get_provider()` factory. Created `engine/projectbridge/ai/no_ai.py` with `NoAIProvider` that generates heuristic recommendations from skill gaps without any API keys or network calls. Unknown provider names raise `ValueError`.
 
 ---
