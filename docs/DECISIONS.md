@@ -83,3 +83,13 @@ Each entry records the context, the decision, and the reasoning — so future co
 **Reasoning:** Prioritization follows a dependency-driven approach: Critical items form the foundation everything else builds on, High items deliver core user value, Medium items add robustness and the desktop UI, Low items are polish. Each item uses a structured format (Description, up to 5 independently testable Acceptance Criteria, Metadata with dependencies) to ensure items are actionable and verifiable.
 **Alternatives Considered:** Flat unprioritized list, milestone-based grouping, fewer coarser-grained items.
 **Consequences:** The backlog serves as the single source of truth for planned work. Items should be implemented roughly in priority order, respecting dependency chains. Parking lot ideas are captured but not committed.
+
+### DEC-007: DECISIONS.md replaces PROGRESS.md
+
+**Date:** 2026-02-08
+**Status:** Accepted
+**Context:** The standard INSTRUCTIONS template uses `PROGRESS.md` (a chronological session log) for continuity between sessions. ProjectBridge needs a way to preserve reasoning across sessions but is greenfield — session-by-session narrative adds overhead without proportional value at this stage.
+**Decision:** Use `DECISIONS.md` (structured decision records) instead of `PROGRESS.md`. Decisions are recorded in `DEC-###` format with context, reasoning, alternatives, and consequences.
+**Reasoning:** A structured decision log better serves a greenfield project where *why* choices were made matters more than *when* work happened. Decision records are durable, searchable, and directly referenced by backlog items and technical spec. A chronological log can be introduced later if session continuity becomes a pain point.
+**Alternatives Considered:** PROGRESS.md (chronological log), both PROGRESS.md and DECISIONS.md, ADR (Architecture Decision Records) directory structure.
+**Consequences:** Session continuity relies on DECISIONS.md + BACKLOG.md state rather than a narrative log. The INSTRUCTIONS.md source of truth hierarchy reflects this ordering.
