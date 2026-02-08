@@ -240,7 +240,7 @@ Implement the `--example` flag that allows users to try ProjectBridge without an
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** PB-008
 - **Blocks:** —
@@ -826,5 +826,13 @@ Created `engine/projectbridge/recommend/engine.py` with `generate_recommendation
 **Status:** Done
 
 Created `engine/projectbridge/orchestrator.py` with `run_analysis()` that coordinates the full pipeline: config loading, AI provider resolution, GitHub analysis, job parsing, core analysis, and recommendations. Includes bundled example data for --example mode. `PipelineError` identifies the failing stage. Callable from CLI and Python API. Implemented alongside PB-008.
+
+---
+
+### PB-010: Build example mode with bundled data
+
+**Status:** Done
+
+Already implemented as part of PB-008/PB-012. Bundled example developer profile and job description in `orchestrator.py`. `projectbridge analyze --example` and `projectbridge export --example` both work without any env vars, tokens, or config. Example mode exercises the full pipeline (job parser, analysis engine, recommendation engine) — not a hardcoded response.
 
 ---
