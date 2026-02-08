@@ -49,7 +49,7 @@ No GitHub token or AI provider required.
 ### Run locally with your own data
 
 ```bash
-git clone https://github.com/<yourname>/project-bridge
+git clone https://github.com/akuligowski9/project-bridge
 cd project-bridge
 ```
 
