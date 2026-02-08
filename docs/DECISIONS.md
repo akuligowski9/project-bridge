@@ -93,3 +93,23 @@ Each entry records the context, the decision, and the reasoning — so future co
 **Reasoning:** A structured decision log better serves a greenfield project where *why* choices were made matters more than *when* work happened. Decision records are durable, searchable, and directly referenced by backlog items and technical spec. A chronological log can be introduced later if session continuity becomes a pain point.
 **Alternatives Considered:** PROGRESS.md (chronological log), both PROGRESS.md and DECISIONS.md, ADR (Architecture Decision Records) directory structure.
 **Consequences:** Session continuity relies on DECISIONS.md + BACKLOG.md state rather than a narrative log. The INSTRUCTIONS.md source of truth hierarchy reflects this ordering.
+
+### DEC-008: Deterministic keyword matching for job description parsing
+
+**Date:** 2026-02-08
+**Status:** Accepted
+**Context:** The job description parser (PB-005) needs to extract required technologies, experience domains, and architectural expectations from raw text. The parser sits in the input processing layer, upstream of the analysis engine.
+**Decision:** Use regex word-boundary keyword matching against curated keyword lists (~70 technologies, ~20 domains, ~20 architectural patterns) rather than NLP or AI-based extraction.
+**Reasoning:** The tech spec requires the analysis layer to be deterministic (Section 5.3). Pushing non-determinism into the input layer would undermine that guarantee. Keyword matching is transparent, testable, and produces identical results for identical input. AI-based parsing can be layered on later via the AI provider's `analyze_context` method without changing the core pipeline.
+**Alternatives Considered:** spaCy/NLP entity extraction, AI provider-based parsing, hybrid (keywords + AI fallback).
+**Consequences:** Parsing accuracy is limited by keyword coverage — uncommon technologies or unusual phrasing may be missed. The keyword lists must be maintained manually. This is acceptable because PB-021 (enhanced heuristics) is planned for iterative improvement, and the AI context enrichment stage can compensate.
+
+### DEC-009: Adjacent skills scoped to job requirements
+
+**Date:** 2026-02-08
+**Status:** Accepted
+**Context:** The analysis layer (PB-006) uses the skill taxonomy to find "adjacent skills" — technologies related to what a developer already knows. A developer with React knowledge has adjacents like Next.js, Redux, TypeScript, React Native, and Vite. Surfacing all reachable adjacents would produce noisy, unfocused output.
+**Decision:** Only surface adjacent skills that are also present in the job requirements. An adjacent skill that the job doesn't ask for is filtered out.
+**Reasoning:** The purpose of ProjectBridge is gap analysis against a specific job, not general career advice. Scoping adjacents to job requirements keeps the output actionable — every adjacent skill shown is both learnable (close to existing skills) and relevant (the job wants it). This also keeps the gaps list concise.
+**Alternatives Considered:** Show all adjacents regardless of job requirements, show adjacents with a relevance score, separate "job-relevant adjacents" from "general growth paths."
+**Consequences:** Adjacent skills are a strict subset of job requirements. A developer's broader growth potential is not surfaced unless the job asks for it. This could be revisited if a "career exploration" mode is added (see Parking Lot).
