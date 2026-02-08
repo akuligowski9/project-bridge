@@ -11,6 +11,7 @@ from typing import Any
 
 from projectbridge.ai.provider import AIProvider, get_provider
 import projectbridge.ai.no_ai  # noqa: F401  — register the "none" provider
+import projectbridge.ai.openai_provider  # noqa: F401  — register the "openai" provider
 from projectbridge.analysis.engine import analyze
 from projectbridge.config.settings import ProjectBridgeConfig, load_config
 from projectbridge.input.github import GitHubAnalyzer

@@ -345,7 +345,7 @@ Build the first concrete AI provider implementation using the OpenAI API. This p
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** PB-007
 - **Blocks:** —
@@ -858,5 +858,13 @@ Created `engine/projectbridge/export.py` with `Snapshot` model and `create_snaps
 **Status:** Done
 
 Set up pytest test infrastructure with `engine/tests/conftest.py` providing shared fixtures (sample dev contexts, job texts, resume text, mock GitHub responses). Created 8 test files covering all modules: schema, config, job description parser, GitHub analyzer, analysis engine, AI provider, resume processor, export, and full integration pipeline. 57 tests total, all passing. Added GitHub Actions workflow at `.github/workflows/test.yml` running pytest on push to main and PRs with Python 3.10 and 3.12 matrix.
+
+---
+
+### PB-015: Implement OpenAI AI provider
+
+**Status:** Done
+
+Created `engine/projectbridge/ai/openai_provider.py` implementing the `AIProvider` interface with OpenAI API. Reads API key from `OPENAI_API_KEY` env var or constructor parameter. Uses `gpt-4o` by default with JSON response format. Editable prompt templates stored in `engine/projectbridge/ai/prompts/` (analyze_context.txt, generate_recommendations.txt). Handles auth errors, rate limits, and connection failures with descriptive `OpenAIProviderError` messages. Registered as `"openai"` provider. Added `openai>=1.0` as optional dependency. 16 new tests covering init, registry, context enrichment, recommendations, error handling, and template files.
 
 ---

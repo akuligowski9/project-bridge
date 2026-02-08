@@ -1,3 +1,6 @@
 pyyaml
 pydantic
 requests
+
+# Optional: AI providers
+# openai>=1.0  # Uncomment for OpenAI provider support
