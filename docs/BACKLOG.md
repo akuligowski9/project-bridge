@@ -50,7 +50,7 @@ Create the foundational Python package layout for the ProjectBridge engine under
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Critical
 - **Depends on:** —
 - **Blocks:** PB-002, PB-003, PB-004, PB-005, PB-006, PB-007, PB-008
@@ -741,4 +741,10 @@ _Known limitations accepted by design._
 
 ## Done
 
-_No items._
+### PB-001: Initialize Python engine package structure
+
+**Status:** Done
+
+Created the foundational Python package layout under `engine/projectbridge/` with subpackages for `ai/`, `analysis/`, `config/`, `input/`, and `recommend/`. Includes `pyproject.toml` (PEP 621, setuptools, Python >=3.10), `requirements.txt` (pyyaml, pydantic), and root `__init__.py` exposing `__version__ = "0.1.0"`. Verified with `pip install -e ./engine` and successful import of all subpackages.
+
+---
