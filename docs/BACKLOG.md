@@ -366,7 +366,7 @@ Set up the testing framework and continuous integration pipeline for the engine.
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** PB-001
 - **Blocks:** —
@@ -850,5 +850,13 @@ Created `engine/projectbridge/input/resume.py` with `parse_resume()` and `Resume
 **Status:** Done
 
 Created `engine/projectbridge/export.py` with `Snapshot` model and `create_snapshot()`. Snapshots wrap the analysis result with `exported_at` (ISO 8601), `engine_version`, and `schema_version` metadata. Updated CLI export command to produce snapshots from `--input FILE` or `--example`. Snapshots validate independently via the `Snapshot` Pydantic model.
+
+---
+
+### PB-016: Add test infrastructure and CI
+
+**Status:** Done
+
+Set up pytest test infrastructure with `engine/tests/conftest.py` providing shared fixtures (sample dev contexts, job texts, resume text, mock GitHub responses). Created 8 test files covering all modules: schema, config, job description parser, GitHub analyzer, analysis engine, AI provider, resume processor, export, and full integration pipeline. 57 tests total, all passing. Added GitHub Actions workflow at `.github/workflows/test.yml` running pytest on push to main and PRs with Python 3.10 and 3.12 matrix.
 
 ---
