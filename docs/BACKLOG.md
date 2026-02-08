@@ -133,7 +133,7 @@ Implement the required input processor that extracts structured requirements fro
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Critical
 - **Depends on:** PB-001
 - **Blocks:** PB-006, PB-012
@@ -770,5 +770,13 @@ Created `engine/projectbridge/config/settings.py` with Pydantic-based config mod
 **Status:** Done
 
 Created `engine/projectbridge/input/github.py` with `GitHubAnalyzer` and `GitHubClient` classes. Extracts languages (with percentages), frameworks (React, Django, Flask, Express, etc.), project structures, and infrastructure signals (Docker, CI) from a user's public repos via the GitHub REST API. Custom exceptions for auth errors, user-not-found, rate limits, and connectivity issues. Rate limit tracking from response headers. Added `requests` dependency.
+
+---
+
+### PB-005: Build job description parser
+
+**Status:** Done
+
+Created `engine/projectbridge/input/job_description.py` with `parse_job_description()` and `JobRequirements` Pydantic model. Extracts `required_technologies`, `experience_domains`, and `architectural_expectations` via keyword matching with word-boundary regex. Handles bullet-list, prose, and mixed formats. Empty input raises `EmptyJobDescriptionError`. Covers 70+ technologies, 20+ domains, and 20+ architectural patterns.
 
 ---
