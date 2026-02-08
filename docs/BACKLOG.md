@@ -71,7 +71,7 @@ Create the versioned JSON schema that defines the contract between the engine an
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Critical
 - **Depends on:** PB-001
 - **Blocks:** PB-008, PB-012, PB-014
@@ -746,5 +746,13 @@ _Known limitations accepted by design._
 **Status:** Done
 
 Created the foundational Python package layout under `engine/projectbridge/` with subpackages for `ai/`, `analysis/`, `config/`, `input/`, and `recommend/`. Includes `pyproject.toml` (PEP 621, setuptools, Python >=3.10), `requirements.txt` (pyyaml, pydantic), and root `__init__.py` exposing `__version__ = "0.1.0"`. Verified with `pip install -e ./engine` and successful import of all subpackages.
+
+---
+
+### PB-002: Define output schema v1.0
+
+**Status:** Done
+
+Created JSON Schema at `docs/schema/analysis_output_v1.0.json` and Pydantic models in `engine/projectbridge/schema.py`. Schema defines `schema_version`, `strengths`, `gaps`, and `recommendations` with `Skill` and `Recommendation` sub-models. All fields required; missing fields raise `ValidationError`. Verified serialize/deserialize roundtrip, schema_version default, and validation of invalid payloads.
 
 ---
