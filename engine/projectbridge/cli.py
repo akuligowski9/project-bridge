@@ -12,7 +12,9 @@ import sys
 from pathlib import Path
 
 from projectbridge import __version__
+from projectbridge.export import create_snapshot
 from projectbridge.orchestrator import PipelineError, run_analysis
+from projectbridge.schema import AnalysisResult
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -42,6 +44,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "--output",
         metavar="FILE",
         help="Write JSON output to FILE instead of stdout.",
+    )
+    analyze.add_argument(
+        "--resume",
+        metavar="FILE",
+        help="Path to a plain-text resume file (optional enrichment).",
     )
     analyze.add_argument(
         "--no-ai",
@@ -116,10 +123,19 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
             return 1
         job_text = path.read_text()
 
+    resume_text: str | None = None
+    if args.resume:
+        path = Path(args.resume)
+        if not path.is_file():
+            print(f"Error: resume file not found: {args.resume}", file=sys.stderr)
+            return 1
+        resume_text = path.read_text()
+
     try:
         result = run_analysis(
             job_text=job_text,
             github_user=args.github_user,
+            resume_text=resume_text,
             no_ai=args.no_ai,
             example=args.example,
         )
@@ -144,16 +160,22 @@ def _cmd_export(args: argparse.Namespace) -> int:
         except PipelineError as exc:
             print(f"Error: {exc}", file=sys.stderr)
             return 1
-        output_json = result.model_dump_json(indent=2)
     elif args.input:
         path = Path(args.input)
         if not path.is_file():
             print(f"Error: input file not found: {args.input}", file=sys.stderr)
             return 1
-        output_json = path.read_text()
+        try:
+            result = AnalysisResult.model_validate_json(path.read_text())
+        except Exception as exc:
+            print(f"Error: invalid analysis result: {exc}", file=sys.stderr)
+            return 1
     else:
         print("Error: provide --input FILE or --example.", file=sys.stderr)
         return 1
+
+    snapshot = create_snapshot(result)
+    output_json = snapshot.model_dump_json(indent=2)
 
     if args.output:
         Path(args.output).write_text(output_json + "\n")

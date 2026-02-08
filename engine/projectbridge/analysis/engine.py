@@ -74,6 +74,10 @@ def analyze(
             dev_skills.add(_canonicalize(item["name"]))
     # project_structures are structural signals, not skills — skip them.
 
+    # Resume skills are secondary — they enrich but don't override.
+    for skill_name in developer_context.get("resume_skills", []):
+        dev_skills.add(_canonicalize(skill_name))
+
     # -- Collect required skills -------------------------------------------
     required: set[str] = set()
     for tech in job_requirements.get("required_technologies", []):

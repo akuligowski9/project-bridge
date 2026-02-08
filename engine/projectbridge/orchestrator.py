@@ -15,6 +15,7 @@ from projectbridge.analysis.engine import analyze
 from projectbridge.config.settings import ProjectBridgeConfig, load_config
 from projectbridge.input.github import GitHubAnalyzer
 from projectbridge.input.job_description import parse_job_description
+from projectbridge.input.resume import parse_resume, merge_resume_context
 from projectbridge.recommend.engine import generate_recommendations
 from projectbridge.schema import AnalysisResult
 
@@ -74,6 +75,7 @@ def run_analysis(
     job_text: str | None = None,
     github_user: str | None = None,
     github_token: str | None = None,
+    resume_text: str | None = None,
     no_ai: bool = False,
     example: bool = False,
     config: ProjectBridgeConfig | None = None,
@@ -84,6 +86,7 @@ def run_analysis(
         job_text: Raw job description text.
         github_user: GitHub username to analyze.
         github_token: GitHub personal access token (or read from env).
+        resume_text: Optional plain-text resume for contextual enrichment.
         no_ai: Force the NoAI heuristic provider.
         example: Use bundled example data instead of live inputs.
         config: Pre-loaded config; loaded from disk if *None*.
@@ -117,25 +120,33 @@ def run_analysis(
         except Exception as exc:
             raise PipelineError("github_analyzer", str(exc)) from exc
 
-    # -- 3. Parse job description ------------------------------------------
+    # -- 3. Resume enrichment (optional) -----------------------------------
+    if resume_text:
+        try:
+            resume_ctx = parse_resume(resume_text)
+            dev_context = merge_resume_context(dev_context, resume_ctx)
+        except Exception as exc:
+            raise PipelineError("resume_parser", str(exc)) from exc
+
+    # -- 4. Parse job description ------------------------------------------
     try:
         job_reqs = parse_job_description(job_text).model_dump()
     except Exception as exc:
         raise PipelineError("job_parser", str(exc)) from exc
 
-    # -- 4. AI context enrichment (optional) --------------------------------
+    # -- 5. AI context enrichment (optional) --------------------------------
     try:
         dev_context = provider.analyze_context(dev_context)
     except Exception as exc:
         raise PipelineError("ai_context", str(exc)) from exc
 
-    # -- 5. Core analysis --------------------------------------------------
+    # -- 6. Core analysis --------------------------------------------------
     try:
         analysis = analyze(dev_context, job_reqs)
     except Exception as exc:
         raise PipelineError("analysis", str(exc)) from exc
 
-    # -- 6. Recommendations ------------------------------------------------
+    # -- 7. Recommendations ------------------------------------------------
     try:
         recs = generate_recommendations(
             analysis,
@@ -145,7 +156,7 @@ def run_analysis(
     except Exception as exc:
         raise PipelineError("recommendations", str(exc)) from exc
 
-    # -- 7. Assemble result ------------------------------------------------
+    # -- 8. Assemble result ------------------------------------------------
     return AnalysisResult(
         strengths=analysis["detected_skills"],
         gaps=analysis["missing_skills"] + analysis["adjacent_skills"],

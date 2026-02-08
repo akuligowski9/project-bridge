@@ -303,7 +303,7 @@ Implement the optional input processor for resume text as described in Section 5
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** PB-001
 - **Blocks:** PB-012
@@ -324,7 +324,7 @@ Build the export functionality that takes a completed analysis result and produc
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** PB-002
 - **Blocks:** PB-026, PB-031
@@ -834,5 +834,21 @@ Created `engine/projectbridge/orchestrator.py` with `run_analysis()` that coordi
 **Status:** Done
 
 Already implemented as part of PB-008/PB-012. Bundled example developer profile and job description in `orchestrator.py`. `projectbridge analyze --example` and `projectbridge export --example` both work without any env vars, tokens, or config. Example mode exercises the full pipeline (job parser, analysis engine, recommendation engine) — not a hardcoded response.
+
+---
+
+### PB-013: Add resume context processor
+
+**Status:** Done
+
+Created `engine/projectbridge/input/resume.py` with `parse_resume()` and `ResumeContext` model. Extracts skills, experience domains, and years of experience via keyword matching. `merge_resume_context()` adds resume skills as `resume_skills` secondary signal without overriding GitHub-derived data. Analysis engine reads `resume_skills` to enrich developer skill set. Added `--resume FILE` flag to CLI and `resume_text` parameter to `run_analysis()`.
+
+---
+
+### PB-014: Implement JSON export and shareable snapshot
+
+**Status:** Done
+
+Created `engine/projectbridge/export.py` with `Snapshot` model and `create_snapshot()`. Snapshots wrap the analysis result with `exported_at` (ISO 8601), `engine_version`, and `schema_version` metadata. Updated CLI export command to produce snapshots from `--input FILE` or `--example`. Snapshots validate independently via the `Snapshot` Pydantic model.
 
 ---
