@@ -389,7 +389,7 @@ Initialize the Tauri application shell under `app/` that wraps the engine's outp
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Medium
 - **Depends on:** PB-008
 - **Blocks:** PB-018, PB-019, PB-031
@@ -914,5 +914,13 @@ Expanded the GitHub analyzer's detection from 24 to 97 unique detectable framewo
 **Status:** Done
 
 Created `engine/projectbridge/recommend/templates.yaml` with 20 pre-written project recommendations covering frontend (React, Vue, Svelte, React Native), backend (Django, FastAPI, Flask, Rails, Go/Gin), infrastructure (Docker, K8s, Terraform, CI/CD, AWS), data (pandas, scikit-learn), and full-stack (Next.js+Postgres, Tauri+Svelte) gaps. Added `templates.py` loader with `select_templates()` that ranks by skill overlap. Updated NoAI provider to use templates first, falling back to generic heuristic for uncovered skills. Adding a template requires only a YAML entry. 9 new tests.
+
+---
+
+### PB-017: Scaffold Tauri desktop application
+
+**Status:** Done
+
+Scaffolded Tauri 2.0 desktop app under `app/` with Svelte 5 + SvelteKit + TypeScript + Tailwind CSS v4 (per DEC-012). Frontend renders a basic ProjectBridge view with Strengths, Skill Gaps, and Recommendations sections using Tailwind utility classes. Rust backend (`src-tauri/`) exposes a `run_analysis` Tauri command that invokes the `projectbridge` CLI as a subprocess and returns JSON. Shell plugin (`tauri-plugin-shell`) added for IPC. Frontend calls `invoke("run_analysis", {args: ["analyze", "--example", "--no-ai"]})` and parses the JSON response. `npm run build` produces static site, `cargo check` compiles the Rust backend. Window configured at 1024x768 with 800x600 minimum.
 
 ---
