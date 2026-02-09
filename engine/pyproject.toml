@@ -15,6 +15,7 @@ dependencies = [
 
 [project.optional-dependencies]
 openai = ["openai>=1.0"]
+anthropic = ["anthropic>=0.39.0"]
 
 [project.scripts]
 projectbridge = "projectbridge.cli:cli"

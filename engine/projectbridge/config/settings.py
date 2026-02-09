@@ -56,6 +56,15 @@ class CacheSettings(BaseModel):
     )
 
 
+class GitHubSettings(BaseModel):
+    """GitHub API configuration."""
+
+    token: str | None = Field(
+        default=None,
+        description="GitHub personal access token. Prefer GITHUB_TOKEN env var.",
+    )
+
+
 class ExportSettings(BaseModel):
     """Export preferences."""
 
@@ -76,13 +85,14 @@ class ProjectBridgeConfig(BaseModel):
     analysis: AnalysisSettings = Field(default_factory=AnalysisSettings)
     cache: CacheSettings = Field(default_factory=CacheSettings)
     export: ExportSettings = Field(default_factory=ExportSettings)
+    github: GitHubSettings = Field(default_factory=GitHubSettings)
 
     @model_validator(mode="before")
     @classmethod
     def warn_unknown_keys(cls, values: Any) -> Any:
         if not isinstance(values, dict):
             return values
-        known_top = {"ai", "analysis", "cache", "export"}
+        known_top = {"ai", "analysis", "cache", "export", "github"}
         unknown = set(values.keys()) - known_top
         for key in sorted(unknown):
             warnings.warn(

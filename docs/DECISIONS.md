@@ -133,3 +133,13 @@ Each entry records the context, the decision, and the reasoning — so future co
 **Reasoning:** JSON mode eliminates an entire class of parsing failures. Without it, the provider would need fragile regex extraction or retry logic to handle markdown fences, trailing text, or truncated output. The prompts are stored as editable template files so the expected schema can evolve without code changes.
 **Alternatives Considered:** Free-form responses with JSON extraction regex, function calling / tool use for structured output, Pydantic-based structured output mode.
 **Consequences:** Responses are always valid JSON but the internal structure still needs validation (the model may omit fields or use unexpected types). The `analyze_context` method includes a fallback path for non-JSON responses as a safety net.
+
+### DEC-012: Svelte + TypeScript + Tailwind CSS for Tauri frontend
+
+**Date:** 2026-02-09
+**Status:** Accepted
+**Context:** DEC-003 chose Tauri as the desktop shell but left the frontend framework unspecified. The Tauri webview requires a web technology to render UI. The developer's existing portfolio is React/Next.js-heavy and would benefit from demonstrating a second frontend framework.
+**Decision:** Use Svelte with TypeScript and Tailwind CSS as the frontend framework inside the Tauri webview.
+**Reasoning:** Svelte is a compiler-based framework that produces minimal runtime code, pairing well with Tauri's lightweight philosophy. It's widely recognized in the industry and adds meaningful portfolio differentiation from React. TypeScript provides type safety. Tailwind CSS is already in the developer's toolkit, reducing friction. The Tauri + Svelte combination is well-supported with official templates.
+**Alternatives Considered:** React (already well-represented in portfolio), Leptos/Rust WASM (not recognizable to most hiring managers), Vue (similar niche to React, less differentiation), vanilla JS (insufficient for maintainable UI).
+**Consequences:** The `app/` directory will use npm-based tooling with Svelte, TypeScript, and Tailwind CSS. Contributors working on the UI need familiarity with Svelte's component model. The Svelte ecosystem is smaller than React's but sufficient for the project's thin UI layer.

@@ -1,0 +1,125 @@
+# Recommendation templates — data-driven project suggestions for common skill gaps.
+#
+# Adding a new template requires only a new entry in this file.
+# Each template must have: title, description, skills_addressed (max 3),
+# estimated_scope (small|medium|large), and difficulty (beginner|intermediate|advanced).
+
+- title: "Build a REST API with Django"
+  description: "Create a RESTful API using Django REST Framework. Implement CRUD endpoints for a resource (e.g., a task manager), add authentication, and write API documentation with Swagger/OpenAPI."
+  skills_addressed: ["Django", "REST API"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+
+- title: "Deploy a containerized app with Docker and Kubernetes"
+  description: "Dockerize a simple web application, create Kubernetes manifests, and deploy to a local cluster (minikube or kind). Practice pod management, services, and basic scaling."
+  skills_addressed: ["Docker", "Kubernetes"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+
+- title: "Build a real-time chat app with React and Socket.IO"
+  description: "Create a real-time chat application using React for the frontend and Socket.IO for WebSocket communication. Implement rooms, user presence, and message history."
+  skills_addressed: ["React", "Socket.IO"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+
+- title: "Create a CLI tool with Python and Click"
+  description: "Build a useful command-line tool using Python. Implement argument parsing, colored output, and configuration file support. Publish it to PyPI as a portfolio piece."
+  skills_addressed: ["Python"]
+  estimated_scope: "small"
+  difficulty: "beginner"
+
+- title: "Build a full-stack app with Next.js and PostgreSQL"
+  description: "Create a full-stack application using Next.js with server-side rendering, API routes, and PostgreSQL for persistence. Implement user authentication and deploy to Vercel."
+  skills_addressed: ["Next.js", "PostgreSQL", "TypeScript"]
+  estimated_scope: "large"
+  difficulty: "intermediate"
+
+- title: "Set up a CI/CD pipeline with GitHub Actions"
+  description: "Configure a GitHub Actions workflow that runs tests, lints code, builds artifacts, and deploys to a staging environment. Add status badges and branch protection rules."
+  skills_addressed: ["GitHub Actions", "CI/CD"]
+  estimated_scope: "small"
+  difficulty: "beginner"
+
+- title: "Build a microservice with FastAPI and Redis"
+  description: "Create a FastAPI microservice with Redis for caching and rate limiting. Implement async endpoints, background tasks, and health checks. Containerize with Docker."
+  skills_addressed: ["FastAPI", "Redis", "Docker"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+
+- title: "Create a mobile app with React Native"
+  description: "Build a cross-platform mobile app using React Native. Implement navigation, state management, and integrate with a REST API. Deploy to a device or simulator."
+  skills_addressed: ["React Native"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+
+- title: "Build a data pipeline with Python and pandas"
+  description: "Create an ETL pipeline that ingests raw data, transforms it using pandas, and outputs clean datasets. Include data validation, error handling, and basic visualization."
+  skills_addressed: ["pandas", "Python"]
+  estimated_scope: "small"
+  difficulty: "beginner"
+
+- title: "Deploy a serverless API on AWS Lambda"
+  description: "Build a serverless REST API using AWS Lambda and API Gateway. Implement DynamoDB for storage, configure IAM roles, and automate deployment with SAM or CDK."
+  skills_addressed: ["AWS", "Serverless"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+
+- title: "Build a GraphQL API with Node.js"
+  description: "Create a GraphQL API using Apollo Server and Node.js. Define a schema with queries, mutations, and subscriptions. Connect to a database and implement pagination."
+  skills_addressed: ["GraphQL", "Node.js"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+
+- title: "Create an infrastructure-as-code project with Terraform"
+  description: "Define cloud infrastructure using Terraform. Provision a VPC, compute instances, and a managed database. Implement modules for reusability and state management."
+  skills_addressed: ["Terraform", "Infrastructure as Code"]
+  estimated_scope: "medium"
+  difficulty: "advanced"
+
+- title: "Build a web scraper and API with Flask"
+  description: "Create a web scraper using Python and expose the collected data through a Flask REST API. Add rate limiting, caching, and scheduled refresh of scraped data."
+  skills_addressed: ["Flask", "Python"]
+  estimated_scope: "small"
+  difficulty: "beginner"
+
+- title: "Build a Tauri desktop app with Svelte"
+  description: "Create a lightweight desktop application using Tauri and Svelte. Implement a clean UI, system tray integration, and IPC communication between the frontend and Rust backend."
+  skills_addressed: ["Tauri", "Svelte", "TypeScript"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+
+- title: "Implement authentication with OAuth and JWT"
+  description: "Build an authentication system supporting OAuth 2.0 (Google/GitHub login) and JWT tokens. Implement secure token storage, refresh flows, and role-based access control."
+  skills_addressed: ["Authentication", "OAuth", "JWT"]
+  estimated_scope: "medium"
+  difficulty: "advanced"
+
+- title: "Build a Ruby on Rails CRUD application"
+  description: "Create a full CRUD application with Ruby on Rails. Implement models with Active Record, RESTful controllers, views with ERB templates, and database migrations."
+  skills_addressed: ["Ruby on Rails"]
+  estimated_scope: "small"
+  difficulty: "beginner"
+
+- title: "Create a Go web service with Gin"
+  description: "Build a RESTful web service using Go and the Gin framework. Implement structured logging, middleware, database integration with GORM, and graceful shutdown."
+  skills_addressed: ["Go", "Gin"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+
+- title: "Build a machine learning model API"
+  description: "Train a simple ML model using scikit-learn, serialize it, and serve predictions through a FastAPI endpoint. Include input validation, model versioning, and basic monitoring."
+  skills_addressed: ["scikit-learn", "FastAPI", "Python"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+
+- title: "Create a Vue.js dashboard with Supabase"
+  description: "Build an interactive dashboard using Vue.js with Supabase for authentication and real-time data. Implement charts, filters, and responsive layout with Tailwind CSS."
+  skills_addressed: ["Vue", "Supabase", "Tailwind CSS"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+
+- title: "Build a Rust CLI tool"
+  description: "Create a useful command-line tool in Rust using clap for argument parsing. Implement error handling with anyhow, add colored output, and publish to crates.io."
+  skills_addressed: ["Rust"]
+  estimated_scope: "small"
+  difficulty: "intermediate"

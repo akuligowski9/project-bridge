@@ -451,7 +451,7 @@ Build a second AI provider implementation using the Anthropic Claude API. This p
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Medium
 - **Depends on:** PB-007
 - **Blocks:** —
@@ -472,7 +472,7 @@ Improve the GitHub repository analyzer's ability to detect frameworks, libraries
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Medium
 - **Depends on:** PB-004
 - **Blocks:** —
@@ -493,7 +493,7 @@ Build a template system for the recommendation engine that maps common skill gap
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Medium
 - **Depends on:** PB-009
 - **Blocks:** —
@@ -513,7 +513,7 @@ Implement a consistent logging and error handling strategy across the engine. Cu
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Medium
 - **Depends on:** PB-001, PB-008
 - **Blocks:** —
@@ -533,7 +533,7 @@ Build secure, user-friendly GitHub token handling for the repository analyzer. T
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Medium
 - **Depends on:** PB-003, PB-004
 - **Blocks:** —
@@ -554,7 +554,7 @@ Implement centralized input validation for all data entering the engine: CLI arg
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Medium
 - **Depends on:** PB-001
 - **Blocks:** —
@@ -866,5 +866,53 @@ Set up pytest test infrastructure with `engine/tests/conftest.py` providing shar
 **Status:** Done
 
 Created `engine/projectbridge/ai/openai_provider.py` implementing the `AIProvider` interface with OpenAI API. Reads API key from `OPENAI_API_KEY` env var or constructor parameter. Uses `gpt-4o` by default with JSON response format. Editable prompt templates stored in `engine/projectbridge/ai/prompts/` (analyze_context.txt, generate_recommendations.txt). Handles auth errors, rate limits, and connection failures with descriptive `OpenAIProviderError` messages. Registered as `"openai"` provider. Added `openai>=1.0` as optional dependency. 16 new tests covering init, registry, context enrichment, recommendations, error handling, and template files.
+
+---
+
+### PB-020: Add Anthropic Claude AI provider
+
+**Status:** Done
+
+Created `engine/projectbridge/ai/anthropic_provider.py` implementing the `AIProvider` interface with Anthropic Claude API. Mirrors the OpenAI provider pattern: reads API key from `ANTHROPIC_API_KEY` env var or constructor parameter, uses `claude-sonnet-4-5-20250929` by default, reuses shared prompt templates from `prompts/` directory. Handles Anthropic's content-block response format (extracts first text block). Auth errors, rate limits, and connection failures produce descriptive `AnthropicProviderError` messages. Registered as `"anthropic"` provider. Added `anthropic>=0.39.0` as optional dependency. 16 new tests covering init, registry, context enrichment, recommendations, error handling, and response parsing.
+
+---
+
+### PB-025: Add input validation layer
+
+**Status:** Done
+
+Created `engine/projectbridge/input/validation.py` with centralized validators: `validate_github_username()` (regex matching GitHub's rules — 1-39 chars, alphanumeric/hyphens, no leading/trailing hyphens), `validate_job_text()` (minimum 20 chars), and `validate_resume_text()` (optional, minimum 20 chars if provided). Each raises `ValidationError` with `field` and `constraint` attributes. Wired into orchestrator as the first step before any processing or API calls. 24 new tests covering all validators, edge cases, and error attributes.
+
+---
+
+### PB-023: Add structured logging and error handling
+
+**Status:** Done
+
+Added `logging.getLogger(__name__)` to orchestrator with INFO-level messages at each pipeline stage (AI provider resolution, GitHub analysis, job parsing, AI enrichment, core analysis, recommendations). Added `--verbose` / `-v` CLI flag that sets the `projectbridge.*` logger hierarchy to DEBUG level (default: WARNING). Logs go to stderr to avoid interfering with JSON output on stdout. Unhandled exceptions at the CLI boundary produce a user-friendly message and non-zero exit code, with full traceback available at DEBUG level. 2 new integration tests for verbose flags.
+
+---
+
+### PB-024: Implement GitHub token management
+
+**Status:** Done
+
+Centralized token resolution in the orchestrator with priority: explicit parameter > `GITHUB_TOKEN` env var > `github.token` in config file. Added `GitHubSettings` section to config model with optional `token` field. When no token is found, logs a WARNING about unauthenticated access (60 req/hour limit) and proceeds. Removed env var fallback from `GitHubClient` — the orchestrator now owns token resolution. Tokens never appear in log output, analysis results, or exports. 5 new tests covering token presence, absence, and header behavior.
+
+---
+
+### PB-021: Enhance framework detection heuristics
+
+**Status:** Done
+
+Expanded the GitHub analyzer's detection from 24 to 97 unique detectable frameworks, tools, and infrastructure signals. Added 7 data-driven detection registries: file indicators (38 entries), npm packages (32), Python packages (18), Rust crates (11), Ruby gems (4), Go modules (5), and PHP packages (3). New manifest parsers for Cargo.toml, Gemfile, go.mod, and composer.json. All detection logic is organized as registry dicts — adding a new detection requires only a data entry. 2 new tests verifying the registry approach and minimum detection count.
+
+---
+
+### PB-022: Implement recommendation templates
+
+**Status:** Done
+
+Created `engine/projectbridge/recommend/templates.yaml` with 20 pre-written project recommendations covering frontend (React, Vue, Svelte, React Native), backend (Django, FastAPI, Flask, Rails, Go/Gin), infrastructure (Docker, K8s, Terraform, CI/CD, AWS), data (pandas, scikit-learn), and full-stack (Next.js+Postgres, Tauri+Svelte) gaps. Added `templates.py` loader with `select_templates()` that ranks by skill overlap. Updated NoAI provider to use templates first, falling back to generic heuristic for uncovered skills. Adding a template requires only a YAML entry. 9 new tests.
 
 ---

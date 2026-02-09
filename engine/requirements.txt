@@ -3,4 +3,5 @@ pydantic
 requests
 
 # Optional: AI providers
-# openai>=1.0  # Uncomment for OpenAI provider support
+# openai>=1.0       # Uncomment for OpenAI provider support
+# anthropic>=0.39.0  # Uncomment for Anthropic Claude provider support

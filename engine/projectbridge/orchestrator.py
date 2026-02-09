@@ -6,17 +6,23 @@ CLI and a Python API.
 
 from __future__ import annotations
 
+import logging
+import os
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from projectbridge.ai.provider import AIProvider, get_provider
 import projectbridge.ai.no_ai  # noqa: F401  — register the "none" provider
 import projectbridge.ai.openai_provider  # noqa: F401  — register the "openai" provider
+import projectbridge.ai.anthropic_provider  # noqa: F401  — register the "anthropic" provider
 from projectbridge.analysis.engine import analyze
 from projectbridge.config.settings import ProjectBridgeConfig, load_config
 from projectbridge.input.github import GitHubAnalyzer
 from projectbridge.input.job_description import parse_job_description
 from projectbridge.input.resume import parse_resume, merge_resume_context
+from projectbridge.input.validation import ValidationError, validate_github_username, validate_job_text, validate_resume_text
 from projectbridge.recommend.engine import generate_recommendations
 from projectbridge.schema import AnalysisResult
 
@@ -101,22 +107,36 @@ def run_analysis(
     # -- 1. Resolve AI provider --------------------------------------------
     try:
         provider_name = "none" if no_ai else config.ai.provider
+        logger.info("Resolving AI provider: %s", provider_name)
         provider: AIProvider = get_provider(provider_name)
     except Exception as exc:
         raise PipelineError("ai_provider", str(exc)) from exc
 
-    # -- 2. Gather inputs --------------------------------------------------
+    # -- 2. Validate & gather inputs ----------------------------------------
     if example:
+        logger.info("Using bundled example data")
         dev_context = EXAMPLE_DEV_CONTEXT
         job_text = EXAMPLE_JOB_DESCRIPTION
     else:
-        if not job_text:
-            raise PipelineError("input", "No job description provided (--job).")
-        if not github_user:
-            raise PipelineError("input", "No GitHub username provided (--github-user).")
-
         try:
-            analyzer = GitHubAnalyzer(token=github_token)
+            github_user = validate_github_username(github_user)
+            job_text = validate_job_text(job_text)
+            resume_text = validate_resume_text(resume_text)
+        except ValidationError as exc:
+            raise PipelineError("validation", str(exc)) from exc
+
+        # Resolve token: explicit arg > env var > config file.
+        resolved_token = github_token or os.environ.get("GITHUB_TOKEN") or config.github.token
+        if not resolved_token:
+            logger.warning(
+                "No GitHub token found. Using unauthenticated access "
+                "(rate limited to 60 requests/hour). Set GITHUB_TOKEN env var "
+                "or add github.token to projectbridge.config.yaml."
+            )
+
+        logger.info("Analyzing GitHub profile: %s", github_user)
+        try:
+            analyzer = GitHubAnalyzer(token=resolved_token)
             dev_context = analyzer.analyze(github_user)
         except Exception as exc:
             raise PipelineError("github_analyzer", str(exc)) from exc
@@ -130,24 +150,28 @@ def run_analysis(
             raise PipelineError("resume_parser", str(exc)) from exc
 
     # -- 4. Parse job description ------------------------------------------
+    logger.info("Parsing job description")
     try:
         job_reqs = parse_job_description(job_text).model_dump()
     except Exception as exc:
         raise PipelineError("job_parser", str(exc)) from exc
 
     # -- 5. AI context enrichment (optional) --------------------------------
+    logger.info("Running AI context enrichment")
     try:
         dev_context = provider.analyze_context(dev_context)
     except Exception as exc:
         raise PipelineError("ai_context", str(exc)) from exc
 
     # -- 6. Core analysis --------------------------------------------------
+    logger.info("Running core analysis")
     try:
         analysis = analyze(dev_context, job_reqs)
     except Exception as exc:
         raise PipelineError("analysis", str(exc)) from exc
 
     # -- 7. Recommendations ------------------------------------------------
+    logger.info("Generating recommendations")
     try:
         recs = generate_recommendations(
             analysis,
@@ -158,6 +182,7 @@ def run_analysis(
         raise PipelineError("recommendations", str(exc)) from exc
 
     # -- 8. Assemble result ------------------------------------------------
+    logger.info("Analysis complete")
     return AnalysisResult(
         strengths=analysis["detected_skills"],
         gaps=analysis["missing_skills"] + analysis["adjacent_skills"],

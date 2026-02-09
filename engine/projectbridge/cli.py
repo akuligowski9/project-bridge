@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import sys
 from pathlib import Path
 
@@ -24,6 +25,12 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--version", action="version", version=f"projectbridge {__version__}"
+    )
+    parser.add_argument(
+        "--verbose", "-v",
+        action="store_true",
+        default=False,
+        help="Enable verbose (DEBUG) log output.",
     )
 
     sub = parser.add_subparsers(dest="command")
@@ -91,10 +98,22 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _configure_logging(verbose: bool) -> None:
+    """Set up root logging for the projectbridge namespace."""
+    level = logging.DEBUG if verbose else logging.WARNING
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setFormatter(logging.Formatter("%(levelname)s %(name)s: %(message)s"))
+    root = logging.getLogger("projectbridge")
+    root.setLevel(level)
+    root.addHandler(handler)
+
+
 def main(argv: list[str] | None = None) -> int:
     """Entry point. Returns an exit code (0 = success)."""
     parser = _build_parser()
     args = parser.parse_args(argv)
+
+    _configure_logging(getattr(args, "verbose", False))
 
     if args.command is None:
         parser.print_help()
@@ -141,6 +160,10 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
         )
     except PipelineError as exc:
         print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    except Exception as exc:
+        logging.getLogger(__name__).debug("Unhandled exception", exc_info=True)
+        print(f"Error: An unexpected error occurred: {exc}", file=sys.stderr)
         return 1
 
     output_json = result.model_dump_json(indent=2)

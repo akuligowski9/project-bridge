@@ -17,6 +17,10 @@ logger = logging.getLogger(__name__)
 
 API_BASE = "https://api.github.com"
 
+# ---------------------------------------------------------------------------
+# Detection registry — data-driven heuristic rules
+# ---------------------------------------------------------------------------
+
 # Files/dirs whose presence indicates a framework or infrastructure tool.
 FRAMEWORK_INDICATORS: dict[str, tuple[str, str]] = {
     # filename or dir → (name, category)
@@ -31,11 +35,39 @@ FRAMEWORK_INDICATORS: dict[str, tuple[str, str]] = {
     "kubernetes": ("Kubernetes", "infrastructure"),
     "k8s": ("Kubernetes", "infrastructure"),
     "helm": ("Helm", "infrastructure"),
+    ".travis.yml": ("Travis CI", "infrastructure"),
+    "netlify.toml": ("Netlify", "infrastructure"),
+    "vercel.json": ("Vercel", "infrastructure"),
+    "fly.toml": ("Fly.io", "infrastructure"),
+    "render.yaml": ("Render", "infrastructure"),
+    "nginx.conf": ("Nginx", "infrastructure"),
+    "Vagrantfile": ("Vagrant", "infrastructure"),
+    "ansible": ("Ansible", "infrastructure"),
+    ".eslintrc.js": ("ESLint", "tool"),
+    ".eslintrc.json": ("ESLint", "tool"),
+    "tailwind.config.js": ("Tailwind CSS", "framework"),
+    "tailwind.config.ts": ("Tailwind CSS", "framework"),
+    "tsconfig.json": ("TypeScript", "language"),
+    "webpack.config.js": ("Webpack", "tool"),
+    "vite.config.ts": ("Vite", "tool"),
+    "vite.config.js": ("Vite", "tool"),
+    ".prettierrc": ("Prettier", "tool"),
+    "jest.config.js": ("Jest", "tool"),
+    "jest.config.ts": ("Jest", "tool"),
+    "pytest.ini": ("pytest", "tool"),
+    "pyproject.toml": ("Python Package", "tool"),
+    "Cargo.toml": ("Rust", "language"),
+    "go.mod": ("Go", "language"),
+    "Gemfile": ("Ruby", "language"),
+    "composer.json": ("PHP", "language"),
+    "build.gradle": ("Gradle", "tool"),
+    "pom.xml": ("Maven", "tool"),
 }
 
 # Keys to look for inside package.json dependencies.
 NPM_FRAMEWORK_MAP: dict[str, tuple[str, str]] = {
     "react": ("React", "framework"),
+    "react-native": ("React Native", "framework"),
     "next": ("Next.js", "framework"),
     "vue": ("Vue", "framework"),
     "nuxt": ("Nuxt", "framework"),
@@ -43,6 +75,29 @@ NPM_FRAMEWORK_MAP: dict[str, tuple[str, str]] = {
     "@angular/core": ("Angular", "framework"),
     "express": ("Express", "framework"),
     "fastify": ("Fastify", "framework"),
+    "gatsby": ("Gatsby", "framework"),
+    "remix": ("Remix", "framework"),
+    "@nestjs/core": ("NestJS", "framework"),
+    "koa": ("Koa", "framework"),
+    "tailwindcss": ("Tailwind CSS", "framework"),
+    "prisma": ("Prisma", "tool"),
+    "mongoose": ("Mongoose", "tool"),
+    "sequelize": ("Sequelize", "tool"),
+    "jest": ("Jest", "tool"),
+    "mocha": ("Mocha", "tool"),
+    "webpack": ("Webpack", "tool"),
+    "vite": ("Vite", "tool"),
+    "typescript": ("TypeScript", "language"),
+    "three": ("Three.js", "framework"),
+    "electron": ("Electron", "framework"),
+    "socket.io": ("Socket.IO", "framework"),
+    "graphql": ("GraphQL", "tool"),
+    "@apollo/client": ("Apollo", "framework"),
+    "redis": ("Redis", "tool"),
+    "pg": ("PostgreSQL", "tool"),
+    "mongodb": ("MongoDB", "tool"),
+    "supabase": ("Supabase", "tool"),
+    "firebase": ("Firebase", "tool"),
 }
 
 # Keys to look for inside requirements.txt lines.
@@ -52,6 +107,58 @@ PYTHON_FRAMEWORK_MAP: dict[str, tuple[str, str]] = {
     "fastapi": ("FastAPI", "framework"),
     "tornado": ("Tornado", "framework"),
     "celery": ("Celery", "tool"),
+    "sqlalchemy": ("SQLAlchemy", "tool"),
+    "pandas": ("pandas", "framework"),
+    "numpy": ("NumPy", "framework"),
+    "scipy": ("SciPy", "framework"),
+    "scikit-learn": ("scikit-learn", "framework"),
+    "tensorflow": ("TensorFlow", "framework"),
+    "torch": ("PyTorch", "framework"),
+    "pytest": ("pytest", "tool"),
+    "pydantic": ("Pydantic", "tool"),
+    "requests": ("Requests", "tool"),
+    "boto3": ("AWS SDK", "tool"),
+    "redis": ("Redis", "tool"),
+    "psycopg2": ("PostgreSQL", "tool"),
+}
+
+# Cargo.toml [dependencies] keys.
+RUST_CRATE_MAP: dict[str, tuple[str, str]] = {
+    "actix-web": ("Actix Web", "framework"),
+    "axum": ("Axum", "framework"),
+    "rocket": ("Rocket", "framework"),
+    "tokio": ("Tokio", "tool"),
+    "serde": ("Serde", "tool"),
+    "diesel": ("Diesel", "tool"),
+    "sqlx": ("SQLx", "tool"),
+    "leptos": ("Leptos", "framework"),
+    "yew": ("Yew", "framework"),
+    "tauri": ("Tauri", "framework"),
+    "wasm-bindgen": ("WebAssembly", "tool"),
+}
+
+# Gemfile dependency keys.
+RUBY_GEM_MAP: dict[str, tuple[str, str]] = {
+    "rails": ("Ruby on Rails", "framework"),
+    "sinatra": ("Sinatra", "framework"),
+    "sidekiq": ("Sidekiq", "tool"),
+    "rspec": ("RSpec", "tool"),
+}
+
+# go.mod module paths (prefix match).
+GO_MODULE_MAP: dict[str, tuple[str, str]] = {
+    "github.com/gin-gonic/gin": ("Gin", "framework"),
+    "github.com/gorilla/mux": ("Gorilla Mux", "framework"),
+    "github.com/labstack/echo": ("Echo", "framework"),
+    "github.com/gofiber/fiber": ("Fiber", "framework"),
+    "gorm.io/gorm": ("GORM", "tool"),
+}
+
+# composer.json dependency keys.
+PHP_PACKAGE_MAP: dict[str, tuple[str, str]] = {
+    "laravel/framework": ("Laravel", "framework"),
+    "symfony/symfony": ("Symfony", "framework"),
+    "slim/slim": ("Slim", "framework"),
 }
 
 
@@ -87,7 +194,7 @@ class GitHubClient:
     """Low-level GitHub REST API client with rate-limit tracking."""
 
     def __init__(self, token: str | None = None, timeout: int = 30) -> None:
-        self.token = token or os.environ.get("GITHUB_TOKEN")
+        self.token = token
         self.timeout = timeout
         self.rate_limit_remaining: int | None = None
         self.rate_limit_reset: int | None = None
@@ -235,6 +342,10 @@ class GitHubAnalyzer:
             self._detect_file_indicators(content_names, content_paths, frameworks, infra)
             self._detect_npm_frameworks(owner, name, content_names, frameworks)
             self._detect_python_frameworks(owner, name, content_names, frameworks)
+            self._detect_rust_crates(owner, name, content_names, frameworks)
+            self._detect_ruby_gems(owner, name, content_names, frameworks)
+            self._detect_go_modules(owner, name, content_names, frameworks)
+            self._detect_php_packages(owner, name, content_names, frameworks)
             self._detect_structures(content_names, structures)
 
         return {
@@ -326,6 +437,7 @@ class GitHubAnalyzer:
         file_info: dict,
         frameworks: dict[str, str],
         mapping: dict[str, tuple[str, str]],
+        dep_keys: tuple[str, ...] = ("dependencies", "devDependencies"),
     ) -> None:
         import base64, json
         try:
@@ -334,11 +446,89 @@ class GitHubAnalyzer:
         except Exception:
             return
         all_deps: set[str] = set()
-        for key in ("dependencies", "devDependencies"):
+        for key in dep_keys:
             all_deps.update(pkg.get(key, {}).keys())
         for dep_name, (fw_name, category) in mapping.items():
             if dep_name in all_deps:
                 frameworks[fw_name] = category
+
+    def _detect_rust_crates(
+        self,
+        owner: str,
+        repo: str,
+        names: set[str],
+        frameworks: dict[str, str],
+    ) -> None:
+        if "Cargo.toml" not in names:
+            return
+        content = self._fetch_file_text(owner, repo, "Cargo.toml")
+        if content is None:
+            return
+        lower = content.lower()
+        for key, (name, category) in RUST_CRATE_MAP.items():
+            if key in lower:
+                frameworks[name] = category
+
+    def _detect_ruby_gems(
+        self,
+        owner: str,
+        repo: str,
+        names: set[str],
+        frameworks: dict[str, str],
+    ) -> None:
+        if "Gemfile" not in names:
+            return
+        content = self._fetch_file_text(owner, repo, "Gemfile")
+        if content is None:
+            return
+        lower = content.lower()
+        for key, (name, category) in RUBY_GEM_MAP.items():
+            if key in lower:
+                frameworks[name] = category
+
+    def _detect_go_modules(
+        self,
+        owner: str,
+        repo: str,
+        names: set[str],
+        frameworks: dict[str, str],
+    ) -> None:
+        if "go.mod" not in names:
+            return
+        content = self._fetch_file_text(owner, repo, "go.mod")
+        if content is None:
+            return
+        for key, (name, category) in GO_MODULE_MAP.items():
+            if key in content:
+                frameworks[name] = category
+
+    def _detect_php_packages(
+        self,
+        owner: str,
+        repo: str,
+        names: set[str],
+        frameworks: dict[str, str],
+    ) -> None:
+        if "composer.json" not in names:
+            return
+        try:
+            file_info = self.client._request(
+                f"/repos/{owner}/{repo}/contents/composer.json"
+            )
+        except GitHubAnalyzerError:
+            return
+        self._match_json_deps(file_info, frameworks, PHP_PACKAGE_MAP, dep_keys=("require", "require-dev"))
+
+    def _fetch_file_text(self, owner: str, repo: str, path: str) -> str | None:
+        """Fetch and decode a text file from a repo. Returns None on failure."""
+        import base64
+        try:
+            file_info = self.client._request(
+                f"/repos/{owner}/{repo}/contents/{path}"
+            )
+            return base64.b64decode(file_info.get("content", "")).decode()
+        except Exception:
+            return None
 
     @staticmethod
     def _detect_structures(names: set[str], structures: set[str]) -> None:

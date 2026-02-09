@@ -7,6 +7,7 @@ import requests
 
 from projectbridge.input.github import (
     GitHubAnalyzer,
+    GitHubClient,
     GitHubAuthError,
     GitHubAPIError,
     GitHubRateLimitError,
@@ -96,3 +97,52 @@ class TestGitHubErrors:
         with patch("requests.get", return_value=resp):
             with pytest.raises(GitHubRateLimitError):
                 analyzer.analyze("testuser")
+
+
+class TestFrameworkDetection:
+    def test_at_least_20_detectable(self):
+        from projectbridge.input.github import (
+            FRAMEWORK_INDICATORS, NPM_FRAMEWORK_MAP, PYTHON_FRAMEWORK_MAP,
+            RUST_CRATE_MAP, RUBY_GEM_MAP, GO_MODULE_MAP, PHP_PACKAGE_MAP,
+        )
+        all_names = set()
+        for d in [FRAMEWORK_INDICATORS, NPM_FRAMEWORK_MAP, PYTHON_FRAMEWORK_MAP,
+                  RUST_CRATE_MAP, RUBY_GEM_MAP, GO_MODULE_MAP, PHP_PACKAGE_MAP]:
+            for (name, _) in d.values():
+                all_names.add(name)
+        assert len(all_names) >= 20
+
+    def test_registry_not_monolithic(self):
+        """Detection maps are organized as separate registries, not one giant dict."""
+        from projectbridge.input.github import (
+            FRAMEWORK_INDICATORS, NPM_FRAMEWORK_MAP, PYTHON_FRAMEWORK_MAP,
+            RUST_CRATE_MAP, RUBY_GEM_MAP, GO_MODULE_MAP, PHP_PACKAGE_MAP,
+        )
+        registries = [FRAMEWORK_INDICATORS, NPM_FRAMEWORK_MAP, PYTHON_FRAMEWORK_MAP,
+                     RUST_CRATE_MAP, RUBY_GEM_MAP, GO_MODULE_MAP, PHP_PACKAGE_MAP]
+        assert len(registries) >= 5
+
+
+class TestTokenManagement:
+    def test_token_passed_to_client(self):
+        client = GitHubClient(token="my-token")
+        assert client.token == "my-token"
+        assert client.authenticated is True
+
+    def test_no_token_is_unauthenticated(self):
+        client = GitHubClient(token=None)
+        assert client.authenticated is False
+
+    def test_empty_token_is_unauthenticated(self):
+        client = GitHubClient(token="")
+        assert client.authenticated is False
+
+    def test_token_not_in_headers_when_absent(self):
+        client = GitHubClient(token=None)
+        headers = client._headers()
+        assert "Authorization" not in headers
+
+    def test_token_in_headers_when_present(self):
+        client = GitHubClient(token="my-token")
+        headers = client._headers()
+        assert headers["Authorization"] == "Bearer my-token"

@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 from projectbridge.ai.provider import AIProvider, register_provider
+from projectbridge.recommend.templates import select_templates
 
 
 class NoAIProvider(AIProvider):
@@ -19,21 +20,29 @@ class NoAIProvider(AIProvider):
         return context
 
     def generate_recommendations(self, gaps: dict[str, Any]) -> list[dict[str, Any]]:
-        """Generate heuristic recommendations from missing/adjacent skills."""
-        recommendations: list[dict[str, Any]] = []
-
+        """Generate recommendations: templates first, heuristic fallback for the rest."""
         missing = gaps.get("missing_skills", [])
         adjacent = gaps.get("adjacent_skills", [])
 
-        # Group missing skills into batches of up to 3.
-        skills_to_address = [
-            _skill_name(s) for s in missing
-        ] + [
+        all_skill_names = [_skill_name(s) for s in missing] + [
             _skill_name(s) for s in adjacent
         ]
+        skill_name_set = set(all_skill_names)
 
+        # 1. Try template-based recommendations first.
+        matched_templates = select_templates(skill_name_set)
+        recommendations: list[dict[str, Any]] = list(matched_templates)
+
+        # 2. Find skills not covered by any template.
+        covered: set[str] = set()
+        for tpl in matched_templates:
+            covered.update(s.lower() for s in tpl.get("skills_addressed", []))
+
+        uncovered = [s for s in all_skill_names if s.lower() not in covered]
+
+        # 3. Generate heuristic recommendations for uncovered skills.
         batch: list[str] = []
-        for skill in skills_to_address:
+        for skill in uncovered:
             batch.append(skill)
             if len(batch) >= 3:
                 recommendations.append(_make_recommendation(batch))

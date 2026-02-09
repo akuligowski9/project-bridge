@@ -39,3 +39,11 @@ class TestFullPipeline:
     def test_export_missing_input_fails(self):
         exit_code = main(["export"])
         assert exit_code == 1
+
+    def test_verbose_flag(self):
+        exit_code = main(["--verbose", "analyze", "--example"])
+        assert exit_code == 0
+
+    def test_verbose_short_flag(self):
+        exit_code = main(["-v", "analyze", "--example", "--no-ai"])
+        assert exit_code == 0
