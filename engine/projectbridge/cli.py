@@ -13,8 +13,9 @@ import sys
 from pathlib import Path
 
 from projectbridge import __version__
-from projectbridge.export import create_snapshot
+from projectbridge.export import create_snapshot, render_markdown
 from projectbridge.orchestrator import PipelineError, run_analysis
+from projectbridge.progress import Progress
 from projectbridge.schema import AnalysisResult
 
 
@@ -43,6 +44,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Path to a plain-text job description file.",
     )
     analyze.add_argument(
+        "--job-text",
+        metavar="TEXT",
+        help="Job description as inline text (alternative to --job).",
+    )
+    analyze.add_argument(
         "--github-user",
         metavar="USERNAME",
         help="GitHub username to analyze.",
@@ -58,10 +64,21 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Path to a plain-text resume file (optional enrichment).",
     )
     analyze.add_argument(
+        "--resume-text",
+        metavar="TEXT",
+        help="Resume as inline text (alternative to --resume).",
+    )
+    analyze.add_argument(
         "--no-ai",
         action="store_true",
         default=False,
         help="Use heuristic recommendations only (no AI provider).",
+    )
+    analyze.add_argument(
+        "--no-cache",
+        action="store_true",
+        default=False,
+        help="Bypass cached GitHub API responses and fetch fresh data.",
     )
     analyze.add_argument(
         "--example",
@@ -84,7 +101,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     export.add_argument(
         "--format",
-        choices=["json"],
+        choices=["json", "markdown"],
         default="json",
         help="Export format (default: json).",
     )
@@ -135,20 +152,30 @@ def main(argv: list[str] | None = None) -> int:
 
 def _cmd_analyze(args: argparse.Namespace) -> int:
     job_text: str | None = None
+    if args.job and args.job_text:
+        print("Error: --job and --job-text are mutually exclusive.", file=sys.stderr)
+        return 1
     if args.job:
         path = Path(args.job)
         if not path.is_file():
             print(f"Error: job description file not found: {args.job}", file=sys.stderr)
             return 1
         job_text = path.read_text()
+    elif args.job_text:
+        job_text = args.job_text
 
     resume_text: str | None = None
+    if args.resume and args.resume_text:
+        print("Error: --resume and --resume-text are mutually exclusive.", file=sys.stderr)
+        return 1
     if args.resume:
         path = Path(args.resume)
         if not path.is_file():
             print(f"Error: resume file not found: {args.resume}", file=sys.stderr)
             return 1
         resume_text = path.read_text()
+    elif args.resume_text:
+        resume_text = args.resume_text
 
     try:
         result = run_analysis(
@@ -157,6 +184,8 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
             resume_text=resume_text,
             no_ai=args.no_ai,
             example=args.example,
+            no_cache=args.no_cache,
+            progress=Progress(),
         )
     except PipelineError as exc:
         print(f"Error: {exc}", file=sys.stderr)
@@ -197,13 +226,16 @@ def _cmd_export(args: argparse.Namespace) -> int:
         print("Error: provide --input FILE or --example.", file=sys.stderr)
         return 1
 
-    snapshot = create_snapshot(result)
-    output_json = snapshot.model_dump_json(indent=2)
+    if args.format == "markdown":
+        output_text = render_markdown(result)
+    else:
+        snapshot = create_snapshot(result)
+        output_text = snapshot.model_dump_json(indent=2) + "\n"
 
     if args.output:
-        Path(args.output).write_text(output_json + "\n")
+        Path(args.output).write_text(output_text)
     else:
-        print(output_json)
+        print(output_text, end="")
 
     return 0
 

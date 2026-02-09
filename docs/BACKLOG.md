@@ -410,10 +410,12 @@ Build the primary results view in the Tauri application that displays a complete
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Medium
 - **Depends on:** PB-017
 - **Blocks:** —
+
+**Done:** Polished dashboard with summary stat cards (strengths/gaps/recommendations counts), skill grouping by category (Languages, Frameworks, Infrastructure, Tools, Concepts), color-coded scope badges on recommendations (green/amber/red for small/medium/large), dismissable error banner, and card-based layout for strengths and gaps sections.
 
 ---
 
@@ -431,10 +433,12 @@ Build the input form view in the Tauri application where users enter their GitHu
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Medium
 - **Depends on:** PB-017
 - **Blocks:** —
+
+**Done:** Built input form with GitHub username, job description (required), resume text (optional), and no-AI toggle. Client-side validation shows inline errors for empty required fields. Form submits via `run_analysis_form` Tauri IPC command. Added `--job-text` and `--resume-text` inline CLI flags (mutually exclusive with `--job`/`--resume`). View switches from form → loading → results dashboard on completion. "Run Example Instead" button preserved. 2 new integration tests (133 total).
 
 ---
 
@@ -576,10 +580,12 @@ Extend the export system (PB-014) to support Markdown output in addition to JSON
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Low
 - **Depends on:** PB-014
 - **Blocks:** —
+
+**Done:** Added `render_markdown()` to export module producing a formatted Markdown document with Strengths, Skill Gaps, Recommendations sections. CLI `--format markdown` flag added to `export` command. Enum values render as lowercase strings. Footer includes version and timestamp. 6 new export tests + 1 CLI integration test (140 total).
 
 ---
 
@@ -596,10 +602,12 @@ Build an AI provider implementation that uses Ollama for fully local AI inferenc
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Low
 - **Depends on:** PB-007
 - **Blocks:** —
+
+**Done:** Created `engine/projectbridge/ai/ollama_provider.py` using stdlib `urllib.request` (zero extra deps). Calls Ollama REST API at `localhost:11434/api/chat` with `stream: false` and `format: json`. Server reachability check on init. Model configurable via `ai.ollama_model` config key. Orchestrator passes model kwarg for ollama provider. 13 tests with mocked HTTP (153 total).
 
 ---
 
@@ -617,10 +625,12 @@ Implement a local caching mechanism for GitHub API responses to reduce redundant
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Low
 - **Depends on:** PB-004, PB-003
 - **Blocks:** —
+
+**Done:** Created `engine/projectbridge/input/cache.py` — file-based JSON cache under `~/.cache/projectbridge/`, SHA-256 hashed keys, configurable TTL. Integrated into `GitHubClient._request` with `cache_enabled` and `cache_ttl` params. Added `--no-cache` CLI flag. Orchestrator reads `config.cache.enabled` and `config.cache.ttl_seconds`. 5 cache tests (158 total).
 
 ---
 
@@ -637,10 +647,12 @@ Enhance the CLI experience with progress indicators for long-running operations 
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Low
 - **Depends on:** PB-008
 - **Blocks:** —
+
+**Done:** Created `engine/projectbridge/progress.py` with `Progress` class — step announcements and braille spinners to stderr. Auto-detects TTY (silent when piped). Integrated into orchestrator at each pipeline stage: provider resolution, GitHub fetch (with spinner), resume processing, job parsing, AI analysis (with spinner), skill analysis, recommendations. CLI creates `Progress()` automatically. 158 tests still passing.
 
 ---
 
@@ -657,10 +669,12 @@ Set up a static documentation site (e.g., using MkDocs or Sphinx) that publishes
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Low
 - **Depends on:** —
 - **Blocks:** —
+
+**Done:** Scaffolded MkDocs Material site. `mkdocs.yml` at repo root, source files in `site_src/` using `include-markdown` plugin to reference existing docs. Nav includes Home, Technical Spec, Contributing, Decisions, Backlog, Security. `mkdocs build` generates to `site/` (gitignored). `mkdocs serve` for local preview.
 
 ---
 
@@ -678,10 +692,12 @@ Build the export view in the Tauri application that allows users to export their
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Low
 - **Depends on:** PB-014, PB-017
 - **Blocks:** —
+
+**Done:** Built export view with Markdown/JSON format toggle, live preview via `export_analysis` Tauri IPC command, "Save to File" button using native file dialog (`tauri-plugin-dialog`), and "Copy to Clipboard" button (`tauri-plugin-clipboard-manager`). Added `tauri-plugin-fs` for file writing. Export accessible from dashboard header and bottom actions. Full flow: input → results → export.
 
 ---
 
@@ -922,5 +938,69 @@ Created `engine/projectbridge/recommend/templates.yaml` with 20 pre-written proj
 **Status:** Done
 
 Scaffolded Tauri 2.0 desktop app under `app/` with Svelte 5 + SvelteKit + TypeScript + Tailwind CSS v4 (per DEC-012). Frontend renders a basic ProjectBridge view with Strengths, Skill Gaps, and Recommendations sections using Tailwind utility classes. Rust backend (`src-tauri/`) exposes a `run_analysis` Tauri command that invokes the `projectbridge` CLI as a subprocess and returns JSON. Shell plugin (`tauri-plugin-shell`) added for IPC. Frontend calls `invoke("run_analysis", {args: ["analyze", "--example", "--no-ai"]})` and parses the JSON response. `npm run build` produces static site, `cargo check` compiles the Rust backend. Window configured at 1024x768 with 800x600 minimum.
+
+---
+
+### PB-018: Tauri UI — analysis dashboard view
+
+**Status:** Done
+
+Polished dashboard with summary stat cards (strengths/gaps/recommendations counts), skill grouping by category (Languages, Frameworks, Infrastructure, Tools, Concepts), color-coded scope badges on recommendations (green/amber/red for small/medium/large), dismissable error banner, and card-based layout for strengths and gaps sections.
+
+---
+
+### PB-019: Tauri UI — analysis input form
+
+**Status:** Done
+
+Built input form with GitHub username, job description (required), resume text (optional), and no-AI toggle. Client-side validation shows inline errors for empty required fields. Form submits via `run_analysis_form` Tauri IPC command. Added `--job-text` and `--resume-text` inline CLI flags (mutually exclusive with `--job`/`--resume`) per DEC-013. View state machine (form → loading → results → export) drives the single-page app. "Run Example Instead" button preserved. 2 new integration tests.
+
+---
+
+### PB-026: Add Markdown export format
+
+**Status:** Done
+
+Added `render_markdown()` to export module producing a formatted Markdown document with Strengths, Skill Gaps, Recommendations sections. CLI `--format markdown` flag added to `export` command. Enum values render as lowercase strings via `.value`. Footer includes version and timestamp. 6 new export tests + 1 CLI integration test.
+
+---
+
+### PB-027: Add Ollama local AI provider
+
+**Status:** Done
+
+Created `engine/projectbridge/ai/ollama_provider.py` using stdlib `urllib.request` (zero extra deps, per DEC-015). Calls Ollama REST API at `localhost:11434/api/chat` with `stream: false` and `format: json`. Server reachability check on init. Model configurable via `ai.ollama_model` config key. Orchestrator passes model kwarg for ollama provider. 13 tests with mocked HTTP.
+
+---
+
+### PB-028: Add repository caching layer
+
+**Status:** Done
+
+Created `engine/projectbridge/input/cache.py` — file-based JSON cache under `~/.cache/projectbridge/`, SHA-256 hashed keys, configurable TTL (per DEC-016). Integrated into `GitHubClient._request` with `cache_enabled` and `cache_ttl` params. Added `--no-cache` CLI flag. Orchestrator reads `config.cache.enabled` and `config.cache.ttl_seconds`. 5 cache tests.
+
+---
+
+### PB-029: Add progress indicators to CLI
+
+**Status:** Done
+
+Created `engine/projectbridge/progress.py` with `Progress` class — step announcements and braille spinners to stderr. Auto-detects TTY (silent when piped). Integrated into orchestrator at each pipeline stage: provider resolution, GitHub fetch (with spinner), resume processing, job parsing, AI analysis (with spinner), skill analysis, recommendations. CLI creates `Progress()` automatically.
+
+---
+
+### PB-030: Add documentation site scaffold
+
+**Status:** Done
+
+Scaffolded MkDocs Material site (per DEC-014). `mkdocs.yml` at repo root, source files in `site_src/` using `include-markdown` plugin to reference existing docs. Nav includes Home, Technical Spec, Contributing, Decisions, Backlog, Security. `mkdocs build` generates to `site/` (gitignored). `mkdocs serve` for local preview.
+
+---
+
+### PB-031: Tauri UI — export and share screen
+
+**Status:** Done
+
+Built export view with Markdown/JSON format toggle, live preview via `export_analysis` Tauri IPC command, "Save to File" button using native file dialog (`tauri-plugin-dialog`), and "Copy to Clipboard" button (`tauri-plugin-clipboard-manager`). Added `tauri-plugin-fs` for file writing. Export accessible from dashboard header and bottom actions. Full flow: input → results → export.
 
 ---

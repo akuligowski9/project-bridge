@@ -22,6 +22,9 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
+# MkDocs
+site/
+
 # Environment
 .env
 .env.local

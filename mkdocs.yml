@@ -1,0 +1,35 @@
+site_name: ProjectBridge
+site_description: AI-powered skill-gap analysis for developers
+repo_url: https://github.com/akuligowski9/project-bridge
+repo_name: akuligowski9/project-bridge
+docs_dir: site_src
+
+theme:
+  name: material
+  palette:
+    primary: blue
+    accent: blue
+  features:
+    - navigation.sections
+    - navigation.expand
+    - search.highlight
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Technical Spec: technical-spec.md
+  - Contributing: contributing.md
+  - Decisions: decisions.md
+  - Backlog: backlog.md
+  - Security: security.md
+
+plugins:
+  - search
+  - include-markdown
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - toc:
+      permalink: true

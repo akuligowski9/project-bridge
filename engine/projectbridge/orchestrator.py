@@ -11,12 +11,15 @@ import os
 from pathlib import Path
 from typing import Any
 
+from projectbridge.progress import Progress
+
 logger = logging.getLogger(__name__)
 
 from projectbridge.ai.provider import AIProvider, get_provider
 import projectbridge.ai.no_ai  # noqa: F401  — register the "none" provider
 import projectbridge.ai.openai_provider  # noqa: F401  — register the "openai" provider
 import projectbridge.ai.anthropic_provider  # noqa: F401  — register the "anthropic" provider
+import projectbridge.ai.ollama_provider  # noqa: F401  — register the "ollama" provider
 from projectbridge.analysis.engine import analyze
 from projectbridge.config.settings import ProjectBridgeConfig, load_config
 from projectbridge.input.github import GitHubAnalyzer
@@ -85,6 +88,8 @@ def run_analysis(
     resume_text: str | None = None,
     no_ai: bool = False,
     example: bool = False,
+    no_cache: bool = False,
+    progress: Progress | None = None,
     config: ProjectBridgeConfig | None = None,
 ) -> AnalysisResult:
     """Execute the complete analysis pipeline.
@@ -96,6 +101,7 @@ def run_analysis(
         resume_text: Optional plain-text resume for contextual enrichment.
         no_ai: Force the NoAI heuristic provider.
         example: Use bundled example data instead of live inputs.
+        no_cache: Bypass GitHub API cache.
         config: Pre-loaded config; loaded from disk if *None*.
 
     Returns:
@@ -104,11 +110,18 @@ def run_analysis(
     if config is None:
         config = load_config()
 
+    if progress is None:
+        progress = Progress(enabled=False)
+
     # -- 1. Resolve AI provider --------------------------------------------
+    progress.step("Resolving AI provider...")
     try:
         provider_name = "none" if no_ai else config.ai.provider
         logger.info("Resolving AI provider: %s", provider_name)
-        provider: AIProvider = get_provider(provider_name)
+        provider_kwargs: dict[str, Any] = {}
+        if provider_name == "ollama":
+            provider_kwargs["model"] = config.ai.ollama_model
+        provider: AIProvider = get_provider(provider_name, **provider_kwargs)
     except Exception as exc:
         raise PipelineError("ai_provider", str(exc)) from exc
 
@@ -135,14 +148,23 @@ def run_analysis(
             )
 
         logger.info("Analyzing GitHub profile: %s", github_user)
+        progress.start_spinner(f"Fetching GitHub data for {github_user}...")
         try:
-            analyzer = GitHubAnalyzer(token=resolved_token)
+            cache_on = config.cache.enabled and not no_cache
+            analyzer = GitHubAnalyzer(
+                token=resolved_token,
+                cache_enabled=cache_on,
+                cache_ttl=config.cache.ttl_seconds,
+            )
             dev_context = analyzer.analyze(github_user)
         except Exception as exc:
+            progress.stop_spinner()
             raise PipelineError("github_analyzer", str(exc)) from exc
+        progress.stop_spinner()
 
     # -- 3. Resume enrichment (optional) -----------------------------------
     if resume_text:
+        progress.step("Processing resume...")
         try:
             resume_ctx = parse_resume(resume_text)
             dev_context = merge_resume_context(dev_context, resume_ctx)
@@ -150,6 +172,7 @@ def run_analysis(
             raise PipelineError("resume_parser", str(exc)) from exc
 
     # -- 4. Parse job description ------------------------------------------
+    progress.step("Parsing job description...")
     logger.info("Parsing job description")
     try:
         job_reqs = parse_job_description(job_text).model_dump()
@@ -157,13 +180,18 @@ def run_analysis(
         raise PipelineError("job_parser", str(exc)) from exc
 
     # -- 5. AI context enrichment (optional) --------------------------------
+    if provider_name != "none":
+        progress.start_spinner("Running AI analysis...")
     logger.info("Running AI context enrichment")
     try:
         dev_context = provider.analyze_context(dev_context)
     except Exception as exc:
+        progress.stop_spinner()
         raise PipelineError("ai_context", str(exc)) from exc
+    progress.stop_spinner()
 
     # -- 6. Core analysis --------------------------------------------------
+    progress.step("Analyzing skills...")
     logger.info("Running core analysis")
     try:
         analysis = analyze(dev_context, job_reqs)
@@ -171,6 +199,7 @@ def run_analysis(
         raise PipelineError("analysis", str(exc)) from exc
 
     # -- 7. Recommendations ------------------------------------------------
+    progress.step("Generating recommendations...")
     logger.info("Generating recommendations")
     try:
         recs = generate_recommendations(
@@ -183,6 +212,7 @@ def run_analysis(
 
     # -- 8. Assemble result ------------------------------------------------
     logger.info("Analysis complete")
+    progress.done("Analysis complete.")
     return AnalysisResult(
         strengths=analysis["detected_skills"],
         gaps=analysis["missing_skills"] + analysis["adjacent_skills"],

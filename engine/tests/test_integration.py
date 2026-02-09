@@ -47,3 +47,25 @@ class TestFullPipeline:
     def test_verbose_short_flag(self):
         exit_code = main(["-v", "analyze", "--example", "--no-ai"])
         assert exit_code == 0
+
+    def test_job_text_inline(self):
+        job = (
+            "We need a Python developer with experience in Django, "
+            "REST APIs, Docker, and PostgreSQL."
+        )
+        exit_code = main([
+            "analyze", "--github-user", "octocat",
+            "--job-text", job, "--no-ai",
+        ])
+        assert exit_code == 0
+
+    def test_job_and_job_text_exclusive(self):
+        exit_code = main([
+            "analyze", "--job", "some.txt",
+            "--job-text", "inline text here enough chars",
+        ])
+        assert exit_code == 1
+
+    def test_export_markdown_cli(self):
+        exit_code = main(["export", "--example", "--format", "markdown"])
+        assert exit_code == 0

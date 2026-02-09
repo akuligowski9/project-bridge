@@ -193,9 +193,17 @@ class GitHubAPIError(GitHubAnalyzerError):
 class GitHubClient:
     """Low-level GitHub REST API client with rate-limit tracking."""
 
-    def __init__(self, token: str | None = None, timeout: int = 30) -> None:
+    def __init__(
+        self,
+        token: str | None = None,
+        timeout: int = 30,
+        cache_enabled: bool = True,
+        cache_ttl: int = 3600,
+    ) -> None:
         self.token = token
         self.timeout = timeout
+        self.cache_enabled = cache_enabled
+        self.cache_ttl = cache_ttl
         self.rate_limit_remaining: int | None = None
         self.rate_limit_reset: int | None = None
 
@@ -220,6 +228,15 @@ class GitHubClient:
             self.rate_limit_reset = int(reset)
 
     def _request(self, path: str) -> Any:
+        from projectbridge.input import cache as _cache
+
+        # Check cache first.
+        if self.cache_enabled:
+            cached = _cache.get(path, ttl=self.cache_ttl)
+            if cached is not None:
+                logger.debug("Cache hit: %s", path)
+                return cached
+
         url = f"{API_BASE}{path}"
         try:
             resp = requests.get(url, headers=self._headers(), timeout=self.timeout)
@@ -256,7 +273,14 @@ class GitHubClient:
             raise GitHubAPIError(
                 f"GitHub API error {resp.status_code}: {resp.text[:200]}"
             )
-        return resp.json()
+
+        body = resp.json()
+
+        # Store in cache.
+        if self.cache_enabled:
+            _cache.put(path, body)
+
+        return body
 
     # -- public API ---------------------------------------------------------
 
@@ -305,8 +329,19 @@ class GitHubClient:
 class GitHubAnalyzer:
     """Extracts developer context signals from GitHub repositories."""
 
-    def __init__(self, token: str | None = None, timeout: int = 30) -> None:
-        self.client = GitHubClient(token=token, timeout=timeout)
+    def __init__(
+        self,
+        token: str | None = None,
+        timeout: int = 30,
+        cache_enabled: bool = True,
+        cache_ttl: int = 3600,
+    ) -> None:
+        self.client = GitHubClient(
+            token=token,
+            timeout=timeout,
+            cache_enabled=cache_enabled,
+            cache_ttl=cache_ttl,
+        )
 
     def analyze(self, username: str) -> dict[str, Any]:
         """Analyze all public repos for *username*.

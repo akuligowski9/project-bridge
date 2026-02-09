@@ -143,3 +143,43 @@ Each entry records the context, the decision, and the reasoning — so future co
 **Reasoning:** Svelte is a compiler-based framework that produces minimal runtime code, pairing well with Tauri's lightweight philosophy. It's widely recognized in the industry and adds meaningful portfolio differentiation from React. TypeScript provides type safety. Tailwind CSS is already in the developer's toolkit, reducing friction. The Tauri + Svelte combination is well-supported with official templates.
 **Alternatives Considered:** React (already well-represented in portfolio), Leptos/Rust WASM (not recognizable to most hiring managers), Vue (similar niche to React, less differentiation), vanilla JS (insufficient for maintainable UI).
 **Consequences:** The `app/` directory will use npm-based tooling with Svelte, TypeScript, and Tailwind CSS. Contributors working on the UI need familiarity with Svelte's component model. The Svelte ecosystem is smaller than React's but sufficient for the project's thin UI layer.
+
+### DEC-013: Inline text CLI flags for Tauri IPC
+
+**Date:** 2026-02-09
+**Status:** Accepted
+**Context:** The CLI accepts `--job FILE` and `--resume FILE` for file paths, but the Tauri UI provides raw text from form inputs. The Rust IPC layer needs to pass text directly without writing temporary files for every analysis.
+**Decision:** Add `--job-text TEXT` and `--resume-text TEXT` CLI flags as alternatives to `--job` and `--resume`. Each pair is mutually exclusive — providing both a file path and inline text for the same input produces an error.
+**Reasoning:** Keeps the Rust IPC layer thin (just passes strings to CLI args) while maintaining the CLI as the single entry point per DEC-002. Temporary file management in Rust would add complexity and error surfaces. Mutual exclusion prevents ambiguity about which input source takes precedence.
+**Alternatives Considered:** Write temp files in Rust and pass file paths, stdin piping from Rust to CLI, direct Python FFI from Rust.
+**Consequences:** The CLI contract now includes 4 job/resume input flags. Tauri commands pass inline text directly. The orchestrator handles both file and text inputs transparently.
+
+### DEC-014: MkDocs Material for documentation site
+
+**Date:** 2026-02-09
+**Status:** Accepted
+**Context:** The project has substantial documentation in Markdown files (README, tech spec, contributing guide, decisions log, backlog, security policy) that would benefit from a browsable, searchable format.
+**Decision:** Use MkDocs with the Material theme and the `include-markdown` plugin to publish existing docs as a static site.
+**Reasoning:** MkDocs Material is the most popular Python documentation framework, aligning with the project's Python stack. The `include-markdown` plugin allows site pages to reference the canonical Markdown files in `docs/` rather than duplicating content. This means updating `docs/BACKLOG.md` automatically updates the site. No content migration required.
+**Alternatives Considered:** Sphinx (more complex, better for API docs), Docusaurus (Node-based, misaligned with Python stack), raw GitHub Pages with Jekyll.
+**Consequences:** Site source lives in `site_src/` with thin wrapper files. `mkdocs build` generates to `site/` (gitignored). Future: GitHub Actions can deploy to GitHub Pages on push.
+
+### DEC-015: Ollama provider uses stdlib only
+
+**Date:** 2026-02-09
+**Status:** Accepted
+**Context:** The Ollama AI provider (PB-027) needs to call the Ollama REST API at `localhost:11434`. The OpenAI and Anthropic providers use their respective SDKs as optional dependencies.
+**Decision:** Use Python's stdlib `urllib.request` for the Ollama provider instead of adding a third-party HTTP library.
+**Reasoning:** Ollama's API is a single POST endpoint (`/api/chat`) with a simple JSON payload. No SDK exists for Ollama in Python that matches the maturity of the OpenAI/Anthropic SDKs. Using stdlib means zero additional dependencies — fitting for a provider whose entire purpose is local, dependency-light AI inference.
+**Alternatives Considered:** `requests` library (already a dependency but adds coupling), `httpx` (async-capable but overkill), `ollama` Python package (immature, unnecessary abstraction).
+**Consequences:** The provider uses synchronous blocking HTTP. Error handling maps `urllib` exceptions to descriptive `OllamaProviderError` messages. No retry logic — Ollama runs locally so transient failures are unlikely.
+
+### DEC-016: File-based caching with SHA-256 keys
+
+**Date:** 2026-02-09
+**Status:** Accepted
+**Context:** Repeated analyses of the same GitHub user make redundant API calls. A caching layer (PB-028) is needed to reduce API usage and improve iteration speed.
+**Decision:** Cache GitHub API responses as individual JSON files under `~/.cache/projectbridge/`, keyed by SHA-256 hash of the request path. Each file stores the response body and a timestamp. TTL is configurable (default: 1 hour).
+**Reasoning:** File-based caching requires no additional dependencies (no Redis, SQLite, or shelve). SHA-256 hashing produces safe, fixed-length filenames from arbitrary API paths. The `~/.cache/` location follows XDG conventions. Individual files per request make cache invalidation simple — delete the file or let TTL expire.
+**Alternatives Considered:** In-memory dict (lost between runs), SQLite (heavier, unnecessary for key-value lookups), `requests-cache` library (adds a dependency).
+**Consequences:** Cache persists across CLI invocations. `--no-cache` bypasses reads but doesn't clear existing cache. Cache directory grows over time but entries are small (~1-10KB each).
