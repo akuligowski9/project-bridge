@@ -6,8 +6,8 @@ No data leaves the machine. Requires Ollama running at localhost:11434.
 from __future__ import annotations
 
 import json
-import urllib.request
 import urllib.error
+import urllib.request
 from pathlib import Path
 from typing import Any
 
@@ -101,15 +101,17 @@ class OllamaProvider(AIProvider):
             OllamaProviderError: On connection or API errors.
         """
         url = f"{self._base_url}/api/chat"
-        payload = json.dumps({
-            "model": self._model,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message},
-            ],
-            "stream": False,
-            "format": "json",
-        }).encode()
+        payload = json.dumps(
+            {
+                "model": self._model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message},
+                ],
+                "stream": False,
+                "format": "json",
+            }
+        ).encode()
 
         req = urllib.request.Request(
             url,
@@ -122,13 +124,9 @@ class OllamaProvider(AIProvider):
             with urllib.request.urlopen(req, timeout=120) as resp:
                 body = json.loads(resp.read())
         except urllib.error.URLError as exc:
-            raise OllamaProviderError(
-                f"Failed to connect to Ollama: {exc}"
-            ) from exc
+            raise OllamaProviderError(f"Failed to connect to Ollama: {exc}") from exc
         except json.JSONDecodeError as exc:
-            raise OllamaProviderError(
-                "Ollama returned an invalid response."
-            ) from exc
+            raise OllamaProviderError("Ollama returned an invalid response.") from exc
 
         return body.get("message", {}).get("content", "")
 

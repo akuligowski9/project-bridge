@@ -7,7 +7,6 @@ across versions as it is the interface the Tauri UI will call.
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import sys
 from pathlib import Path
@@ -24,11 +23,10 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="projectbridge",
         description="AI-powered skill-gap analysis for developers.",
     )
+    parser.add_argument("--version", action="version", version=f"projectbridge {__version__}")
     parser.add_argument(
-        "--version", action="version", version=f"projectbridge {__version__}"
-    )
-    parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
         default=False,
         help="Enable verbose (DEBUG) log output.",
@@ -149,6 +147,7 @@ def main(argv: list[str] | None = None) -> int:
 # ---------------------------------------------------------------------------
 # Commands
 # ---------------------------------------------------------------------------
+
 
 def _cmd_analyze(args: argparse.Namespace) -> int:
     job_text: str | None = None

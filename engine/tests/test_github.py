@@ -1,15 +1,15 @@
 """Tests for projectbridge.input.github."""
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 import requests
 
 from projectbridge.input.github import (
     GitHubAnalyzer,
-    GitHubClient,
-    GitHubAuthError,
     GitHubAPIError,
+    GitHubAuthError,
+    GitHubClient,
     GitHubRateLimitError,
     GitHubUserNotFoundError,
 )
@@ -32,7 +32,7 @@ class TestGitHubAnalyzer:
         with patch.object(analyzer.client, "_request", side_effect=mock_github_response):
             result = analyzer.analyze("testuser")
 
-        lang_names = [l["name"] for l in result["languages"]]
+        lang_names = [lang["name"] for lang in result["languages"]]
         assert "Python" in lang_names
         assert "JavaScript" in lang_names
 
@@ -102,24 +102,50 @@ class TestGitHubErrors:
 class TestFrameworkDetection:
     def test_at_least_20_detectable(self):
         from projectbridge.input.github import (
-            FRAMEWORK_INDICATORS, NPM_FRAMEWORK_MAP, PYTHON_FRAMEWORK_MAP,
-            RUST_CRATE_MAP, RUBY_GEM_MAP, GO_MODULE_MAP, PHP_PACKAGE_MAP,
+            FRAMEWORK_INDICATORS,
+            GO_MODULE_MAP,
+            NPM_FRAMEWORK_MAP,
+            PHP_PACKAGE_MAP,
+            PYTHON_FRAMEWORK_MAP,
+            RUBY_GEM_MAP,
+            RUST_CRATE_MAP,
         )
+
         all_names = set()
-        for d in [FRAMEWORK_INDICATORS, NPM_FRAMEWORK_MAP, PYTHON_FRAMEWORK_MAP,
-                  RUST_CRATE_MAP, RUBY_GEM_MAP, GO_MODULE_MAP, PHP_PACKAGE_MAP]:
-            for (name, _) in d.values():
+        for d in [
+            FRAMEWORK_INDICATORS,
+            NPM_FRAMEWORK_MAP,
+            PYTHON_FRAMEWORK_MAP,
+            RUST_CRATE_MAP,
+            RUBY_GEM_MAP,
+            GO_MODULE_MAP,
+            PHP_PACKAGE_MAP,
+        ]:
+            for name, _ in d.values():
                 all_names.add(name)
         assert len(all_names) >= 20
 
     def test_registry_not_monolithic(self):
         """Detection maps are organized as separate registries, not one giant dict."""
         from projectbridge.input.github import (
-            FRAMEWORK_INDICATORS, NPM_FRAMEWORK_MAP, PYTHON_FRAMEWORK_MAP,
-            RUST_CRATE_MAP, RUBY_GEM_MAP, GO_MODULE_MAP, PHP_PACKAGE_MAP,
+            FRAMEWORK_INDICATORS,
+            GO_MODULE_MAP,
+            NPM_FRAMEWORK_MAP,
+            PHP_PACKAGE_MAP,
+            PYTHON_FRAMEWORK_MAP,
+            RUBY_GEM_MAP,
+            RUST_CRATE_MAP,
         )
-        registries = [FRAMEWORK_INDICATORS, NPM_FRAMEWORK_MAP, PYTHON_FRAMEWORK_MAP,
-                     RUST_CRATE_MAP, RUBY_GEM_MAP, GO_MODULE_MAP, PHP_PACKAGE_MAP]
+
+        registries = [
+            FRAMEWORK_INDICATORS,
+            NPM_FRAMEWORK_MAP,
+            PYTHON_FRAMEWORK_MAP,
+            RUST_CRATE_MAP,
+            RUBY_GEM_MAP,
+            GO_MODULE_MAP,
+            PHP_PACKAGE_MAP,
+        ]
         assert len(registries) >= 5
 
 

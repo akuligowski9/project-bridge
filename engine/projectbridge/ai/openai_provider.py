@@ -107,7 +107,7 @@ class OpenAIProvider(AIProvider):
             OpenAIProviderError: On API or authentication errors.
         """
         try:
-            from openai import AuthenticationError, APIConnectionError, RateLimitError
+            from openai import APIConnectionError, AuthenticationError, RateLimitError
         except ImportError:
             raise OpenAIProviderError("The 'openai' package is not installed.")
 
@@ -135,9 +135,7 @@ class OpenAIProvider(AIProvider):
                 "Could not connect to the OpenAI API. Check your network connection."
             ) from exc
         except Exception as exc:
-            raise OpenAIProviderError(
-                f"OpenAI API error: {exc}"
-            ) from exc
+            raise OpenAIProviderError(f"OpenAI API error: {exc}") from exc
 
 
 def _load_prompt(filename: str) -> str:

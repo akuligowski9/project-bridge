@@ -714,7 +714,7 @@ Set up development tooling that makes contributing easier and maintains code qua
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Low
 - **Depends on:** PB-001
 - **Blocks:** —
@@ -1002,5 +1002,13 @@ Scaffolded MkDocs Material site (per DEC-014). `mkdocs.yml` at repo root, source
 **Status:** Done
 
 Built export view with Markdown/JSON format toggle, live preview via `export_analysis` Tauri IPC command, "Save to File" button using native file dialog (`tauri-plugin-dialog`), and "Copy to Clipboard" button (`tauri-plugin-clipboard-manager`). Added `tauri-plugin-fs` for file writing. Export accessible from dashboard header and bottom actions. Full flow: input → results → export.
+
+---
+
+### PB-032: Add developer contribution tooling
+
+**Status:** Done
+
+Added Ruff (linter + formatter) with `pyproject.toml` config (Python 3.10, line-length 99, E/F/W/I/UP rules). Created `Makefile` with `install`, `test`, `lint`, `format`, `check`, `docs` targets. Added `.pre-commit-config.yaml` with `astral-sh/ruff-pre-commit` hooks. Created `.editorconfig` for cross-editor consistency. Updated CI workflow to run a `lint` job before the test matrix. Rewrote `CONTRIBUTING.md` with dev setup, make commands, and concrete AI provider contribution steps. Added GitHub PR template and issue templates (bug report, new AI provider). Fixed all existing lint/format issues across the codebase.
 
 ---

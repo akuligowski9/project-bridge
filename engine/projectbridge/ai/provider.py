@@ -71,7 +71,5 @@ def get_provider(name: str, **kwargs: Any) -> AIProvider:
     cls = _REGISTRY.get(name)
     if cls is None:
         available = ", ".join(sorted(_REGISTRY)) or "(none)"
-        raise ValueError(
-            f"Unknown AI provider '{name}'. Available providers: {available}"
-        )
+        raise ValueError(f"Unknown AI provider '{name}'. Available providers: {available}")
     return cls(**kwargs)

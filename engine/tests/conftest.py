@@ -5,14 +5,13 @@ from __future__ import annotations
 import base64
 import json
 from typing import Any
-from unittest.mock import MagicMock
 
 import pytest
-
 
 # ---------------------------------------------------------------------------
 # Sample developer context (mirrors orchestrator.EXAMPLE_DEV_CONTEXT)
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture()
 def sample_dev_context() -> dict[str, Any]:
@@ -38,6 +37,7 @@ def sample_dev_context() -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # Sample job descriptions
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture()
 def sample_job_text() -> str:
@@ -69,6 +69,7 @@ Experience with Kafka and MongoDB is a plus.
 # Sample resume text
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture()
 def sample_resume_text() -> str:
     return """\
@@ -85,6 +86,7 @@ Previously worked in fintech and healthcare domains.
 # ---------------------------------------------------------------------------
 # Mock GitHub API responses
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture()
 def mock_github_repos() -> list[dict[str, Any]]:

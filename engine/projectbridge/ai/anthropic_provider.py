@@ -107,8 +107,8 @@ class AnthropicProvider(AIProvider):
         """
         try:
             from anthropic import (
-                AuthenticationError,
                 APIConnectionError,
+                AuthenticationError,
                 RateLimitError,
             )
         except ImportError:
@@ -141,9 +141,7 @@ class AnthropicProvider(AIProvider):
                 "Could not connect to the Anthropic API. Check your network connection."
             ) from exc
         except Exception as exc:
-            raise AnthropicProviderError(
-                f"Anthropic API error: {exc}"
-            ) from exc
+            raise AnthropicProviderError(f"Anthropic API error: {exc}") from exc
 
 
 def _load_prompt(filename: str) -> str:

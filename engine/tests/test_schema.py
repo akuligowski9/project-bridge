@@ -1,7 +1,7 @@
 """Tests for projectbridge.schema."""
 
-from pydantic import ValidationError
 import pytest
+from pydantic import ValidationError
 
 from projectbridge.schema import (
     AnalysisResult,
@@ -50,9 +50,7 @@ class TestAnalysisResult:
 
     def test_missing_field_raises(self):
         with pytest.raises(ValidationError):
-            AnalysisResult.model_validate(
-                {"schema_version": "1.0", "strengths": [], "gaps": []}
-            )
+            AnalysisResult.model_validate({"schema_version": "1.0", "strengths": [], "gaps": []})
 
     def test_roundtrip(self):
         r = AnalysisResult(

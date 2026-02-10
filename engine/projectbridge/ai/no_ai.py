@@ -24,9 +24,7 @@ class NoAIProvider(AIProvider):
         missing = gaps.get("missing_skills", [])
         adjacent = gaps.get("adjacent_skills", [])
 
-        all_skill_names = [_skill_name(s) for s in missing] + [
-            _skill_name(s) for s in adjacent
-        ]
+        all_skill_names = [_skill_name(s) for s in missing] + [_skill_name(s) for s in adjacent]
         skill_name_set = set(all_skill_names)
 
         # 1. Try template-based recommendations first.
@@ -56,6 +54,7 @@ class NoAIProvider(AIProvider):
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _skill_name(skill: Any) -> str:
     """Extract the name string from a skill (dict or Pydantic model)."""

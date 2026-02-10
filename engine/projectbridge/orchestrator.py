@@ -8,27 +8,29 @@ from __future__ import annotations
 
 import logging
 import os
-from pathlib import Path
 from typing import Any
 
-from projectbridge.progress import Progress
-
-logger = logging.getLogger(__name__)
-
-from projectbridge.ai.provider import AIProvider, get_provider
-import projectbridge.ai.no_ai  # noqa: F401  — register the "none" provider
-import projectbridge.ai.openai_provider  # noqa: F401  — register the "openai" provider
 import projectbridge.ai.anthropic_provider  # noqa: F401  — register the "anthropic" provider
+import projectbridge.ai.no_ai  # noqa: F401  — register the "none" provider
 import projectbridge.ai.ollama_provider  # noqa: F401  — register the "ollama" provider
+import projectbridge.ai.openai_provider  # noqa: F401  — register the "openai" provider
+from projectbridge.ai.provider import AIProvider, get_provider
 from projectbridge.analysis.engine import analyze
 from projectbridge.config.settings import ProjectBridgeConfig, load_config
 from projectbridge.input.github import GitHubAnalyzer
 from projectbridge.input.job_description import parse_job_description
-from projectbridge.input.resume import parse_resume, merge_resume_context
-from projectbridge.input.validation import ValidationError, validate_github_username, validate_job_text, validate_resume_text
+from projectbridge.input.resume import merge_resume_context, parse_resume
+from projectbridge.input.validation import (
+    ValidationError,
+    validate_github_username,
+    validate_job_text,
+    validate_resume_text,
+)
+from projectbridge.progress import Progress
 from projectbridge.recommend.engine import generate_recommendations
 from projectbridge.schema import AnalysisResult
 
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Bundled example data (used by --example / example mode)
@@ -71,6 +73,7 @@ Requirements:
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 class PipelineError(Exception):
     """Raised when a pipeline stage fails."""

@@ -1,9 +1,8 @@
 """Tests for projectbridge.config.settings."""
 
 import warnings
-from pathlib import Path
 
-from projectbridge.config.settings import ProjectBridgeConfig, load_config, CONFIG_FILENAME
+from projectbridge.config.settings import CONFIG_FILENAME, ProjectBridgeConfig, load_config
 
 
 class TestDefaults:

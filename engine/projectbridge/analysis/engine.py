@@ -44,6 +44,7 @@ def _skill_obj(name: str) -> Skill:
 # Public API
 # ---------------------------------------------------------------------------
 
+
 def analyze(
     developer_context: dict[str, Any],
     job_requirements: dict[str, Any],

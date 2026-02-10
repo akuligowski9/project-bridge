@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import sys
 import threading
-import time
 
 
 class Progress:
@@ -39,9 +38,7 @@ class Progress:
             return
         self._stop_spinner()
         self._spinner_stop.clear()
-        self._spinner_thread = threading.Thread(
-            target=self._spin, args=(message,), daemon=True
-        )
+        self._spinner_thread = threading.Thread(target=self._spin, args=(message,), daemon=True)
         self._spinner_thread.start()
 
     def _stop_spinner(self) -> None:

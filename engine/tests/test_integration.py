@@ -53,17 +53,28 @@ class TestFullPipeline:
             "We need a Python developer with experience in Django, "
             "REST APIs, Docker, and PostgreSQL."
         )
-        exit_code = main([
-            "analyze", "--github-user", "octocat",
-            "--job-text", job, "--no-ai",
-        ])
+        exit_code = main(
+            [
+                "analyze",
+                "--github-user",
+                "octocat",
+                "--job-text",
+                job,
+                "--no-ai",
+            ]
+        )
         assert exit_code == 0
 
     def test_job_and_job_text_exclusive(self):
-        exit_code = main([
-            "analyze", "--job", "some.txt",
-            "--job-text", "inline text here enough chars",
-        ])
+        exit_code = main(
+            [
+                "analyze",
+                "--job",
+                "some.txt",
+                "--job-text",
+                "inline text here enough chars",
+            ]
+        )
         assert exit_code == 1
 
     def test_export_markdown_cli(self):

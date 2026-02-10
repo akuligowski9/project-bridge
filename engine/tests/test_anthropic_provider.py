@@ -175,9 +175,7 @@ class TestChatErrors:
         mock_client = MagicMock()
         from anthropic import APIConnectionError
 
-        mock_client.messages.create.side_effect = APIConnectionError(
-            request=MagicMock()
-        )
+        mock_client.messages.create.side_effect = APIConnectionError(request=MagicMock())
         provider._client = mock_client
 
         with pytest.raises(AnthropicProviderError, match="Could not connect"):

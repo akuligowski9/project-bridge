@@ -176,9 +176,7 @@ class TestChatErrors:
         mock_client = MagicMock()
         from openai import APIConnectionError
 
-        mock_client.chat.completions.create.side_effect = APIConnectionError(
-            request=MagicMock()
-        )
+        mock_client.chat.completions.create.side_effect = APIConnectionError(request=MagicMock())
         provider._client = mock_client
 
         with pytest.raises(OpenAIProviderError, match="Could not connect"):
@@ -189,7 +187,13 @@ class TestPromptTemplates:
     def test_analyze_context_template_exists(self):
         from pathlib import Path
 
-        path = Path(__file__).parent.parent / "projectbridge" / "ai" / "prompts" / "analyze_context.txt"
+        path = (
+            Path(__file__).parent.parent
+            / "projectbridge"
+            / "ai"
+            / "prompts"
+            / "analyze_context.txt"
+        )
         assert path.is_file()
         content = path.read_text()
         assert "developer" in content.lower()
@@ -197,7 +201,13 @@ class TestPromptTemplates:
     def test_generate_recommendations_template_exists(self):
         from pathlib import Path
 
-        path = Path(__file__).parent.parent / "projectbridge" / "ai" / "prompts" / "generate_recommendations.txt"
+        path = (
+            Path(__file__).parent.parent
+            / "projectbridge"
+            / "ai"
+            / "prompts"
+            / "generate_recommendations.txt"
+        )
         assert path.is_file()
         content = path.read_text()
         assert "recommendation" in content.lower()

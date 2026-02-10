@@ -6,10 +6,8 @@ Uses an AI provider when configured, otherwise falls back to heuristics.
 
 from __future__ import annotations
 
-from typing import Any
-
 from projectbridge.ai.provider import AIProvider
-from projectbridge.schema import Recommendation, EstimatedScope, Skill
+from projectbridge.schema import EstimatedScope, Recommendation, Skill
 
 
 def generate_recommendations(

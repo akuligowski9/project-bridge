@@ -7,10 +7,10 @@ import pytest
 
 from projectbridge.ai.ollama_provider import OllamaProvider, OllamaProviderError
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _mock_urlopen(response_body: dict):
     """Return a mock for urllib.request.urlopen that returns the given body."""
@@ -32,6 +32,7 @@ def provider():
 # Construction & server check
 # ---------------------------------------------------------------------------
 
+
 class TestOllamaProviderInit:
     def test_default_model(self):
         with patch("projectbridge.ai.ollama_provider.OllamaProvider._check_server"):
@@ -45,6 +46,7 @@ class TestOllamaProviderInit:
 
     def test_server_unreachable_raises(self):
         import urllib.error
+
         with patch(
             "urllib.request.urlopen",
             side_effect=urllib.error.URLError("refused"),
@@ -57,20 +59,23 @@ class TestOllamaProviderInit:
 # analyze_context
 # ---------------------------------------------------------------------------
 
+
 class TestAnalyzeContext:
     def test_returns_enriched_context(self, provider):
-        mock_resp = _mock_urlopen({
-            "message": {"content": json.dumps({"languages": ["Python"], "ai_insight": "focused"})}
-        })
+        mock_resp = _mock_urlopen(
+            {
+                "message": {
+                    "content": json.dumps({"languages": ["Python"], "ai_insight": "focused"})
+                }
+            }
+        )
         with patch("urllib.request.urlopen", return_value=mock_resp):
             result = provider.analyze_context({"languages": ["Python"]})
         assert result["ai_insight"] == "focused"
         assert result["languages"] == ["Python"]
 
     def test_non_json_response_preserves_context(self, provider):
-        mock_resp = _mock_urlopen({
-            "message": {"content": "This is not JSON"}
-        })
+        mock_resp = _mock_urlopen({"message": {"content": "This is not JSON"}})
         with patch("urllib.request.urlopen", return_value=mock_resp):
             result = provider.analyze_context({"languages": ["Python"]})
         assert result["languages"] == ["Python"]
@@ -81,38 +86,45 @@ class TestAnalyzeContext:
 # generate_recommendations
 # ---------------------------------------------------------------------------
 
+
 class TestGenerateRecommendations:
     def test_returns_recommendations_from_dict(self, provider):
-        recs = [{"title": "Build a CLI", "description": "desc", "skills_addressed": ["Python"], "estimated_scope": "small"}]
-        mock_resp = _mock_urlopen({
-            "message": {"content": json.dumps({"recommendations": recs})}
-        })
+        recs = [
+            {
+                "title": "Build a CLI",
+                "description": "desc",
+                "skills_addressed": ["Python"],
+                "estimated_scope": "small",
+            }
+        ]
+        mock_resp = _mock_urlopen({"message": {"content": json.dumps({"recommendations": recs})}})
         with patch("urllib.request.urlopen", return_value=mock_resp):
             result = provider.generate_recommendations({"missing_skills": []})
         assert len(result) == 1
         assert result[0]["title"] == "Build a CLI"
 
     def test_returns_recommendations_from_list(self, provider):
-        recs = [{"title": "Deploy", "description": "d", "skills_addressed": ["Docker"], "estimated_scope": "medium"}]
-        mock_resp = _mock_urlopen({
-            "message": {"content": json.dumps(recs)}
-        })
+        recs = [
+            {
+                "title": "Deploy",
+                "description": "d",
+                "skills_addressed": ["Docker"],
+                "estimated_scope": "medium",
+            }
+        ]
+        mock_resp = _mock_urlopen({"message": {"content": json.dumps(recs)}})
         with patch("urllib.request.urlopen", return_value=mock_resp):
             result = provider.generate_recommendations({"missing_skills": []})
         assert len(result) == 1
 
     def test_invalid_json_raises(self, provider):
-        mock_resp = _mock_urlopen({
-            "message": {"content": "not json at all"}
-        })
+        mock_resp = _mock_urlopen({"message": {"content": "not json at all"}})
         with patch("urllib.request.urlopen", return_value=mock_resp):
             with pytest.raises(OllamaProviderError, match="invalid JSON"):
                 provider.generate_recommendations({"missing_skills": []})
 
     def test_unexpected_format_raises(self, provider):
-        mock_resp = _mock_urlopen({
-            "message": {"content": json.dumps("just a string")}
-        })
+        mock_resp = _mock_urlopen({"message": {"content": json.dumps("just a string")}})
         with patch("urllib.request.urlopen", return_value=mock_resp):
             with pytest.raises(OllamaProviderError, match="unexpected response format"):
                 provider.generate_recommendations({"missing_skills": []})
@@ -121,6 +133,7 @@ class TestGenerateRecommendations:
 # ---------------------------------------------------------------------------
 # _chat
 # ---------------------------------------------------------------------------
+
 
 class TestChat:
     def test_sends_correct_payload(self, provider):
@@ -138,6 +151,7 @@ class TestChat:
 
     def test_connection_error_raises(self, provider):
         import urllib.error
+
         with patch(
             "urllib.request.urlopen",
             side_effect=urllib.error.URLError("refused"),
@@ -156,9 +170,11 @@ class TestChat:
 # Registration
 # ---------------------------------------------------------------------------
 
+
 class TestRegistration:
     def test_ollama_registered(self):
         from projectbridge.ai.provider import get_provider
+
         with patch("projectbridge.ai.ollama_provider.OllamaProvider._check_server"):
             p = get_provider("ollama", model="test")
             assert isinstance(p, OllamaProvider)

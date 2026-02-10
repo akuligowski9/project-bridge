@@ -2,8 +2,8 @@
 
 import pytest
 
-from projectbridge.ai.provider import AIProvider, get_provider
 from projectbridge.ai.no_ai import NoAIProvider
+from projectbridge.ai.provider import AIProvider, get_provider
 
 
 class TestAIProvider:

@@ -8,7 +8,6 @@ rather than deep static analysis to maintain performance and privacy.
 from __future__ import annotations
 
 import logging
-import os
 from typing import Any
 
 import requests
@@ -166,6 +165,7 @@ PHP_PACKAGE_MAP: dict[str, tuple[str, str]] = {
 # Exceptions
 # ---------------------------------------------------------------------------
 
+
 class GitHubAnalyzerError(Exception):
     """Base exception for the GitHub analyzer."""
 
@@ -189,6 +189,7 @@ class GitHubAPIError(GitHubAnalyzerError):
 # ---------------------------------------------------------------------------
 # API client
 # ---------------------------------------------------------------------------
+
 
 class GitHubClient:
     """Low-level GitHub REST API client with rate-limit tracking."""
@@ -241,13 +242,9 @@ class GitHubClient:
         try:
             resp = requests.get(url, headers=self._headers(), timeout=self.timeout)
         except requests.ConnectionError:
-            raise GitHubAPIError(
-                "Cannot reach the GitHub API. Check your internet connection."
-            )
+            raise GitHubAPIError("Cannot reach the GitHub API. Check your internet connection.")
         except requests.Timeout:
-            raise GitHubAPIError(
-                f"GitHub API request timed out after {self.timeout}s."
-            )
+            raise GitHubAPIError(f"GitHub API request timed out after {self.timeout}s.")
 
         self._update_rate_limit(resp)
 
@@ -262,17 +259,11 @@ class GitHubClient:
                 f"Limit resets at unix timestamp {self.rate_limit_reset}."
             )
         if resp.status_code == 403:
-            raise GitHubAuthError(
-                "GitHub token lacks required permissions."
-            )
+            raise GitHubAuthError("GitHub token lacks required permissions.")
         if resp.status_code == 404:
-            raise GitHubUserNotFoundError(
-                f"GitHub resource not found: {path}"
-            )
+            raise GitHubUserNotFoundError(f"GitHub resource not found: {path}")
         if not resp.ok:
-            raise GitHubAPIError(
-                f"GitHub API error {resp.status_code}: {resp.text[:200]}"
-            )
+            raise GitHubAPIError(f"GitHub API error {resp.status_code}: {resp.text[:200]}")
 
         body = resp.json()
 
@@ -289,9 +280,7 @@ class GitHubClient:
         repos: list[dict] = []
         page = 1
         while True:
-            batch = self._request(
-                f"/users/{username}/repos?per_page=100&sort=pushed&page={page}"
-            )
+            batch = self._request(f"/users/{username}/repos?per_page=100&sort=pushed&page={page}")
             if not batch:
                 break
             repos.extend(batch)
@@ -326,6 +315,7 @@ class GitHubClient:
 # Analyzer
 # ---------------------------------------------------------------------------
 
+
 class GitHubAnalyzer:
     """Extracts developer context signals from GitHub repositories."""
 
@@ -354,7 +344,7 @@ class GitHubAnalyzer:
 
         languages: dict[str, int] = {}
         frameworks: dict[str, str] = {}  # name → category
-        infra: dict[str, str] = {}       # name → category
+        infra: dict[str, str] = {}  # name → category
         structures: set[str] = set()
 
         for repo in repos:
@@ -385,9 +375,7 @@ class GitHubAnalyzer:
 
         return {
             "languages": self._build_language_list(languages),
-            "frameworks": [
-                {"name": n, "category": c} for n, c in sorted(frameworks.items())
-            ],
+            "frameworks": [{"name": n, "category": c} for n, c in sorted(frameworks.items())],
             "project_structures": sorted(structures),
             "infrastructure_signals": [
                 {"name": n, "category": c} for n, c in sorted(infra.items())
@@ -455,9 +443,8 @@ class GitHubAnalyzer:
             return
         try:
             import base64
-            file_info = self.client._request(
-                f"/repos/{owner}/{repo}/contents/requirements.txt"
-            )
+
+            file_info = self.client._request(f"/repos/{owner}/{repo}/contents/requirements.txt")
             content = base64.b64decode(file_info.get("content", "")).decode()
         except (GitHubAnalyzerError, Exception):
             return
@@ -474,7 +461,9 @@ class GitHubAnalyzer:
         mapping: dict[str, tuple[str, str]],
         dep_keys: tuple[str, ...] = ("dependencies", "devDependencies"),
     ) -> None:
-        import base64, json
+        import base64
+        import json
+
         try:
             content = base64.b64decode(file_info.get("content", "")).decode()
             pkg = json.loads(content)
@@ -547,20 +536,19 @@ class GitHubAnalyzer:
         if "composer.json" not in names:
             return
         try:
-            file_info = self.client._request(
-                f"/repos/{owner}/{repo}/contents/composer.json"
-            )
+            file_info = self.client._request(f"/repos/{owner}/{repo}/contents/composer.json")
         except GitHubAnalyzerError:
             return
-        self._match_json_deps(file_info, frameworks, PHP_PACKAGE_MAP, dep_keys=("require", "require-dev"))
+        self._match_json_deps(
+            file_info, frameworks, PHP_PACKAGE_MAP, dep_keys=("require", "require-dev")
+        )
 
     def _fetch_file_text(self, owner: str, repo: str, path: str) -> str | None:
         """Fetch and decode a text file from a repo. Returns None on failure."""
         import base64
+
         try:
-            file_info = self.client._request(
-                f"/repos/{owner}/{repo}/contents/{path}"
-            )
+            file_info = self.client._request(f"/repos/{owner}/{repo}/contents/{path}")
             return base64.b64decode(file_info.get("content", "")).decode()
         except Exception:
             return None

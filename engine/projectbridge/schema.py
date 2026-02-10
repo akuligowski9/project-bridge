@@ -37,7 +37,8 @@ class Recommendation(BaseModel):
 
     title: str = Field(description="Short, actionable project title.")
     description: str = Field(
-        description="Detailed explanation of what to build and why it demonstrates the target skills."
+        description="Detailed explanation of what to build and why it "
+        "demonstrates the target skills.",
     )
     skills_addressed: list[str] = Field(
         max_length=3,

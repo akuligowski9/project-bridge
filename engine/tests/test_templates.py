@@ -1,7 +1,5 @@
 """Tests for projectbridge.recommend.templates."""
 
-import pytest
-
 from projectbridge.recommend.templates import load_templates, select_templates
 
 
