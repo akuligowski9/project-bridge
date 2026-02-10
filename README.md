@@ -51,14 +51,13 @@ No GitHub token or AI provider required.
 ```bash
 git clone https://github.com/akuligowski9/project-bridge
 cd project-bridge
+pip install -e ./engine
 ```
 
-Start engine:
+Run an analysis:
 
 ```bash
-cd engine
-pip install -r requirements.txt
-python cli.py
+projectbridge analyze --job job.txt --github-user your-username
 ```
 
 Start UI:
@@ -176,11 +175,15 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 ---
 
-## Roadmap (Short-Term)
+## Roadmap
 
-- Additional AI provider integrations
-- Improved repository detection heuristics
-- Better project recommendation templates
+Completed:
+
+- ~~Additional AI provider integrations~~ (OpenAI, Anthropic, Ollama)
+- ~~Improved repository detection heuristics~~ (97+ frameworks/tools)
+- ~~Better project recommendation templates~~ (22 templates)
+
+See [BACKLOG.md](docs/BACKLOG.md) for full history and parking lot ideas.
 
 ---
 
