@@ -65,7 +65,7 @@ class OpenAIProvider(AIProvider):
         except json.JSONDecodeError:
             # If the model returns non-JSON, preserve original context
             # and add the raw response as a note.
-            enriched = {**context, "ai_summary": response_text}
+            enriched = {**context}
 
         # Ensure original fields are never lost.
         for key, value in context.items():

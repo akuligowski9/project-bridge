@@ -32,12 +32,6 @@ class AISettings(BaseModel):
 class AnalysisSettings(BaseModel):
     """Analysis tuning parameters."""
 
-    confidence_threshold: float = Field(
-        default=0.5,
-        ge=0.0,
-        le=1.0,
-        description="Minimum confidence score for a skill to be considered detected.",
-    )
     max_recommendations: int = Field(
         default=5,
         ge=1,

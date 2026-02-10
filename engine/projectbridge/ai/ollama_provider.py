@@ -61,7 +61,7 @@ class OllamaProvider(AIProvider):
         try:
             enriched = json.loads(response_text)
         except json.JSONDecodeError:
-            enriched = {**context, "ai_summary": response_text}
+            enriched = {**context}
 
         for key, value in context.items():
             if key not in enriched:

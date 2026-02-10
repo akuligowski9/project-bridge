@@ -64,7 +64,7 @@ class AnthropicProvider(AIProvider):
         try:
             enriched = json.loads(response_text)
         except json.JSONDecodeError:
-            enriched = {**context, "ai_summary": response_text}
+            enriched = {**context}
 
         # Ensure original fields are never lost.
         for key, value in context.items():

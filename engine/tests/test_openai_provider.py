@@ -47,17 +47,12 @@ class TestAnalyzeContext:
     def test_enriches_context(self):
         provider = self._make_provider()
         context = {"languages": [{"name": "Python"}]}
-        enriched_response = {
-            **context,
-            "ai_summary": "Python developer",
-            "ai_seniority_signals": ["single language"],
-            "ai_tech_depth": {"Python": "intermediate"},
-        }
+        enriched_response = {**context, "ai_insight": "focused"}
 
         with patch.object(provider, "_chat", return_value=json.dumps(enriched_response)):
             result = provider.analyze_context(context)
 
-        assert result["ai_summary"] == "Python developer"
+        assert result["ai_insight"] == "focused"
         assert result["languages"] == context["languages"]
 
     def test_preserves_original_fields_on_partial_response(self):
@@ -78,7 +73,6 @@ class TestAnalyzeContext:
         with patch.object(provider, "_chat", return_value="Not valid JSON"):
             result = provider.analyze_context(context)
 
-        assert result["ai_summary"] == "Not valid JSON"
         assert result["languages"] == context["languages"]
 
 

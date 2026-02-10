@@ -10,7 +10,6 @@ class TestDefaults:
         cfg = ProjectBridgeConfig()
         assert cfg.ai.provider == "none"
         assert cfg.analysis.max_recommendations == 5
-        assert cfg.analysis.confidence_threshold == 0.5
         assert cfg.cache.enabled is True
         assert cfg.cache.ttl_seconds == 3600
         assert cfg.export.default_format == "json"

@@ -79,7 +79,6 @@ class TestAnalyzeContext:
         with patch("urllib.request.urlopen", return_value=mock_resp):
             result = provider.analyze_context({"languages": ["Python"]})
         assert result["languages"] == ["Python"]
-        assert result["ai_summary"] == "This is not JSON"
 
 
 # ---------------------------------------------------------------------------

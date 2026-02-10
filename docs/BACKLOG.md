@@ -777,7 +777,7 @@ Created JSON Schema at `docs/schema/analysis_output_v1.0.json` and Pydantic mode
 
 **Status:** Done
 
-Created `engine/projectbridge/config/settings.py` with Pydantic-based config model loading from `projectbridge.config.yaml`. Sections: `ai` (provider, ollama_model), `analysis` (confidence_threshold, max_recommendations), `cache` (enabled, ttl_seconds), `export` (default_format). All fields have sensible defaults. Unknown keys produce warnings. Verified loading from YAML, defaults without config file, and unknown key warnings.
+Created `engine/projectbridge/config/settings.py` with Pydantic-based config model loading from `projectbridge.config.yaml`. Sections: `ai` (provider, ollama_model), `analysis` (max_recommendations), `cache` (enabled, ttl_seconds), `export` (default_format). All fields have sensible defaults. Unknown keys produce warnings. Verified loading from YAML, defaults without config file, and unknown key warnings.
 
 ---
 
@@ -1010,5 +1010,13 @@ Built export view with Markdown/JSON format toggle, live preview via `export_ana
 **Status:** Done
 
 Added Ruff (linter + formatter) with `pyproject.toml` config (Python 3.10, line-length 99, E/F/W/I/UP rules). Created `Makefile` with `install`, `test`, `lint`, `format`, `check`, `docs` targets. Added `.pre-commit-config.yaml` with `astral-sh/ruff-pre-commit` hooks. Created `.editorconfig` for cross-editor consistency. Updated CI workflow to run a `lint` job before the test matrix. Rewrote `CONTRIBUTING.md` with dev setup, make commands, and concrete AI provider contribution steps. Added GitHub PR template and issue templates (bug report, new AI provider). Fixed all existing lint/format issues across the codebase.
+
+---
+
+### Dead code cleanup
+
+**Status:** Done
+
+Removed `confidence_threshold` from `AnalysisSettings` (defined but never consumed by any downstream logic). Removed dead AI enrichment fields (`ai_summary`, `ai_seniority_signals`, `ai_tech_depth`) from the `analyze_context.txt` prompt and all three provider fallback paths — these were merged into the context dict but nothing downstream read them. Updated tests across config, OpenAI, Anthropic, and Ollama provider test files. 158 tests passing, lint clean.
 
 ---
