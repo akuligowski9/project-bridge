@@ -5,8 +5,22 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "projectbridge"
 version = "0.1.0"
-description = "AI-powered project management analysis engine"
+description = "Analyze your GitHub repos against job descriptions and get concrete project ideas to close skill gaps."
 requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "akuligowski9"}]
+keywords = ["developer-tools", "skill-gap", "career", "github", "portfolio", "job-search"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = [
     "pyyaml",
     "pydantic",
@@ -17,6 +31,12 @@ dependencies = [
 openai = ["openai>=1.0"]
 anthropic = ["anthropic>=0.39.0"]
 dev = ["ruff>=0.15.0", "pytest", "pre-commit"]
+
+[project.urls]
+Homepage = "https://github.com/akuligowski9/project-bridge"
+Documentation = "https://github.com/akuligowski9/project-bridge#readme"
+Repository = "https://github.com/akuligowski9/project-bridge"
+Issues = "https://github.com/akuligowski9/project-bridge/issues"
 
 [project.scripts]
 projectbridge = "projectbridge.cli:cli"

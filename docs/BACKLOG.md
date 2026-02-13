@@ -1020,3 +1020,11 @@ Added Ruff (linter + formatter) with `pyproject.toml` config (Python 3.10, line-
 Removed `confidence_threshold` from `AnalysisSettings` (defined but never consumed by any downstream logic). Removed dead AI enrichment fields (`ai_summary`, `ai_seniority_signals`, `ai_tech_depth`) from the `analyze_context.txt` prompt and all three provider fallback paths — these were merged into the context dict but nothing downstream read them. Updated tests across config, OpenAI, Anthropic, and Ollama provider test files. 158 tests passing, lint clean.
 
 ---
+
+### PyPI prep and README refresh
+
+**Status:** Done
+
+Polished `engine/pyproject.toml` for PyPI readiness: added `license = "MIT"` (SPDX), `authors`, `keywords`, `classifiers`, `[project.urls]` with Homepage/Documentation/Repository/Issues, and updated `description`. Refreshed `README.md` for a public audience: added CI/Python/License badges, screenshot placeholder, `pip install projectbridge` quickstart, collapsible sample JSON output, expanded features list (4 providers, 97+ detections, 22 templates), AI providers table, Desktop App section. Verified: 158 tests passing, lint clean, `python -m build` produces valid sdist + wheel.
+
+---
