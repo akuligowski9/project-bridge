@@ -4,10 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "projectbridge"
-version = "0.1.0"
+version = "0.1.1"
 description = "Analyze your GitHub repos against job descriptions and get concrete project ideas to close skill gaps."
 requires-python = ">=3.10"
 license = "MIT"
+readme = "README.md"
 authors = [{name = "akuligowski9"}]
 keywords = ["developer-tools", "skill-gap", "career", "github", "portfolio", "job-search"]
 classifiers = [

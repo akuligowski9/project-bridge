@@ -1,4 +1,4 @@
-.PHONY: install test lint format check docs
+.PHONY: install test lint format check docs build
 
 install:
 	pip install -e ./engine[dev]
@@ -18,3 +18,8 @@ check: lint test
 
 docs:
 	mkdocs serve
+
+build:
+	cp README.md engine/README.md
+	cd engine && python -m build
+	rm -f engine/README.md
