@@ -43,6 +43,10 @@ projectbridge = "projectbridge.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ["."]
+exclude = ["tests", "tests.*"]
+
+[tool.setuptools.package-data]
+projectbridge = ["ai/prompts/*.txt", "recommend/templates.yaml"]
 
 # --- Ruff ---
 
