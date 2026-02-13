@@ -721,6 +721,116 @@ Set up development tooling that makes contributing easier and maintains code qua
 
 ---
 
+### PB-033: Validate job descriptions for technical content
+
+**Description:**
+Add an early validation step that detects when a job description contains no technical signals — e.g., a sales, marketing, or operations role pasted by mistake. Currently the parser would extract zero technologies, the analysis would find zero gaps, and the user would get empty results with no explanation. The validator should check for technical role indicators (technologies, programming-related terms, technical domains) and bail early with a clear message when none are found. The message should be inclusive of all technical roles — software engineers, architects, data scientists, DevOps, etc.
+
+**Acceptance Criteria:**
+
+1. A job description with no detected technologies and no technical role indicators produces a clear error before the analysis pipeline runs.
+2. The error message communicates that ProjectBridge analyzes technical roles (not just software engineering).
+3. Technical roles beyond software engineering are accepted — data science, architecture, DevOps, platform engineering, ML engineering, etc.
+4. Job descriptions with at least some technical signals proceed normally, even if sparse.
+5. The validation is testable independently with known tech and non-tech job descriptions.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** High
+- **Depends on:** PB-005
+- **Blocks:** —
+
+---
+
+### PB-034: Calibrate recommendation difficulty to experience level
+
+**Description:**
+Recommendations currently ignore the developer's experience level — a senior engineer with 50 repos gets the same "Build a REST API with Django" suggestion as a bootcamp graduate. The engine should infer an approximate experience level from GitHub signals (account age, repo count, language diversity, contribution patterns) and the optional resume (years of experience), then calibrate recommendation complexity accordingly. Beginners get guided starter projects; experienced developers get architecture-level challenges that stretch into unfamiliar territory.
+
+**Acceptance Criteria:**
+
+1. The analysis result includes an inferred experience level (e.g., beginner, intermediate, senior) derived from GitHub and resume signals.
+2. Recommendations are filtered or ranked by difficulty to match the inferred level.
+3. A beginner missing Docker gets "Dockerize a simple app" while a senior missing Docker gets "Build a multi-stage Docker pipeline with health checks and orchestration."
+4. Templates support multiple difficulty tiers per skill gap, selected based on experience level.
+5. The experience inference is visible in the output (not a hidden black box).
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** High
+- **Depends on:** PB-004, PB-013
+- **Blocks:** PB-036
+
+---
+
+### PB-035: Surface portfolio-level gap analysis
+
+**Description:**
+The current gap analysis operates at the keyword level — "you're missing TypeScript" — but misses the higher-order insight that actually matters in hiring: portfolio shape. A developer with 30 Python backend repos applying for a full-stack role doesn't just need to "learn React" — they need to demonstrate they can build and ship frontend work at all. The analysis should surface portfolio-level observations: backend-heavy vs. full-stack, no deployed projects, no collaborative work (all solo repos), missing entire domains (zero infrastructure, zero data work). These insights are more actionable than keyword lists.
+
+**Acceptance Criteria:**
+
+1. The analysis result includes a `portfolio_insights` section with high-level observations about the developer's GitHub profile shape.
+2. Insights cover at minimum: domain balance (backend/frontend/full-stack/infra), deployment evidence, collaboration signals (PRs, org repos), and project diversity.
+3. Portfolio insights inform recommendation priority — a portfolio gap (e.g., "no frontend work") ranks higher than a keyword gap (e.g., "missing Redis").
+4. The Svelte UI renders portfolio insights prominently, before the keyword-level gaps.
+5. The Markdown export includes portfolio insights as a distinct section.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** High
+- **Depends on:** PB-004, PB-006
+- **Blocks:** PB-036
+
+---
+
+### PB-036: Personalize recommendations from developer's actual repos
+
+**Description:**
+Recommendations are currently generic templates that ignore what the developer has already built. A developer with a Flask blog app who needs Django should get "Rebuild your blog's auth and API layer in Django — you already understand the routing and template patterns, so focus on Django's ORM and class-based views." This requires the recommendation engine to read the developer's actual repo metadata (project names, descriptions, languages, size) and use it to anchor suggestions in their existing work. AI providers should receive repo context alongside gaps to generate truly personalized recommendations. NoAI mode should reference the developer's top repos by name.
+
+**Acceptance Criteria:**
+
+1. The recommendation engine receives the developer's repo metadata (names, descriptions, primary languages, sizes) alongside skill gaps.
+2. AI-generated recommendations reference the developer's specific repos or project types when relevant.
+3. NoAI recommendations reference the developer's top repos by name in descriptions (e.g., "Extend your flask-api project with...").
+4. Recommendations that build on existing work are prioritized over greenfield suggestions.
+5. The prompt templates instruct AI providers to anchor suggestions in the developer's portfolio.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** Medium
+- **Depends on:** PB-034, PB-035
+- **Blocks:** —
+
+---
+
+### PB-037: Connect skill gaps to interview topics
+
+**Description:**
+Developers don't just need to learn skills — they need to demonstrate them in interviews. Each skill gap should optionally include likely interview topics and question categories that companies using those technologies tend to ask. For example, a Kubernetes gap should surface "pod networking, service discovery, resource limits, rolling deployments" as likely interview areas. This turns ProjectBridge from a project suggester into interview prep guidance. The data should be curated per-skill in the taxonomy or a companion data file, not AI-generated on the fly.
+
+**Acceptance Criteria:**
+
+1. The skill taxonomy or a companion data file maps skills to common interview topic areas (2-5 topics per skill).
+2. The analysis output includes interview topics for each skill gap when available.
+3. The Svelte UI renders interview topics as a collapsible section on each gap skill.
+4. The Markdown export includes interview topics in the Skill Gaps section.
+5. Interview topic data covers at least the top 30 skills in the taxonomy.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** Medium
+- **Depends on:** PB-011
+- **Blocks:** —
+
+---
+
 ## Parking Lot
 
 _Ideas worth remembering — not yet actionable or fully defined._
