@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "analysis_output_v1.1.json",
+  "title": "ProjectBridge Analysis Output v1.1",
+  "description": "The contract between the ProjectBridge engine and all consumers (CLI, UI, export). v1.1 adds skill_context to recommendations.",
+  "type": "object",
+  "required": ["schema_version", "strengths", "gaps", "recommendations"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0", "1.1"],
+      "description": "Schema version for forward compatibility between engine and UI."
+    },
+    "strengths": {
+      "type": "array",
+      "description": "Skills detected in both the developer context and job requirements.",
+      "items": {
+        "$ref": "#/$defs/Skill"
+      }
+    },
+    "gaps": {
+      "type": "array",
+      "description": "Skills required by the job but missing from the developer context.",
+      "items": {
+        "$ref": "#/$defs/Skill"
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "Actionable project suggestions that address identified skill gaps.",
+      "items": {
+        "$ref": "#/$defs/Recommendation"
+      }
+    }
+  },
+  "$defs": {
+    "Skill": {
+      "type": "object",
+      "required": ["name", "category"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Skill or technology name (e.g. 'React', 'Docker')."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["language", "framework", "infrastructure", "tool", "concept"],
+          "description": "Broad classification of the skill."
+        }
+      }
+    },
+    "Recommendation": {
+      "type": "object",
+      "required": ["title", "description", "skills_addressed", "estimated_scope"],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Short, actionable project title."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed explanation of what to build and why it demonstrates the target skills."
+        },
+        "skills_addressed": {
+          "type": "array",
+          "description": "Skills this project demonstrates. Maximum 3 to keep scope manageable.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3
+        },
+        "estimated_scope": {
+          "type": "string",
+          "enum": ["small", "medium", "large"],
+          "description": "Relative effort indicator for the recommended project."
+        },
+        "skill_context": {
+          "type": ["string", "null"],
+          "description": "Mentor-style explanation of why these skills matter for the target role. 2-3 sentences of career context.",
+          "default": null
+        }
+      }
+    }
+  }
+}

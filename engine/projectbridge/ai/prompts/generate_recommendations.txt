@@ -11,5 +11,6 @@ Return ONLY valid JSON with a single key "recommendations" containing an array o
 - "description": A 2-4 sentence description of the project, what to build, and what it demonstrates.
 - "skills_addressed": An array of skill name strings (max 3).
 - "estimated_scope": One of "small", "medium", or "large".
+- "skill_context": A 2-3 sentence career mentorship explanation of why these skills matter. Write as an experienced mentor — explain the professional value, how they fit into real teams, what they unlock career-wise. Do NOT restate job requirements or say "the job requires." Instead use phrases like "teams expect," "production environments use," "engineering organizations value."
 
 Do not include any explanation or markdown formatting — just the JSON object.

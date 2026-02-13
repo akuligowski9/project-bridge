@@ -94,6 +94,7 @@ class TestGenerateRecommendations:
                 "description": "desc",
                 "skills_addressed": ["Python"],
                 "estimated_scope": "small",
+                "skill_context": "Python is versatile across many domains.",
             }
         ]
         mock_resp = _mock_urlopen({"message": {"content": json.dumps({"recommendations": recs})}})
@@ -101,6 +102,7 @@ class TestGenerateRecommendations:
             result = provider.generate_recommendations({"missing_skills": []})
         assert len(result) == 1
         assert result[0]["title"] == "Build a CLI"
+        assert result[0]["skill_context"] == "Python is versatile across many domains."
 
     def test_returns_recommendations_from_list(self, provider):
         recs = [
@@ -109,6 +111,7 @@ class TestGenerateRecommendations:
                 "description": "d",
                 "skills_addressed": ["Docker"],
                 "estimated_scope": "medium",
+                "skill_context": "Containers are essential for modern deployment.",
             }
         ]
         mock_resp = _mock_urlopen({"message": {"content": json.dumps(recs)}})

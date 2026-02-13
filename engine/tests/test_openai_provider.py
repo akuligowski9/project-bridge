@@ -91,6 +91,7 @@ class TestGenerateRecommendations:
                     "description": "Deploy a microservice to Kubernetes.",
                     "skills_addressed": ["Kubernetes"],
                     "estimated_scope": "medium",
+                    "skill_context": "Kubernetes is how teams orchestrate containers at scale.",
                 }
             ]
         }
@@ -100,6 +101,8 @@ class TestGenerateRecommendations:
 
         assert len(result) == 1
         assert result[0]["title"] == "Build a K8s deployment pipeline"
+        expected = "Kubernetes is how teams orchestrate containers at scale."
+        assert result[0]["skill_context"] == expected
 
     def test_handles_list_response(self):
         provider = self._make_provider()
@@ -110,6 +113,7 @@ class TestGenerateRecommendations:
                 "description": "Description A",
                 "skills_addressed": ["Go"],
                 "estimated_scope": "small",
+                "skill_context": "Go is valued for backend services.",
             }
         ]
 

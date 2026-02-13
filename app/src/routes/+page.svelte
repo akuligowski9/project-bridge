@@ -14,6 +14,7 @@
     description: string;
     skills_addressed: string[];
     estimated_scope: string;
+    skill_context?: string | null;
   }
 
   interface AnalysisResult {
@@ -25,8 +26,64 @@
 
   type View = "form" | "loading" | "results" | "export";
 
-  let view: View = $state("form");
-  let result: AnalysisResult | null = $state(null);
+  let view: View = $state("results");
+  let result: AnalysisResult | null = $state({
+    schema_version: "1.1",
+    strengths: [
+      { name: "Python", category: "language" },
+      { name: "JavaScript", category: "language" },
+      { name: "React", category: "framework" },
+      { name: "Flask", category: "framework" },
+      { name: "Docker", category: "infrastructure" },
+      { name: "GitHub Actions", category: "infrastructure" },
+    ],
+    gaps: [
+      { name: "TypeScript", category: "language" },
+      { name: "Django", category: "framework" },
+      { name: "FastAPI", category: "framework" },
+      { name: "PostgreSQL", category: "tool" },
+      { name: "Redis", category: "tool" },
+      { name: "Kubernetes", category: "infrastructure" },
+      { name: "AWS", category: "infrastructure" },
+    ],
+    recommendations: [
+      {
+        title: "Build a REST API with Django",
+        description: "Create a RESTful API using Django REST Framework. Implement CRUD endpoints for a resource (e.g., a task manager), add authentication, and write API documentation with Swagger/OpenAPI.",
+        skills_addressed: ["Django", "REST API"],
+        estimated_scope: "medium",
+        skill_context: "Django powers a huge portion of production web applications, from startups to enterprises like Instagram and Mozilla. Teams value developers who can ship complete backend features — models, views, serializers, auth — without hand-holding. Understanding Django's conventions makes you productive on day one in most Python web shops.",
+      },
+      {
+        title: "Deploy a containerized app with Kubernetes",
+        description: "Dockerize a simple web application, create Kubernetes manifests, and deploy to a local cluster (minikube or kind). Practice pod management, services, and basic scaling.",
+        skills_addressed: ["Docker", "Kubernetes"],
+        estimated_scope: "medium",
+        skill_context: "Containerization is how modern engineering teams ship software reliably. Understanding Docker and Kubernetes means you can participate in deployment conversations, debug production issues, and work effectively with DevOps and platform teams. These skills transfer across every company and tech stack.",
+      },
+      {
+        title: "Build a microservice with FastAPI and Redis",
+        description: "Create a FastAPI microservice with Redis for caching and rate limiting. Implement async endpoints, background tasks, and health checks. Containerize with Docker.",
+        skills_addressed: ["FastAPI", "Redis", "Docker"],
+        estimated_scope: "medium",
+        skill_context: "Production backend systems rely on caching and async processing to handle real-world traffic. FastAPI's async-first design reflects where the Python ecosystem is heading, and Redis is the de facto standard for caching and message brokering. Understanding these tools shows you can build services that perform under load.",
+      },
+      {
+        title: "Build a full-stack app with Next.js and PostgreSQL",
+        description: "Create a full-stack application using Next.js with server-side rendering, API routes, and PostgreSQL for persistence. Implement user authentication and deploy to Vercel.",
+        skills_addressed: ["Next.js", "PostgreSQL", "TypeScript"],
+        estimated_scope: "large",
+        skill_context: "Full-stack TypeScript with a relational database is the bread and butter of modern product engineering. Teams need developers who can own features end-to-end — from the database schema through the API to the rendered page. This combination is the most in-demand skill set across startups and mid-size companies.",
+      },
+      {
+        title: "Deploy a serverless API on AWS Lambda",
+        description: "Build a serverless REST API using AWS Lambda and API Gateway. Implement DynamoDB for storage, configure IAM roles, and automate deployment with SAM or CDK.",
+        skills_addressed: ["AWS", "Serverless"],
+        estimated_scope: "medium",
+        skill_context: "Cloud infrastructure is a fundamental part of modern software delivery, and AWS dominates the market. Understanding serverless architecture shows you can think about cost, scalability, and operational concerns — not just application code. These skills make you more valuable in any engineering team that deploys to the cloud.",
+      },
+    ],
+  });
   let error: string | null = $state(null);
 
   // Form fields
@@ -413,6 +470,11 @@
                     </span>
                   </div>
                   <p class="text-gray-600 text-sm mt-2">{rec.description}</p>
+                  {#if rec.skill_context}
+                    <div class="bg-blue-50 border-l-4 border-blue-300 p-3 mt-3 rounded-r">
+                      <p class="text-sm text-blue-900 italic">{rec.skill_context}</p>
+                    </div>
+                  {/if}
                   <div class="flex flex-wrap gap-2 mt-3">
                     {#each rec.skills_addressed as skill}
                       <span class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded">

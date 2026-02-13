@@ -1028,3 +1028,11 @@ Removed `confidence_threshold` from `AnalysisSettings` (defined but never consum
 Polished `engine/pyproject.toml` for PyPI readiness: added `license = "MIT"` (SPDX), `authors`, `keywords`, `classifiers`, `[project.urls]` with Homepage/Documentation/Repository/Issues, and updated `description`. Refreshed `README.md` for a public audience: added CI/Python/License badges, screenshot placeholder, `pip install projectbridge` quickstart, collapsible sample JSON output, expanded features list (4 providers, 97+ detections, 22 templates), AI providers table, Desktop App section. Verified: 158 tests passing, lint clean, `python -m build` produces valid sdist + wheel.
 
 ---
+
+### Add skill_context to recommendations (schema v1.1)
+
+**Status:** Done
+
+Added optional `skill_context` field to `Recommendation` model — mentor-style career context explaining *why* skills matter, not just listing them. Bumped schema to v1.1 (backwards compatible with 1.0). Added `skill_context` to all 31 templates (was 21, added 10 new: Kafka, Playwright/Jest, Elasticsearch, WebSockets, Spring Boot, Astro/CMS, RabbitMQ, Flutter, Angular, monitoring). Updated NoAI provider with `_CATEGORY_CONTEXT` dict for heuristic fallback by skill category. Updated recommendation engine passthrough, AI prompt, and Markdown export (blockquote rendering). Created `docs/schema/analysis_output_v1.1.json`. Updated Svelte UI with blue callout rendering and mock data. 170 tests passing, lint clean.
+
+---

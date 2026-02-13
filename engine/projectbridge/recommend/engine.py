@@ -49,6 +49,7 @@ def generate_recommendations(
                 description=item["description"],
                 skills_addressed=skills,
                 estimated_scope=scope,
+                skill_context=item.get("skill_context"),
             )
         )
 

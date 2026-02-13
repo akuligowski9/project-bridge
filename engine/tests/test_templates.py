@@ -17,9 +17,17 @@ class TestLoadTemplates:
             assert "skills_addressed" in tpl
             assert "estimated_scope" in tpl
             assert "difficulty" in tpl
+            assert "skill_context" in tpl
             assert len(tpl["skills_addressed"]) <= 3
             assert tpl["estimated_scope"] in ("small", "medium", "large")
             assert tpl["difficulty"] in ("beginner", "intermediate", "advanced")
+
+    def test_skill_context_is_substantive(self):
+        templates = load_templates()
+        for tpl in templates:
+            ctx = tpl["skill_context"]
+            assert isinstance(ctx, str), f"{tpl['title']} skill_context is not a string"
+            assert len(ctx) >= 50, f"{tpl['title']} skill_context is too short ({len(ctx)} chars)"
 
 
 class TestSelectTemplates:
@@ -52,6 +60,13 @@ class TestSelectTemplates:
             second_skills = {s.lower() for s in results[1]["skills_addressed"]}
             gap_lower = {"next.js", "postgresql", "typescript"}
             assert len(first_skills & gap_lower) >= len(second_skills & gap_lower)
+
+    def test_selected_templates_include_skill_context(self):
+        results = select_templates({"Docker", "Kubernetes"})
+        for tpl in results:
+            assert "skill_context" in tpl
+            assert isinstance(tpl["skill_context"], str)
+            assert len(tpl["skill_context"]) >= 50
 
 
 class TestNoAIWithTemplates:

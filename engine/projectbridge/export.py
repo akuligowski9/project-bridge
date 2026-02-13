@@ -90,6 +90,8 @@ def render_markdown(result: AnalysisResult) -> str:
         for rec in result.recommendations:
             lines.append(f"### {rec.title}\n\n")
             lines.append(f"{rec.description}\n\n")
+            if rec.skill_context:
+                lines.append(f"> {rec.skill_context}\n\n")
             skills = ", ".join(rec.skills_addressed)
             lines.append(f"- **Skills addressed:** {skills}\n")
             lines.append(f"- **Estimated scope:** {rec.estimated_scope.value}\n")

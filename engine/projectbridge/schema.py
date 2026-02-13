@@ -1,4 +1,4 @@
-"""ProjectBridge analysis output schema v1.0.
+"""ProjectBridge analysis output schema v1.1.
 
 Defines the contract between the engine and all consumers (CLI, UI, export).
 """
@@ -47,12 +47,17 @@ class Recommendation(BaseModel):
     estimated_scope: EstimatedScope = Field(
         description="Relative effort indicator for the recommended project."
     )
+    skill_context: str | None = Field(
+        default=None,
+        description="Mentor-style explanation of why these skills matter for "
+        "the target role. 2-3 sentences of career context.",
+    )
 
 
 class AnalysisResult(BaseModel):
-    """Top-level analysis output conforming to schema v1.0."""
+    """Top-level analysis output conforming to schema v1.1."""
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.1"
     strengths: list[Skill] = Field(
         description="Skills detected in both the developer context and job requirements.",
     )

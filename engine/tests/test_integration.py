@@ -9,12 +9,18 @@ class TestFullPipeline:
     def test_example_mode_python_api(self):
         result = run_analysis(example=True, no_ai=True)
         assert isinstance(result, AnalysisResult)
-        assert result.schema_version == "1.0"
+        assert result.schema_version == "1.1"
         assert len(result.strengths) > 0
         assert len(result.gaps) > 0
         assert len(result.recommendations) > 0
         for r in result.recommendations:
             assert len(r.skills_addressed) <= 3
+
+    def test_example_mode_has_skill_context(self):
+        result = run_analysis(example=True, no_ai=True)
+        # At least one recommendation should have skill_context
+        has_context = any(r.skill_context is not None for r in result.recommendations)
+        assert has_context
 
     def test_example_mode_cli(self):
         exit_code = main(["analyze", "--example"])

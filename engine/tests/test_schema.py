@@ -42,15 +42,42 @@ class TestRecommendation:
                 estimated_scope=EstimatedScope.SMALL,
             )
 
+    def test_skill_context_optional(self):
+        r = Recommendation(
+            title="Test",
+            description="Desc",
+            skills_addressed=["A"],
+            estimated_scope=EstimatedScope.SMALL,
+        )
+        assert r.skill_context is None
+
+    def test_skill_context_set(self):
+        r = Recommendation(
+            title="Test",
+            description="Desc",
+            skills_addressed=["A"],
+            estimated_scope=EstimatedScope.SMALL,
+            skill_context="Teams value this skill because it unlocks career growth.",
+        )
+        assert r.skill_context == "Teams value this skill because it unlocks career growth."
+
 
 class TestAnalysisResult:
     def test_schema_version_default(self):
         r = AnalysisResult(strengths=[], gaps=[], recommendations=[])
+        assert r.schema_version == "1.1"
+
+    def test_schema_version_accepts_1_0(self):
+        r = AnalysisResult(schema_version="1.0", strengths=[], gaps=[], recommendations=[])
         assert r.schema_version == "1.0"
+
+    def test_schema_version_accepts_1_1(self):
+        r = AnalysisResult(schema_version="1.1", strengths=[], gaps=[], recommendations=[])
+        assert r.schema_version == "1.1"
 
     def test_missing_field_raises(self):
         with pytest.raises(ValidationError):
-            AnalysisResult.model_validate({"schema_version": "1.0", "strengths": [], "gaps": []})
+            AnalysisResult.model_validate({"schema_version": "1.1", "strengths": [], "gaps": []})
 
     def test_roundtrip(self):
         r = AnalysisResult(
@@ -62,6 +89,7 @@ class TestAnalysisResult:
                     description="A project.",
                     skills_addressed=["Docker"],
                     estimated_scope=EstimatedScope.SMALL,
+                    skill_context="Containerization is essential for modern teams.",
                 )
             ],
         )

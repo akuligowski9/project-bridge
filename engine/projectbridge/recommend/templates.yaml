@@ -2,124 +2,215 @@
 #
 # Adding a new template requires only a new entry in this file.
 # Each template must have: title, description, skills_addressed (max 3),
-# estimated_scope (small|medium|large), and difficulty (beginner|intermediate|advanced).
+# estimated_scope (small|medium|large), difficulty (beginner|intermediate|advanced),
+# and skill_context (2-3 sentences of mentor-tone career advice).
 
 - title: "Build a REST API with Django"
   description: "Create a RESTful API using Django REST Framework. Implement CRUD endpoints for a resource (e.g., a task manager), add authentication, and write API documentation with Swagger/OpenAPI."
   skills_addressed: ["Django", "REST API"]
   estimated_scope: "medium"
   difficulty: "intermediate"
+  skill_context: "Django powers a huge portion of production web applications, from startups to enterprises like Instagram and Mozilla. Teams value developers who can ship complete backend features — models, views, serializers, auth — without hand-holding. Understanding Django's conventions makes you productive on day one in most Python web shops."
 
 - title: "Deploy a containerized app with Docker and Kubernetes"
   description: "Dockerize a simple web application, create Kubernetes manifests, and deploy to a local cluster (minikube or kind). Practice pod management, services, and basic scaling."
   skills_addressed: ["Docker", "Kubernetes"]
   estimated_scope: "medium"
   difficulty: "intermediate"
+  skill_context: "Containerization is how modern engineering teams ship software reliably. Understanding Docker and Kubernetes means you can participate in deployment conversations, debug production issues, and work effectively with DevOps and platform teams. These skills transfer across every company and tech stack."
 
 - title: "Build a real-time chat app with React and Socket.IO"
   description: "Create a real-time chat application using React for the frontend and Socket.IO for WebSocket communication. Implement rooms, user presence, and message history."
   skills_addressed: ["React", "Socket.IO"]
   estimated_scope: "medium"
   difficulty: "intermediate"
+  skill_context: "React is the most widely adopted frontend framework in production engineering teams. Building real-time features demonstrates that you understand state management, component lifecycle, and async communication patterns — the kinds of challenges that separate junior from mid-level frontend developers."
 
 - title: "Create a CLI tool with Python and Click"
   description: "Build a useful command-line tool using Python. Implement argument parsing, colored output, and configuration file support. Publish it to PyPI as a portfolio piece."
   skills_addressed: ["Python"]
   estimated_scope: "small"
   difficulty: "beginner"
+  skill_context: "Python is the most versatile language in professional software development, used across web backends, data engineering, automation, and machine learning. Teams expect developers to write clean, idiomatic Python with proper packaging and distribution. A published CLI tool proves you can ship complete, usable software."
 
 - title: "Build a full-stack app with Next.js and PostgreSQL"
   description: "Create a full-stack application using Next.js with server-side rendering, API routes, and PostgreSQL for persistence. Implement user authentication and deploy to Vercel."
   skills_addressed: ["Next.js", "PostgreSQL", "TypeScript"]
   estimated_scope: "large"
   difficulty: "intermediate"
+  skill_context: "Full-stack TypeScript with a relational database is the bread and butter of modern product engineering. Teams need developers who can own features end-to-end — from the database schema through the API to the rendered page. This combination is the most in-demand skill set across startups and mid-size companies."
 
 - title: "Set up a CI/CD pipeline with GitHub Actions"
   description: "Configure a GitHub Actions workflow that runs tests, lints code, builds artifacts, and deploys to a staging environment. Add status badges and branch protection rules."
   skills_addressed: ["GitHub Actions", "CI/CD"]
   estimated_scope: "small"
   difficulty: "beginner"
+  skill_context: "Engineering organizations expect every developer to understand automated testing and deployment pipelines. CI/CD is not just a DevOps concern — it is how teams maintain code quality and ship safely. Being comfortable with workflow configuration makes you a more effective contributor from your first pull request."
 
 - title: "Build a microservice with FastAPI and Redis"
   description: "Create a FastAPI microservice with Redis for caching and rate limiting. Implement async endpoints, background tasks, and health checks. Containerize with Docker."
   skills_addressed: ["FastAPI", "Redis", "Docker"]
   estimated_scope: "medium"
   difficulty: "intermediate"
+  skill_context: "Production backend systems rely on caching and async processing to handle real-world traffic. FastAPI's async-first design reflects where the Python ecosystem is heading, and Redis is the de facto standard for caching and message brokering. Understanding these tools shows you can build services that perform under load."
 
 - title: "Create a mobile app with React Native"
   description: "Build a cross-platform mobile app using React Native. Implement navigation, state management, and integrate with a REST API. Deploy to a device or simulator."
   skills_addressed: ["React Native"]
   estimated_scope: "medium"
   difficulty: "intermediate"
+  skill_context: "Cross-platform mobile development lets small teams ship to both iOS and Android without maintaining separate codebases. Companies increasingly look for developers who can bridge web and mobile, and React Native experience signals that you can work across the full product surface area."
 
 - title: "Build a data pipeline with Python and pandas"
   description: "Create an ETL pipeline that ingests raw data, transforms it using pandas, and outputs clean datasets. Include data validation, error handling, and basic visualization."
   skills_addressed: ["pandas", "Python"]
   estimated_scope: "small"
   difficulty: "beginner"
+  skill_context: "Data processing is a core skill in most engineering organizations, not just data science roles. Backend developers, analysts, and ML engineers all need to transform and validate data. Understanding ETL patterns and pandas makes you effective in any role that touches data-driven features."
 
 - title: "Deploy a serverless API on AWS Lambda"
   description: "Build a serverless REST API using AWS Lambda and API Gateway. Implement DynamoDB for storage, configure IAM roles, and automate deployment with SAM or CDK."
   skills_addressed: ["AWS", "Serverless"]
   estimated_scope: "medium"
   difficulty: "intermediate"
+  skill_context: "Cloud infrastructure is a fundamental part of modern software delivery, and AWS dominates the market. Understanding serverless architecture shows you can think about cost, scalability, and operational concerns — not just application code. These skills make you more valuable in any engineering team that deploys to the cloud."
 
 - title: "Build a GraphQL API with Node.js"
   description: "Create a GraphQL API using Apollo Server and Node.js. Define a schema with queries, mutations, and subscriptions. Connect to a database and implement pagination."
   skills_addressed: ["GraphQL", "Node.js"]
   estimated_scope: "medium"
   difficulty: "intermediate"
+  skill_context: "GraphQL is widely adopted by product-focused engineering teams because it lets frontend developers get exactly the data they need. Understanding GraphQL means you can design APIs that reduce over-fetching and improve developer experience. This skill is especially valued at companies with complex data models and multiple client applications."
 
 - title: "Create an infrastructure-as-code project with Terraform"
   description: "Define cloud infrastructure using Terraform. Provision a VPC, compute instances, and a managed database. Implement modules for reusability and state management."
   skills_addressed: ["Terraform", "Infrastructure as Code"]
   estimated_scope: "medium"
   difficulty: "advanced"
+  skill_context: "Infrastructure as code is how mature engineering organizations manage cloud resources reproducibly and safely. Terraform skills signal that you understand operational concerns and can collaborate with platform teams. This expertise is increasingly expected of senior developers, not just dedicated DevOps engineers."
 
 - title: "Build a web scraper and API with Flask"
   description: "Create a web scraper using Python and expose the collected data through a Flask REST API. Add rate limiting, caching, and scheduled refresh of scraped data."
   skills_addressed: ["Flask", "Python"]
   estimated_scope: "small"
   difficulty: "beginner"
+  skill_context: "Flask's lightweight, unopinionated design teaches you how web frameworks actually work under the hood. Teams value developers who understand HTTP, routing, and middleware at a fundamental level rather than relying on framework magic. This foundation transfers to any web backend you encounter in your career."
 
 - title: "Build a Tauri desktop app with Svelte"
   description: "Create a lightweight desktop application using Tauri and Svelte. Implement a clean UI, system tray integration, and IPC communication between the frontend and Rust backend."
   skills_addressed: ["Tauri", "Svelte", "TypeScript"]
   estimated_scope: "medium"
   difficulty: "intermediate"
+  skill_context: "Desktop application development with web technologies is a growing niche that combines frontend skills with systems programming. Tauri's approach of shipping native binaries with minimal overhead appeals to companies building developer tools and productivity software. This combination shows you can work across the web-native boundary."
 
 - title: "Implement authentication with OAuth and JWT"
   description: "Build an authentication system supporting OAuth 2.0 (Google/GitHub login) and JWT tokens. Implement secure token storage, refresh flows, and role-based access control."
   skills_addressed: ["Authentication", "OAuth", "JWT"]
   estimated_scope: "medium"
   difficulty: "advanced"
+  skill_context: "Authentication and authorization touch every production application, and getting them wrong has serious security consequences. Teams need developers who understand token flows, session management, and access control — not just how to plug in a library. This knowledge makes you a trusted contributor on security-sensitive features."
 
 - title: "Build a Ruby on Rails CRUD application"
   description: "Create a full CRUD application with Ruby on Rails. Implement models with Active Record, RESTful controllers, views with ERB templates, and database migrations."
   skills_addressed: ["Ruby on Rails"]
   estimated_scope: "small"
   difficulty: "beginner"
+  skill_context: "Rails remains one of the most productive frameworks for building web applications quickly, powering companies like Shopify, GitHub, and Basecamp. Its convention-over-configuration philosophy teaches disciplined software design patterns that transfer to any framework. Teams using Rails expect developers to be productive within days."
 
 - title: "Create a Go web service with Gin"
   description: "Build a RESTful web service using Go and the Gin framework. Implement structured logging, middleware, database integration with GORM, and graceful shutdown."
   skills_addressed: ["Go", "Gin"]
   estimated_scope: "medium"
   difficulty: "intermediate"
+  skill_context: "Go is the language of choice for high-performance backend services, infrastructure tooling, and cloud-native applications. Its simplicity and strong concurrency primitives make it ideal for services that need to handle thousands of concurrent requests. Go developers are in high demand at companies building scalable distributed systems."
 
 - title: "Build a machine learning model API"
   description: "Train a simple ML model using scikit-learn, serialize it, and serve predictions through a FastAPI endpoint. Include input validation, model versioning, and basic monitoring."
   skills_addressed: ["scikit-learn", "FastAPI", "Python"]
   estimated_scope: "medium"
   difficulty: "intermediate"
+  skill_context: "Machine learning is moving from research into production engineering, and teams need developers who can bridge the gap between model training and deployment. Understanding how to serve models as APIs, handle input validation, and version artifacts makes you valuable in any organization adopting ML-driven features."
 
 - title: "Create a Vue.js dashboard with Supabase"
   description: "Build an interactive dashboard using Vue.js with Supabase for authentication and real-time data. Implement charts, filters, and responsive layout with Tailwind CSS."
   skills_addressed: ["Vue", "Supabase", "Tailwind CSS"]
   estimated_scope: "medium"
   difficulty: "intermediate"
+  skill_context: "Vue's approachable design and strong ecosystem make it a popular choice for teams that value developer experience. Combined with backend-as-a-service platforms like Supabase, you can ship complete features without standing up custom infrastructure. This stack demonstrates you can move fast while building polished, production-quality interfaces."
 
 - title: "Build a Rust CLI tool"
   description: "Create a useful command-line tool in Rust using clap for argument parsing. Implement error handling with anyhow, add colored output, and publish to crates.io."
   skills_addressed: ["Rust"]
   estimated_scope: "small"
   difficulty: "intermediate"
+  skill_context: "Rust is increasingly adopted for performance-critical systems, CLI tools, and WebAssembly applications. Its ownership model and zero-cost abstractions produce reliable, fast software that teams can deploy with confidence. Rust experience signals strong systems thinking and attention to correctness — qualities valued in senior engineering roles."
+
+- title: "Build a monitoring dashboard with Prometheus and Grafana"
+  description: "Instrument an application with Prometheus metrics, set up a Grafana dashboard, and configure alerting rules. Practice observability patterns including custom metrics and service-level objectives."
+  skills_addressed: ["Prometheus", "Grafana"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+  skill_context: "Observability is how production engineering teams understand what their systems are actually doing. Developers who can instrument code, build dashboards, and set up meaningful alerts are invaluable during incidents and capacity planning. These skills show you think beyond feature delivery to operational excellence."
+
+- title: "Build an event-driven system with Kafka"
+  description: "Create a producer-consumer system using Apache Kafka. Implement message schemas with Avro or JSON, consumer groups, error handling with dead-letter queues, and basic stream processing."
+  skills_addressed: ["Kafka", "Event-Driven Architecture"]
+  estimated_scope: "medium"
+  difficulty: "advanced"
+  skill_context: "Event-driven architecture powers the backbone of high-scale systems at companies like LinkedIn, Uber, and Netflix. Understanding message brokers, consumer groups, and exactly-once semantics prepares you for distributed systems work. Teams building real-time data pipelines and microservices need engineers who think in events, not just requests."
+
+- title: "Create a testing strategy with Playwright and Jest"
+  description: "Build a comprehensive test suite combining Jest unit tests and Playwright end-to-end tests. Implement page objects, visual regression testing, CI integration, and test reporting."
+  skills_addressed: ["Playwright", "Jest", "Testing"]
+  estimated_scope: "small"
+  difficulty: "intermediate"
+  skill_context: "Testing is what separates professional software from hobby projects, and it is the fastest way to earn trust on a new team. Developers who write meaningful tests ship with confidence and catch regressions before users do. Understanding both unit and E2E testing makes you someone teammates rely on for quality."
+
+- title: "Build a search engine with Elasticsearch"
+  description: "Index a dataset into Elasticsearch, build a search API with faceted filtering, autocomplete, and relevance tuning. Implement fuzzy matching, aggregations, and pagination."
+  skills_addressed: ["Elasticsearch"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+  skill_context: "Search is a core feature in most production applications, and getting it right requires understanding indexing, relevance scoring, and query optimization. Elasticsearch skills are valuable because search cuts across e-commerce, content platforms, logging, and analytics — domains where engineering teams always need expertise."
+
+- title: "Build a real-time collaboration app with WebSockets"
+  description: "Create a collaborative document editor or whiteboard using WebSockets. Implement conflict resolution with operational transforms or CRDTs, presence indicators, and reconnection handling."
+  skills_addressed: ["WebSockets"]
+  estimated_scope: "medium"
+  difficulty: "advanced"
+  skill_context: "Real-time collaboration is one of the most technically demanding features in modern applications, powering tools like Google Docs, Figma, and Notion. Understanding WebSockets, state synchronization, and conflict resolution demonstrates deep systems thinking. These skills position you for senior roles at product-driven companies."
+
+- title: "Build a Spring Boot microservice with Java"
+  description: "Create a RESTful microservice using Spring Boot. Implement dependency injection, JPA for database access, Spring Security for auth, and actuator endpoints for health monitoring."
+  skills_addressed: ["Java", "Spring Boot"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+  skill_context: "Java and Spring Boot power the majority of enterprise backend systems worldwide. Understanding the Spring ecosystem — dependency injection, auto-configuration, and the annotation-driven model — makes you immediately productive in large engineering organizations. Java experience is especially valued at companies with mature, large-scale codebases."
+
+- title: "Build a static site with Astro and a headless CMS"
+  description: "Create a performant static site using Astro with content sourced from a headless CMS like Strapi or Contentful. Implement dynamic routes, image optimization, and incremental static regeneration."
+  skills_addressed: ["Astro", "CMS"]
+  estimated_scope: "small"
+  difficulty: "beginner"
+  skill_context: "Modern web development increasingly separates content management from presentation. Understanding static site generation, headless CMS patterns, and performance optimization shows you can build fast, maintainable sites that content teams can manage independently. These skills are highly valued at agencies and product companies alike."
+
+- title: "Implement a message queue with RabbitMQ"
+  description: "Build a task processing system using RabbitMQ. Implement work queues, topic exchanges, retry logic with dead-letter exchanges, and a simple admin dashboard to monitor queue depth."
+  skills_addressed: ["RabbitMQ"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+  skill_context: "Message queues are how production systems handle background work, decouple services, and manage traffic spikes gracefully. Understanding queue patterns — work queues, pub/sub, routing — is essential for building systems that scale beyond a single process. This knowledge applies whether a team uses RabbitMQ, SQS, or any other broker."
+
+- title: "Build a cross-platform app with Flutter"
+  description: "Create a mobile application using Flutter and Dart. Implement navigation, state management with Riverpod or Bloc, REST API integration, and platform-specific features for iOS and Android."
+  skills_addressed: ["Flutter", "Dart"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+  skill_context: "Flutter enables teams to ship native-quality apps on iOS, Android, and web from a single codebase. Companies adopt Flutter to move faster without maintaining separate platform teams. Understanding reactive UI frameworks and Dart's type system makes you versatile across mobile and web development."
+
+- title: "Build an Angular dashboard with Material Design"
+  description: "Create a data-driven dashboard using Angular with Angular Material components. Implement lazy-loaded routes, reactive forms, RxJS-based data services, and responsive layouts."
+  skills_addressed: ["Angular", "TypeScript", "RxJS"]
+  estimated_scope: "medium"
+  difficulty: "intermediate"
+  skill_context: "Angular is the framework of choice for large enterprise applications that need strong opinions about architecture. Its module system, dependency injection, and TypeScript-first approach enforce patterns that scale across large teams. Angular expertise is especially valued at financial services, healthcare, and government organizations."

@@ -38,6 +38,52 @@ class TestNoAIProvider:
             assert len(r["skills_addressed"]) <= 3
             assert "estimated_scope" in r
 
+    def test_recommendations_include_skill_context(self):
+        provider = NoAIProvider()
+        gaps = {
+            "missing_skills": [
+                {"name": "ObscureTech99", "category": "tool"},
+            ],
+            "adjacent_skills": [],
+        }
+        recs = provider.generate_recommendations(gaps)
+        assert len(recs) >= 1
+        for r in recs:
+            assert "skill_context" in r
+            assert isinstance(r["skill_context"], str)
+            assert len(r["skill_context"]) > 0
+
+    def test_heuristic_skill_context_matches_category(self):
+        provider = NoAIProvider()
+        gaps = {
+            "missing_skills": [
+                {"name": "UnknownLang", "category": "language"},
+            ],
+            "adjacent_skills": [],
+        }
+        recs = provider.generate_recommendations(gaps)
+        assert len(recs) >= 1
+        # Language category context should mention "language" concepts
+        ctx = recs[0]["skill_context"].lower()
+        assert "language" in ctx or "code" in ctx
+
+    def test_template_recommendations_include_skill_context(self):
+        provider = NoAIProvider()
+        gaps = {
+            "missing_skills": [
+                {"name": "Docker", "category": "infrastructure"},
+                {"name": "Kubernetes", "category": "infrastructure"},
+            ],
+            "adjacent_skills": [],
+        }
+        recs = provider.generate_recommendations(gaps)
+        # Template-based recs should have skill_context from the template
+        template_recs = [r for r in recs if "Build a project using" not in r["title"]]
+        for r in template_recs:
+            assert "skill_context" in r
+            assert isinstance(r["skill_context"], str)
+            assert len(r["skill_context"]) >= 50
+
 
 class TestRegistry:
     def test_get_none_provider(self):

@@ -11,6 +11,39 @@ from typing import Any
 from projectbridge.ai.provider import AIProvider, register_provider
 from projectbridge.recommend.templates import select_templates
 
+# Generic mentor-tone context for heuristic-generated recommendations,
+# keyed by SkillCategory value.
+_CATEGORY_CONTEXT: dict[str, str] = {
+    "language": (
+        "Programming languages are the foundation of everything you build. "
+        "Teams value developers who write clean, idiomatic code and understand "
+        "the ecosystem — tooling, packaging, and community conventions — not "
+        "just syntax."
+    ),
+    "framework": (
+        "Frameworks encode the best practices of thousands of engineering teams. "
+        "Knowing a framework well means you can ship features faster, follow "
+        "established patterns, and contribute meaningfully from day one on a new team."
+    ),
+    "infrastructure": (
+        "Infrastructure skills bridge the gap between writing code and running "
+        "it in production. Engineering organizations value developers who "
+        "understand deployment, scaling, and operational concerns alongside "
+        "application logic."
+    ),
+    "tool": (
+        "Developer tools and databases are the building blocks of real systems. "
+        "Understanding how to choose, configure, and integrate the right tools "
+        "makes you effective across projects and teams."
+    ),
+    "concept": (
+        "Software engineering concepts — like design patterns, testing "
+        "strategies, and architectural principles — transfer across every "
+        "language and framework. Mastering them makes you adaptable and "
+        "valuable in any engineering organization."
+    ),
+}
+
 
 class NoAIProvider(AIProvider):
     """Heuristic-only provider that requires no API keys or network."""
@@ -24,8 +57,10 @@ class NoAIProvider(AIProvider):
         missing = gaps.get("missing_skills", [])
         adjacent = gaps.get("adjacent_skills", [])
 
-        all_skill_names = [_skill_name(s) for s in missing] + [_skill_name(s) for s in adjacent]
-        skill_name_set = set(all_skill_names)
+        all_skills = [(_skill_name(s), _skill_category(s)) for s in missing] + [
+            (_skill_name(s), _skill_category(s)) for s in adjacent
+        ]
+        skill_name_set = {name for name, _ in all_skills}
 
         # 1. Try template-based recommendations first.
         matched_templates = select_templates(skill_name_set)
@@ -36,17 +71,22 @@ class NoAIProvider(AIProvider):
         for tpl in matched_templates:
             covered.update(s.lower() for s in tpl.get("skills_addressed", []))
 
-        uncovered = [s for s in all_skill_names if s.lower() not in covered]
+        uncovered = [(name, cat) for name, cat in all_skills if name.lower() not in covered]
 
         # 3. Generate heuristic recommendations for uncovered skills.
         batch: list[str] = []
-        for skill in uncovered:
-            batch.append(skill)
+        batch_categories: list[str] = []
+        for name, cat in uncovered:
+            batch.append(name)
+            batch_categories.append(cat)
             if len(batch) >= 3:
-                recommendations.append(_make_recommendation(batch))
+                recommendations.append(
+                    _make_recommendation(batch, _pick_category(batch_categories))
+                )
                 batch = []
+                batch_categories = []
         if batch:
-            recommendations.append(_make_recommendation(batch))
+            recommendations.append(_make_recommendation(batch, _pick_category(batch_categories)))
 
         return recommendations
 
@@ -63,7 +103,25 @@ def _skill_name(skill: Any) -> str:
     return getattr(skill, "name", str(skill))
 
 
-def _make_recommendation(skills: list[str]) -> dict[str, Any]:
+def _skill_category(skill: Any) -> str:
+    """Extract the category string from a skill (dict or Pydantic model)."""
+    if isinstance(skill, dict):
+        return skill.get("category", "concept")
+    cat = getattr(skill, "category", "concept")
+    # Handle enum values
+    return getattr(cat, "value", str(cat)) if cat else "concept"
+
+
+def _pick_category(categories: list[str]) -> str:
+    """Pick the most common category from a batch, defaulting to 'concept'."""
+    if not categories:
+        return "concept"
+    from collections import Counter
+
+    return Counter(categories).most_common(1)[0][0]
+
+
+def _make_recommendation(skills: list[str], category: str = "concept") -> dict[str, Any]:
     """Build a single recommendation dict for a batch of skills."""
     if len(skills) == 1:
         title = f"Build a project using {skills[0]}"
@@ -88,6 +146,7 @@ def _make_recommendation(skills: list[str]) -> dict[str, Any]:
         "description": desc,
         "skills_addressed": skills,
         "estimated_scope": scope,
+        "skill_context": _CATEGORY_CONTEXT.get(category, _CATEGORY_CONTEXT["concept"]),
     }
 
 

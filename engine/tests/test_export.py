@@ -17,7 +17,7 @@ class TestCreateSnapshot:
         snap = create_snapshot(result)
         assert snap.exported_at
         assert snap.engine_version == __version__
-        assert snap.schema_version == "1.0"
+        assert snap.schema_version == "1.1"
         assert snap.analysis == result
 
     def test_snapshot_roundtrip(self):
@@ -46,6 +46,7 @@ class TestRenderMarkdown:
                     description="Build a Docker setup for a Django project.",
                     skills_addressed=["Docker", "Django"],
                     estimated_scope=EstimatedScope.SMALL,
+                    skill_context="Containerization is how modern teams ship software reliably.",
                 ),
             ],
         )
@@ -70,6 +71,28 @@ class TestRenderMarkdown:
         assert "### Containerize a Django App" in md
         assert "Docker, Django" in md
         assert "small" in md
+
+    def test_contains_skill_context_blockquote(self):
+        md = render_markdown(self._make_result())
+        assert "> Containerization is how modern teams ship software reliably." in md
+
+    def test_no_blockquote_when_skill_context_is_none(self):
+        result = AnalysisResult(
+            strengths=[],
+            gaps=[],
+            recommendations=[
+                Recommendation(
+                    title="Test Rec",
+                    description="A project.",
+                    skills_addressed=["Go"],
+                    estimated_scope=EstimatedScope.SMALL,
+                ),
+            ],
+        )
+        md = render_markdown(result)
+        assert "### Test Rec" in md
+        # No blockquote should appear
+        assert "> " not in md
 
     def test_empty_result(self):
         result = AnalysisResult(strengths=[], gaps=[], recommendations=[])
