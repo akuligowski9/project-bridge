@@ -9,6 +9,9 @@ build/
 venv/
 engine/README.md
 
+# Rust
+scanner/target/
+
 # Node / Tauri
 node_modules/
 npm-debug.log*

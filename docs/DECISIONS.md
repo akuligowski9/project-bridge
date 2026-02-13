@@ -183,3 +183,13 @@ Each entry records the context, the decision, and the reasoning — so future co
 **Reasoning:** File-based caching requires no additional dependencies (no Redis, SQLite, or shelve). SHA-256 hashing produces safe, fixed-length filenames from arbitrary API paths. The `~/.cache/` location follows XDG conventions. Individual files per request make cache invalidation simple — delete the file or let TTL expire.
 **Alternatives Considered:** In-memory dict (lost between runs), SQLite (heavier, unnecessary for key-value lookups), `requests-cache` library (adds a dependency).
 **Consequences:** Cache persists across CLI invocations. `--no-cache` bypasses reads but doesn't clear existing cache. Cache directory grows over time but entries are small (~1-10KB each).
+
+### DEC-017: Standalone Rust scanner for local repository analysis
+
+**Date:** 2026-02-13
+**Status:** Accepted
+**Context:** ProjectBridge only analyzes repos via the GitHub API — users need a GitHub account with public repos to use the tool. A local filesystem scanner would enable offline use, private/unpushed repo analysis, and faster scans without API rate limits.
+**Decision:** Build `pb-scan` as a standalone Rust CLI under `scanner/` (separate Cargo project, not in the Tauri workspace). It outputs JSON matching the existing `dev_context` format so the Python pipeline works unchanged. The Python CLI adds `--local-repos` as an alternative to `--github-user`, invoking `pb-scan` via subprocess.
+**Reasoning:** Rust is a natural fit — the project already has Rust in the Tauri app, and a compiled scanner is significantly faster than Python file walking for large codebases. The `ignore` crate (used by ripgrep) provides .gitignore-aware directory walking out of the box. Keeping it as a standalone project avoids Cargo workspace complexities with the Tauri app.
+**Alternatives Considered:** Python implementation using `pathlib` (slower, no .gitignore awareness without extra deps), adding to Tauri workspace (workspace dependency conflicts), using `tree-sitter` for deep analysis (overkill for metadata-level scanning).
+**Consequences:** Users need `pb-scan` on PATH for `--local-repos` to work. The scanner ports all detection heuristics from `github.py` to maintain parity. The output format has no `rate_limit` field (GitHub-specific) which the Python pipeline already doesn't use in the analysis path.

@@ -6,8 +6,10 @@ CLI and a Python API.
 
 from __future__ import annotations
 
+import json
 import logging
 import os
+import subprocess
 from typing import Any
 
 import projectbridge.ai.anthropic_provider  # noqa: F401  — register the "anthropic" provider
@@ -89,11 +91,36 @@ class PipelineError(Exception):
         super().__init__(f"[{stage}] {detail}")
 
 
+def _run_local_scan(local_repos: list[str]) -> dict[str, Any]:
+    """Invoke pb-scan to scan local repositories and return dev_context."""
+    cmd = ["pb-scan", "--paths"] + local_repos
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except FileNotFoundError:
+        raise PipelineError(
+            "local_scan",
+            "pb-scan not found. Install it with: cargo install --path scanner/",
+        )
+    except subprocess.CalledProcessError as exc:
+        raise PipelineError("local_scan", exc.stderr.strip() or str(exc))
+
+    try:
+        return json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise PipelineError("local_scan", f"Invalid JSON from pb-scan: {exc}")
+
+
 def run_analysis(
     *,
     job_text: str | None = None,
     github_user: str | None = None,
     github_token: str | None = None,
+    local_repos: list[str] | None = None,
     resume_text: str | None = None,
     no_ai: bool = False,
     example: bool = False,
@@ -107,6 +134,7 @@ def run_analysis(
         job_text: Raw job description text.
         github_user: GitHub username to analyze.
         github_token: GitHub personal access token (or read from env).
+        local_repos: Local directory paths to scan with pb-scan.
         resume_text: Optional plain-text resume for contextual enrichment.
         no_ai: Force the NoAI heuristic provider.
         example: Use bundled example data instead of live inputs.
@@ -139,6 +167,21 @@ def run_analysis(
         logger.info("Using bundled example data")
         dev_context = EXAMPLE_DEV_CONTEXT
         job_text = EXAMPLE_JOB_DESCRIPTION
+    elif local_repos:
+        try:
+            job_text = validate_job_text(job_text)
+            resume_text = validate_resume_text(resume_text)
+        except ValidationError as exc:
+            raise PipelineError("validation", str(exc)) from exc
+
+        logger.info("Scanning local repositories: %s", local_repos)
+        progress.start_spinner("Scanning local repositories...")
+        try:
+            dev_context = _run_local_scan(local_repos)
+        except PipelineError:
+            progress.stop_spinner()
+            raise
+        progress.stop_spinner()
     else:
         try:
             github_user = validate_github_username(github_user)

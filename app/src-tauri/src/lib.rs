@@ -67,6 +67,18 @@ fn export_analysis(analysis_json: String, format: String) -> Result<String, Stri
     }
 }
 
+#[tauri::command]
+fn scan_local_repos(paths: Vec<String>) -> Result<String, String> {
+    let mut cmd_args = vec!["analyze".to_string(), "--no-ai".to_string()];
+    cmd_args.push("--local-repos".to_string());
+    cmd_args.extend(paths);
+    // Use a placeholder job text for local-only scans.
+    cmd_args.push("--job-text".to_string());
+    cmd_args.push("Local repository scan".to_string());
+
+    run_analysis(cmd_args)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -75,7 +87,12 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_fs::init())
-        .invoke_handler(tauri::generate_handler![run_analysis, run_analysis_form, export_analysis])
+        .invoke_handler(tauri::generate_handler![
+            run_analysis,
+            run_analysis_form,
+            export_analysis,
+            scan_local_repos
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

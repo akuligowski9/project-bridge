@@ -52,6 +52,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="GitHub username to analyze.",
     )
     analyze.add_argument(
+        "--local-repos",
+        nargs="+",
+        metavar="DIR",
+        help="Local repository directories to scan (alternative to --github-user).",
+    )
+    analyze.add_argument(
         "--output",
         metavar="FILE",
         help="Write JSON output to FILE instead of stdout.",
@@ -150,6 +156,10 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _cmd_analyze(args: argparse.Namespace) -> int:
+    if args.github_user and args.local_repos:
+        print("Error: --github-user and --local-repos are mutually exclusive.", file=sys.stderr)
+        return 1
+
     job_text: str | None = None
     if args.job and args.job_text:
         print("Error: --job and --job-text are mutually exclusive.", file=sys.stderr)
@@ -180,6 +190,7 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
         result = run_analysis(
             job_text=job_text,
             github_user=args.github_user,
+            local_repos=args.local_repos,
             resume_text=resume_text,
             no_ai=args.no_ai,
             example=args.example,

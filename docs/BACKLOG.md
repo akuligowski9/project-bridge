@@ -898,6 +898,118 @@ Write a post announcing ProjectBridge for LinkedIn and other relevant platforms 
 
 ---
 
+### PB-041: Initialize Rust scanner project structure
+
+**Description:**
+Create the `scanner/` Cargo project with module stubs, test fixtures, and build configuration for the `pb-scan` local repository scanner.
+
+**Metadata:**
+
+- **Status:** Done
+- **Priority:** Critical
+- **Depends on:** —
+- **Blocks:** PB-042, PB-043, PB-044, PB-045
+
+---
+
+### PB-042: Implement directory walking + language detection
+
+**Description:**
+Build `.gitignore`-aware directory walking using the `ignore` crate and file extension → language mapping with byte counting.
+
+**Metadata:**
+
+- **Status:** Done
+- **Priority:** Critical
+- **Depends on:** PB-041
+- **Blocks:** PB-045
+
+---
+
+### PB-043: Implement framework/infrastructure detection
+
+**Description:**
+Port all 38 file indicators from `github.py` FRAMEWORK_INDICATORS and project structure detection to Rust.
+
+**Metadata:**
+
+- **Status:** Done
+- **Priority:** High
+- **Depends on:** PB-041
+- **Blocks:** PB-045
+
+---
+
+### PB-044: Implement dependency file parsing (all 6 formats)
+
+**Description:**
+Port all 6 dependency parsers (package.json, requirements.txt, Cargo.toml, Gemfile, go.mod, composer.json) with exact mapping parity.
+
+**Metadata:**
+
+- **Status:** Done
+- **Priority:** High
+- **Depends on:** PB-041
+- **Blocks:** PB-045
+
+---
+
+### PB-045: Implement CLI and JSON output
+
+**Description:**
+Build the `pb-scan` clap CLI with single/multi-directory scanning, pretty-print, stats flags, and serde JSON output matching the Python `dev_context` format.
+
+**Metadata:**
+
+- **Status:** Done
+- **Priority:** High
+- **Depends on:** PB-042, PB-043, PB-044
+- **Blocks:** PB-046
+
+---
+
+### PB-046: Integrate pb-scan with Python CLI + orchestrator
+
+**Description:**
+Add `--local-repos` flag to the Python CLI (mutually exclusive with `--github-user`) and `_run_local_scan()` to the orchestrator that invokes `pb-scan` via subprocess.
+
+**Metadata:**
+
+- **Status:** Done
+- **Priority:** High
+- **Depends on:** PB-045
+- **Blocks:** —
+
+---
+
+### PB-047: Add scanner to CI and Makefile
+
+**Description:**
+Add `scanner-build`, `scanner-test`, `scanner-lint` Makefile targets, update `check` target, add `scanner` CI job with Rust toolchain, and add `scanner/target/` to `.gitignore`.
+
+**Metadata:**
+
+- **Status:** Done
+- **Priority:** Medium
+- **Depends on:** PB-041
+- **Blocks:** —
+
+---
+
+### PB-048: Add Tauri IPC command for local scan
+
+**Description:**
+Add `scan_local_repos` Tauri command that invokes the Python CLI with `--local-repos` via subprocess.
+
+**Metadata:**
+
+- **Status:** Done
+- **Priority:** Medium
+- **Depends on:** PB-046
+- **Blocks:** —
+
+---
+
 ## Parking Lot
 
 _Ideas worth remembering — not yet actionable or fully defined._
@@ -1259,5 +1371,13 @@ Created `engine/projectbridge/analysis/interview_topics.py` with `INTERVIEW_TOPI
 **Status:** Done
 
 Bumped schema to v1.2 (backwards compatible with 1.0, 1.1). Added `experience_level`, `portfolio_insights`, and `interview_topics` fields to `AnalysisResult`. Created `docs/schema/analysis_output_v1.2.json`. Updated all tests for new default version. 219 tests passing, lint clean.
+
+---
+
+### PB-041 through PB-048: Rust local repository scanner (pb-scan)
+
+**Status:** Done
+
+Built `pb-scan`, a standalone Rust CLI under `scanner/` that scans local directories and outputs JSON matching the Python `dev_context` format. ~800 lines of Rust across 7 modules: directory walking via `ignore` crate (`.gitignore`-aware), extension→language mapping with byte counting (~45 languages), 38 file indicators ported from `github.py`, 6 dependency parsers (package.json, requirements.txt, Cargo.toml, Gemfile, go.mod, composer.json), project structure detection, and clap CLI with single/multi-directory scanning. 34 Rust tests (28 unit + 6 integration) against 4 synthetic fixture repos. Integrated with Python: `--local-repos` CLI flag (mutually exclusive with `--github-user`) invokes `pb-scan` via subprocess. Added Tauri `scan_local_repos` IPC command. Makefile scanner targets + CI workflow with fmt/clippy/test/build. Decision logged as DEC-017.
 
 ---
