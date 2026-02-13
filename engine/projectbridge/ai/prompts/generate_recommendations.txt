@@ -13,4 +13,6 @@ Return ONLY valid JSON with a single key "recommendations" containing an array o
 - "estimated_scope": One of "small", "medium", or "large".
 - "skill_context": A 2-3 sentence career mentorship explanation of why these skills matter. Write as an experienced mentor — explain the professional value, how they fit into real teams, what they unlock career-wise. Do NOT restate job requirements or say "the job requires." Instead use phrases like "teams expect," "production environments use," "engineering organizations value."
 
+If a developer context summary is provided, personalize descriptions to reference their existing skills as a foundation. For example, "Since you already know Flask, building a Django app will feel familiar — focus on..." Do NOT change the project scope or skills_addressed.
+
 Do not include any explanation or markdown formatting — just the JSON object.

@@ -14,6 +14,8 @@ def generate_recommendations(
     analysis: dict[str, list[Skill]],
     provider: AIProvider,
     max_recommendations: int = 5,
+    experience_level: str | None = None,
+    dev_context: dict | None = None,
 ) -> list[Recommendation]:
     """Produce project recommendations from analysis results.
 
@@ -22,14 +24,32 @@ def generate_recommendations(
             and ``detected_skills`` lists of :class:`Skill`.
         provider: The active AI provider (may be :class:`NoAIProvider`).
         max_recommendations: Cap on recommendations returned.
+        experience_level: Optional ``"junior"``, ``"mid"``, or ``"senior"``.
+        dev_context: Optional developer context for personalization.
 
     Returns:
         A list of :class:`Recommendation` conforming to the output schema.
     """
-    gaps = {
+    gaps: dict = {
         "missing_skills": [s.model_dump() for s in analysis.get("missing_skills", [])],
         "adjacent_skills": [s.model_dump() for s in analysis.get("adjacent_skills", [])],
     }
+    if experience_level:
+        gaps["experience_level"] = experience_level
+    if dev_context:
+        known: list[str] = []
+        for group in ("languages", "frameworks", "infrastructure_signals"):
+            for item in dev_context.get(group, []):
+                known.append(item["name"])
+        known.extend(dev_context.get("resume_skills", []))
+        top_lang = None
+        langs = dev_context.get("languages", [])
+        if langs:
+            top_lang = max(langs, key=lambda x: x.get("percentage", 0))["name"]
+        summary = f"Developer knows: {', '.join(known)}."
+        if top_lang:
+            summary += f" Strongest language: {top_lang}."
+        gaps["dev_context_summary"] = summary
 
     raw = provider.generate_recommendations(gaps)
 

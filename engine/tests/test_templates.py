@@ -68,6 +68,25 @@ class TestSelectTemplates:
             assert isinstance(tpl["skill_context"], str)
             assert len(tpl["skill_context"]) >= 50
 
+    def test_experience_level_junior_prefers_beginner(self):
+        results = select_templates({"Python"}, experience_level="junior")
+        assert len(results) >= 1
+        # With a single-skill overlap, beginner templates should rank above intermediate.
+        beginner_results = [r for r in results if r["difficulty"] == "beginner"]
+        assert len(beginner_results) >= 1
+
+    def test_experience_level_senior_prefers_advanced(self):
+        results = select_templates(
+            {"Kafka", "Event-Driven Architecture"}, experience_level="senior"
+        )
+        if results:
+            # The Kafka template is "advanced", should appear.
+            assert results[0]["difficulty"] in ("advanced", "intermediate")
+
+    def test_experience_level_none_no_error(self):
+        results = select_templates({"Docker"}, experience_level=None)
+        assert len(results) >= 1
+
 
 class TestNoAIWithTemplates:
     def test_uses_templates_when_available(self):

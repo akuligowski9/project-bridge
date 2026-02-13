@@ -16,9 +16,15 @@ import projectbridge.ai.ollama_provider  # noqa: F401  — register the "ollama"
 import projectbridge.ai.openai_provider  # noqa: F401  — register the "openai" provider
 from projectbridge.ai.provider import AIProvider, get_provider
 from projectbridge.analysis.engine import analyze
+from projectbridge.analysis.experience import infer_experience_level
+from projectbridge.analysis.interview_topics import get_interview_topics
+from projectbridge.analysis.portfolio import derive_portfolio_insights
 from projectbridge.config.settings import ProjectBridgeConfig, load_config
 from projectbridge.input.github import GitHubAnalyzer
-from projectbridge.input.job_description import parse_job_description
+from projectbridge.input.job_description import (
+    parse_job_description,
+    validate_technical_content,
+)
 from projectbridge.input.resume import merge_resume_context, parse_resume
 from projectbridge.input.validation import (
     ValidationError,
@@ -178,7 +184,9 @@ def run_analysis(
     progress.step("Parsing job description...")
     logger.info("Parsing job description")
     try:
-        job_reqs = parse_job_description(job_text).model_dump()
+        job_reqs_model = parse_job_description(job_text)
+        validate_technical_content(job_text, job_reqs_model)
+        job_reqs = job_reqs_model.model_dump()
     except Exception as exc:
         raise PipelineError("job_parser", str(exc)) from exc
 
@@ -201,6 +209,21 @@ def run_analysis(
     except Exception as exc:
         raise PipelineError("analysis", str(exc)) from exc
 
+    # -- 6a. Experience level inference ------------------------------------
+    exp_level = infer_experience_level(dev_context)
+    logger.info("Inferred experience level: %s", exp_level.value)
+
+    # -- 6b. Portfolio insights --------------------------------------------
+    portfolio_insights = derive_portfolio_insights(dev_context, job_reqs, analysis)
+
+    # -- 6c. Interview topics for gap skills --------------------------------
+    gap_skills = analysis["missing_skills"] + analysis["adjacent_skills"]
+    interview_topics = []
+    for skill in gap_skills:
+        topics = get_interview_topics(skill.name)
+        if topics:
+            interview_topics.append({"skill": skill.name, "topics": topics})
+
     # -- 7. Recommendations ------------------------------------------------
     progress.step("Generating recommendations...")
     logger.info("Generating recommendations")
@@ -209,6 +232,8 @@ def run_analysis(
             analysis,
             provider,
             max_recommendations=config.analysis.max_recommendations,
+            experience_level=exp_level.value,
+            dev_context=dev_context,
         )
     except Exception as exc:
         raise PipelineError("recommendations", str(exc)) from exc
@@ -220,4 +245,7 @@ def run_analysis(
         strengths=analysis["detected_skills"],
         gaps=analysis["missing_skills"] + analysis["adjacent_skills"],
         recommendations=recs,
+        experience_level=exp_level.value,
+        portfolio_insights=portfolio_insights,
+        interview_topics=interview_topics,
     )

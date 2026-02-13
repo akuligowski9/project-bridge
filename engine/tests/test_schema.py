@@ -6,6 +6,8 @@ from pydantic import ValidationError
 from projectbridge.schema import (
     AnalysisResult,
     EstimatedScope,
+    InterviewTopic,
+    PortfolioInsight,
     Recommendation,
     Skill,
     SkillCategory,
@@ -65,7 +67,7 @@ class TestRecommendation:
 class TestAnalysisResult:
     def test_schema_version_default(self):
         r = AnalysisResult(strengths=[], gaps=[], recommendations=[])
-        assert r.schema_version == "1.1"
+        assert r.schema_version == "1.2"
 
     def test_schema_version_accepts_1_0(self):
         r = AnalysisResult(schema_version="1.0", strengths=[], gaps=[], recommendations=[])
@@ -75,9 +77,53 @@ class TestAnalysisResult:
         r = AnalysisResult(schema_version="1.1", strengths=[], gaps=[], recommendations=[])
         assert r.schema_version == "1.1"
 
+    def test_schema_version_accepts_1_2(self):
+        r = AnalysisResult(schema_version="1.2", strengths=[], gaps=[], recommendations=[])
+        assert r.schema_version == "1.2"
+
     def test_missing_field_raises(self):
         with pytest.raises(ValidationError):
-            AnalysisResult.model_validate({"schema_version": "1.1", "strengths": [], "gaps": []})
+            AnalysisResult.model_validate({"schema_version": "1.2", "strengths": [], "gaps": []})
+
+    def test_experience_level_optional(self):
+        r = AnalysisResult(strengths=[], gaps=[], recommendations=[])
+        assert r.experience_level is None
+
+    def test_experience_level_set(self):
+        r = AnalysisResult(strengths=[], gaps=[], recommendations=[], experience_level="senior")
+        assert r.experience_level == "senior"
+
+    def test_portfolio_insights_default_empty(self):
+        r = AnalysisResult(strengths=[], gaps=[], recommendations=[])
+        assert r.portfolio_insights == []
+
+    def test_portfolio_insights_set(self):
+        r = AnalysisResult(
+            strengths=[],
+            gaps=[],
+            recommendations=[],
+            portfolio_insights=[
+                PortfolioInsight(category="balance", message="Add infra projects.")
+            ],
+        )
+        assert len(r.portfolio_insights) == 1
+        assert r.portfolio_insights[0].category == "balance"
+
+    def test_interview_topics_default_empty(self):
+        r = AnalysisResult(strengths=[], gaps=[], recommendations=[])
+        assert r.interview_topics == []
+
+    def test_interview_topics_set(self):
+        r = AnalysisResult(
+            strengths=[],
+            gaps=[],
+            recommendations=[],
+            interview_topics=[
+                InterviewTopic(skill="Docker", topics=["Multi-stage builds", "Networking"])
+            ],
+        )
+        assert len(r.interview_topics) == 1
+        assert r.interview_topics[0].skill == "Docker"
 
     def test_roundtrip(self):
         r = AnalysisResult(
@@ -91,6 +137,13 @@ class TestAnalysisResult:
                     estimated_scope=EstimatedScope.SMALL,
                     skill_context="Containerization is essential for modern teams.",
                 )
+            ],
+            experience_level="mid",
+            portfolio_insights=[
+                PortfolioInsight(category="balance", message="Add infra projects.")
+            ],
+            interview_topics=[
+                InterviewTopic(skill="Docker", topics=["Multi-stage builds", "Networking"])
             ],
         )
         json_str = r.model_dump_json()

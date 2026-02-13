@@ -56,14 +56,23 @@ class NoAIProvider(AIProvider):
         """Generate recommendations: templates first, heuristic fallback for the rest."""
         missing = gaps.get("missing_skills", [])
         adjacent = gaps.get("adjacent_skills", [])
+        experience_level = gaps.get("experience_level")
 
         all_skills = [(_skill_name(s), _skill_category(s)) for s in missing] + [
             (_skill_name(s), _skill_category(s)) for s in adjacent
         ]
         skill_name_set = {name for name, _ in all_skills}
 
+        # Build known skills from dev_context_summary for personalization.
+        known_skills: set[str] | None = None
+        summary = gaps.get("dev_context_summary", "")
+        if summary and summary.startswith("Developer knows: "):
+            prefix = "Developer knows: "
+            chunk = summary[len(prefix) :].split(".")[0]
+            known_skills = {s.strip() for s in chunk.split(",") if s.strip()}
+
         # 1. Try template-based recommendations first.
-        matched_templates = select_templates(skill_name_set)
+        matched_templates = select_templates(skill_name_set, experience_level=experience_level)
         recommendations: list[dict[str, Any]] = list(matched_templates)
 
         # 2. Find skills not covered by any template.
@@ -81,12 +90,18 @@ class NoAIProvider(AIProvider):
             batch_categories.append(cat)
             if len(batch) >= 3:
                 recommendations.append(
-                    _make_recommendation(batch, _pick_category(batch_categories))
+                    _make_recommendation(
+                        batch, _pick_category(batch_categories), known_skills=known_skills
+                    )
                 )
                 batch = []
                 batch_categories = []
         if batch:
-            recommendations.append(_make_recommendation(batch, _pick_category(batch_categories)))
+            recommendations.append(
+                _make_recommendation(
+                    batch, _pick_category(batch_categories), known_skills=known_skills
+                )
+            )
 
         return recommendations
 
@@ -121,7 +136,11 @@ def _pick_category(categories: list[str]) -> str:
     return Counter(categories).most_common(1)[0][0]
 
 
-def _make_recommendation(skills: list[str], category: str = "concept") -> dict[str, Any]:
+def _make_recommendation(
+    skills: list[str],
+    category: str = "concept",
+    known_skills: set[str] | None = None,
+) -> dict[str, Any]:
     """Build a single recommendation dict for a batch of skills."""
     if len(skills) == 1:
         title = f"Build a project using {skills[0]}"
@@ -138,6 +157,18 @@ def _make_recommendation(skills: list[str], category: str = "concept") -> dict[s
             f"scenario that lets you demonstrate each technology in context, "
             f"producing a deployable or shareable portfolio piece."
         )
+
+    # Personalization: mention what the developer already knows.
+    if known_skills:
+        skill_lower = {s.lower() for s in skills}
+        known_lower = {k.lower(): k for k in known_skills}
+        overlap = [known_lower[s] for s in skill_lower if s in known_lower]
+        new = [s for s in skills if s.lower() not in known_lower]
+        if overlap and new:
+            desc += (
+                f" Your experience with {', '.join(overlap)} gives you a "
+                f"head start — focus on {', '.join(new)} specifically."
+            )
 
     scope = "small" if len(skills) == 1 else "medium"
 

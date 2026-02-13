@@ -9,7 +9,7 @@ class TestFullPipeline:
     def test_example_mode_python_api(self):
         result = run_analysis(example=True, no_ai=True)
         assert isinstance(result, AnalysisResult)
-        assert result.schema_version == "1.1"
+        assert result.schema_version == "1.2"
         assert len(result.strengths) > 0
         assert len(result.gaps) > 0
         assert len(result.recommendations) > 0
@@ -21,6 +21,23 @@ class TestFullPipeline:
         # At least one recommendation should have skill_context
         has_context = any(r.skill_context is not None for r in result.recommendations)
         assert has_context
+
+    def test_example_mode_has_experience_level(self):
+        result = run_analysis(example=True, no_ai=True)
+        assert result.experience_level in ("junior", "mid", "senior")
+
+    def test_example_mode_has_portfolio_insights(self):
+        result = run_analysis(example=True, no_ai=True)
+        assert isinstance(result.portfolio_insights, list)
+
+    def test_example_mode_has_interview_topics(self):
+        result = run_analysis(example=True, no_ai=True)
+        assert isinstance(result.interview_topics, list)
+        # The example has gap skills like TypeScript, Django, etc. — should have topics.
+        assert len(result.interview_topics) > 0
+        for entry in result.interview_topics:
+            assert entry.skill
+            assert len(entry.topics) >= 2
 
     def test_example_mode_cli(self):
         exit_code = main(["analyze", "--example"])

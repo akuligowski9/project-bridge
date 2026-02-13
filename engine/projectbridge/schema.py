@@ -1,4 +1,4 @@
-"""ProjectBridge analysis output schema v1.1.
+"""ProjectBridge analysis output schema v1.2.
 
 Defines the contract between the engine and all consumers (CLI, UI, export).
 """
@@ -54,10 +54,24 @@ class Recommendation(BaseModel):
     )
 
 
-class AnalysisResult(BaseModel):
-    """Top-level analysis output conforming to schema v1.1."""
+class PortfolioInsight(BaseModel):
+    """A portfolio gap insight surfaced during analysis."""
 
-    schema_version: Literal["1.0", "1.1"] = "1.1"
+    category: str = Field(description="Insight category (e.g. 'balance', 'depth', 'domain').")
+    message: str = Field(description="Actionable insight message for the developer.")
+
+
+class InterviewTopic(BaseModel):
+    """Common interview topics for a gap skill."""
+
+    skill: str = Field(description="The skill name these topics relate to.")
+    topics: list[str] = Field(description="2-3 common interview topics for this skill.")
+
+
+class AnalysisResult(BaseModel):
+    """Top-level analysis output conforming to schema v1.2."""
+
+    schema_version: Literal["1.0", "1.1", "1.2"] = "1.2"
     strengths: list[Skill] = Field(
         description="Skills detected in both the developer context and job requirements.",
     )
@@ -66,4 +80,16 @@ class AnalysisResult(BaseModel):
     )
     recommendations: list[Recommendation] = Field(
         description="Actionable project suggestions that address identified skill gaps.",
+    )
+    experience_level: str | None = Field(
+        default=None,
+        description="Inferred experience level: junior, mid, or senior.",
+    )
+    portfolio_insights: list[PortfolioInsight] = Field(
+        default_factory=list,
+        description="Portfolio gap insights surfaced during analysis.",
+    )
+    interview_topics: list[InterviewTopic] = Field(
+        default_factory=list,
+        description="Common interview topics for gap skills.",
     )

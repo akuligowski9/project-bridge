@@ -736,7 +736,7 @@ Add an early validation step that detects when a job description contains no tec
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** PB-005
 - **Blocks:** —
@@ -758,7 +758,7 @@ Recommendations currently ignore the developer's experience level — a senior e
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** PB-004, PB-013
 - **Blocks:** PB-036
@@ -780,7 +780,7 @@ The current gap analysis operates at the keyword level — "you're missing TypeS
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** PB-004, PB-006
 - **Blocks:** PB-036
@@ -802,7 +802,7 @@ Recommendations are currently generic templates that ignore what the developer h
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Medium
 - **Depends on:** PB-034, PB-035
 - **Blocks:** —
@@ -824,7 +824,7 @@ Developers don't just need to learn skills — they need to demonstrate them in 
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Medium
 - **Depends on:** PB-011
 - **Blocks:** —
@@ -1144,5 +1144,53 @@ Polished `engine/pyproject.toml` for PyPI readiness: added `license = "MIT"` (SP
 **Status:** Done
 
 Added optional `skill_context` field to `Recommendation` model — mentor-style career context explaining *why* skills matter, not just listing them. Bumped schema to v1.1 (backwards compatible with 1.0). Added `skill_context` to all 31 templates (was 21, added 10 new: Kafka, Playwright/Jest, Elasticsearch, WebSockets, Spring Boot, Astro/CMS, RabbitMQ, Flutter, Angular, monitoring). Updated NoAI provider with `_CATEGORY_CONTEXT` dict for heuristic fallback by skill category. Updated recommendation engine passthrough, AI prompt, and Markdown export (blockquote rendering). Created `docs/schema/analysis_output_v1.1.json`. Updated Svelte UI with blue callout rendering and mock data. 170 tests passing, lint clean.
+
+---
+
+### PB-033: Validate job descriptions for technical content
+
+**Status:** Done
+
+Added `NonTechnicalJobError` exception and `_TECHNICAL_ROLE_INDICATORS` set (~30 terms covering software, devops, data science, platform, embedded, etc.) to `job_description.py`. New `validate_technical_content()` function checks for detected technologies first, then role indicators, raising a clear error when neither is found. Integrated into orchestrator after `parse_job_description()`. 5 new tests covering tech JDs, role-indicator-only JDs, and non-technical rejections.
+
+---
+
+### PB-034: Calibrate recommendation difficulty to experience level
+
+**Status:** Done
+
+Created `engine/projectbridge/analysis/experience.py` with `ExperienceLevel` enum (junior/mid/senior) and `infer_experience_level()` heuristic based on skill count and resume years. Updated `select_templates()` with difficulty-aware scoring — a bonus applied when template difficulty aligns with the developer's level (overlap still dominates). Added `experience_level` field to `AnalysisResult` schema (v1.2). Threaded through orchestrator → recommend engine → NoAI provider. 11 new tests.
+
+---
+
+### PB-035: Surface portfolio-level gap analysis
+
+**Status:** Done
+
+Created `engine/projectbridge/analysis/portfolio.py` with `derive_portfolio_insights()` surfacing up to 3 insights across 4 categories: category balance (language-heavy portfolio), infrastructure gap (job needs infra but dev has none), missing domains (job values domains not in dev's profile), and depth vs breadth. Added `PortfolioInsight` model to schema. Integrated into orchestrator and Markdown export (new "Portfolio Insights" section). Svelte UI renders insights as amber callout cards between gaps and recommendations. 7 new tests.
+
+---
+
+### PB-036: Personalize recommendations from developer context
+
+**Status:** Done
+
+Extended `generate_recommendations()` to accept `dev_context` and build a summary of the developer's known skills. NoAI provider parses the summary and adds personalized "head start" sentences to heuristic recommendations when the developer's existing skills overlap with addressed skills. Updated AI prompt template with personalization instructions. 3 new tests.
+
+---
+
+### PB-037: Connect skill gaps to interview topics
+
+**Status:** Done
+
+Created `engine/projectbridge/analysis/interview_topics.py` with `INTERVIEW_TOPICS` dict mapping 40 popular skills to 2-3 common interview topic strings each. Case-insensitive `get_interview_topics()` lookup. Added `InterviewTopic` model to schema. Orchestrator builds interview topics from gap skills. Markdown export renders "Interview Preparation" section with skill headings and bullet lists. Svelte UI shows collapsible interview topic entries. 9 new tests.
+
+---
+
+### Schema v1.2
+
+**Status:** Done
+
+Bumped schema to v1.2 (backwards compatible with 1.0, 1.1). Added `experience_level`, `portfolio_insights`, and `interview_topics` fields to `AnalysisResult`. Created `docs/schema/analysis_output_v1.2.json`. Updated all tests for new default version. 219 tests passing, lint clean.
 
 ---

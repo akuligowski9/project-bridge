@@ -5,6 +5,8 @@ from projectbridge.export import Snapshot, create_snapshot, render_markdown
 from projectbridge.schema import (
     AnalysisResult,
     EstimatedScope,
+    InterviewTopic,
+    PortfolioInsight,
     Recommendation,
     Skill,
     SkillCategory,
@@ -17,7 +19,7 @@ class TestCreateSnapshot:
         snap = create_snapshot(result)
         assert snap.exported_at
         assert snap.engine_version == __version__
-        assert snap.schema_version == "1.1"
+        assert snap.schema_version == "1.2"
         assert snap.analysis == result
 
     def test_snapshot_roundtrip(self):
@@ -99,6 +101,40 @@ class TestRenderMarkdown:
         md = render_markdown(result)
         assert "_None detected._" in md
         assert "_No recommendations generated._" in md
+
+    def test_contains_portfolio_insights(self):
+        result = self._make_result()
+        result.portfolio_insights = [
+            PortfolioInsight(
+                category="infrastructure",
+                message="Your portfolio doesn't demonstrate deployment skills.",
+            )
+        ]
+        md = render_markdown(result)
+        assert "## Portfolio Insights" in md
+        assert "Your portfolio doesn't demonstrate deployment skills." in md
+
+    def test_no_portfolio_section_when_empty(self):
+        md = render_markdown(self._make_result())
+        assert "## Portfolio Insights" not in md
+
+    def test_contains_interview_topics(self):
+        result = self._make_result()
+        result.interview_topics = [
+            InterviewTopic(
+                skill="Docker",
+                topics=["Multi-stage builds", "Container networking"],
+            )
+        ]
+        md = render_markdown(result)
+        assert "## Interview Preparation" in md
+        assert "### Docker" in md
+        assert "- Multi-stage builds" in md
+        assert "- Container networking" in md
+
+    def test_no_interview_section_when_empty(self):
+        md = render_markdown(self._make_result())
+        assert "## Interview Preparation" not in md
 
     def test_contains_footer(self):
         md = render_markdown(self._make_result())

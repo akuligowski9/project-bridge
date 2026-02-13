@@ -82,6 +82,13 @@ def render_markdown(result: AnalysisResult) -> str:
     lines.append(_skill_list(result.gaps))
     lines.append("\n")
 
+    # Portfolio Insights
+    if result.portfolio_insights:
+        lines.append("## Portfolio Insights\n\n")
+        for insight in result.portfolio_insights:
+            lines.append(f"- {insight.message}\n")
+        lines.append("\n")
+
     # Recommendations
     lines.append("## Recommendations\n\n")
     if not result.recommendations:
@@ -95,6 +102,15 @@ def render_markdown(result: AnalysisResult) -> str:
             skills = ", ".join(rec.skills_addressed)
             lines.append(f"- **Skills addressed:** {skills}\n")
             lines.append(f"- **Estimated scope:** {rec.estimated_scope.value}\n")
+            lines.append("\n")
+
+    # Interview Preparation
+    if result.interview_topics:
+        lines.append("## Interview Preparation\n\n")
+        for entry in result.interview_topics:
+            lines.append(f"### {entry.skill}\n\n")
+            for topic in entry.topics:
+                lines.append(f"- {topic}\n")
             lines.append("\n")
 
     # Footer

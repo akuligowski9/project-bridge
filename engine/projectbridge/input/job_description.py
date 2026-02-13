@@ -46,6 +46,49 @@ class EmptyJobDescriptionError(JobDescriptionError):
     """Raised when the job description is empty or whitespace-only."""
 
 
+class NonTechnicalJobError(JobDescriptionError):
+    """Raised when the job description does not appear to be for a technical role."""
+
+
+# ---------------------------------------------------------------------------
+# Technical role indicators — used for non-technical JD rejection
+# ---------------------------------------------------------------------------
+
+_TECHNICAL_ROLE_INDICATORS: set[str] = {
+    "software",
+    "developer",
+    "engineer",
+    "engineering",
+    "devops",
+    "data scientist",
+    "data engineer",
+    "architect",
+    "sre",
+    "site reliability",
+    "backend",
+    "frontend",
+    "front-end",
+    "back-end",
+    "full-stack",
+    "fullstack",
+    "full stack",
+    "machine learning",
+    "cloud",
+    "security engineer",
+    "dba",
+    "database administrator",
+    "technical lead",
+    "tech lead",
+    "platform",
+    "infrastructure",
+    "programmer",
+    "qa engineer",
+    "test engineer",
+    "embedded",
+    "firmware",
+}
+
+
 # ---------------------------------------------------------------------------
 # Known terms — used for keyword matching
 # ---------------------------------------------------------------------------
@@ -257,4 +300,29 @@ def parse_job_description(text: str) -> JobRequirements:
         required_technologies=_match_keywords(text, TECHNOLOGY_KEYWORDS),
         experience_domains=_match_keywords(text, DOMAIN_KEYWORDS),
         architectural_expectations=_match_keywords(text, ARCHITECTURE_KEYWORDS),
+    )
+
+
+def validate_technical_content(text: str, job_reqs: JobRequirements) -> None:
+    """Validate that a job description is for a technical role.
+
+    Args:
+        text: Raw job description text.
+        job_reqs: Already-parsed :class:`JobRequirements`.
+
+    Raises:
+        NonTechnicalJobError: If no technical signals are detected.
+    """
+    if job_reqs.required_technologies:
+        return
+
+    lower = text.lower()
+    for indicator in _TECHNICAL_ROLE_INDICATORS:
+        if indicator in lower:
+            return
+
+    raise NonTechnicalJobError(
+        "No technical skills detected in this job description. "
+        "ProjectBridge analyzes technical roles — software engineers, "
+        "architects, data scientists, DevOps engineers, and similar positions."
     )

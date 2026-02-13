@@ -5,7 +5,9 @@ import pytest
 from projectbridge.input.job_description import (
     EmptyJobDescriptionError,
     JobRequirements,
+    NonTechnicalJobError,
     parse_job_description,
+    validate_technical_content,
 )
 
 
@@ -45,3 +47,47 @@ class TestParseJobDescription:
         json_str = result.model_dump_json()
         roundtrip = JobRequirements.model_validate_json(json_str)
         assert roundtrip == result
+
+
+class TestValidateTechnicalContent:
+    def test_passes_with_technologies(self):
+        text = "We need a Python developer with Docker experience."
+        reqs = parse_job_description(text)
+        validate_technical_content(text, reqs)  # should not raise
+
+    def test_passes_with_role_indicator_no_tech(self):
+        text = "Looking for a software engineer to join our team."
+        reqs = JobRequirements(
+            required_technologies=[],
+            experience_domains=[],
+            architectural_expectations=[],
+        )
+        validate_technical_content(text, reqs)  # should not raise
+
+    def test_raises_for_non_technical(self):
+        text = (
+            "Sales manager role, 5 years experience managing "
+            "client relationships and closing deals."
+        )
+        reqs = JobRequirements(
+            required_technologies=[],
+            experience_domains=[],
+            architectural_expectations=[],
+        )
+        with pytest.raises(NonTechnicalJobError, match="No technical skills detected"):
+            validate_technical_content(text, reqs)
+
+    def test_raises_for_marketing_role(self):
+        text = "Marketing coordinator, manage social media campaigns and brand strategy."
+        reqs = parse_job_description(text)
+        with pytest.raises(NonTechnicalJobError):
+            validate_technical_content(text, reqs)
+
+    def test_passes_with_devops_indicator(self):
+        text = "DevOps position, manage deployment pipelines and monitoring."
+        reqs = JobRequirements(
+            required_technologies=[],
+            experience_domains=["devops"],
+            architectural_expectations=[],
+        )
+        validate_technical_content(text, reqs)  # should not raise

@@ -17,18 +17,31 @@
     skill_context?: string | null;
   }
 
+  interface PortfolioInsight {
+    category: string;
+    message: string;
+  }
+
+  interface InterviewTopic {
+    skill: string;
+    topics: string[];
+  }
+
   interface AnalysisResult {
     schema_version: string;
     strengths: Skill[];
     gaps: Skill[];
     recommendations: Recommendation[];
+    experience_level?: string | null;
+    portfolio_insights?: PortfolioInsight[];
+    interview_topics?: InterviewTopic[];
   }
 
   type View = "form" | "loading" | "results" | "export";
 
   let view: View = $state("results");
   let result: AnalysisResult | null = $state({
-    schema_version: "1.1",
+    schema_version: "1.2",
     strengths: [
       { name: "Python", category: "language" },
       { name: "JavaScript", category: "language" },
@@ -81,6 +94,39 @@
         skills_addressed: ["AWS", "Serverless"],
         estimated_scope: "medium",
         skill_context: "Cloud infrastructure is a fundamental part of modern software delivery, and AWS dominates the market. Understanding serverless architecture shows you can think about cost, scalability, and operational concerns — not just application code. These skills make you more valuable in any engineering team that deploys to the cloud.",
+      },
+    ],
+    experience_level: "mid",
+    portfolio_insights: [
+      {
+        category: "infrastructure",
+        message: "Your portfolio doesn't demonstrate deployment or infrastructure skills. Even a simple Docker + CI setup on an existing project fills this gap.",
+      },
+      {
+        category: "domain",
+        message: "The target role values cloud experience. Consider projects in this domain even if you use familiar technologies.",
+      },
+    ],
+    interview_topics: [
+      {
+        skill: "TypeScript",
+        topics: ["Generic types and utility types", "Type narrowing and discriminated unions", "Declaration files and module augmentation"],
+      },
+      {
+        skill: "Django",
+        topics: ["ORM query optimization and N+1 problems", "Middleware pipeline and request lifecycle", "Django REST Framework serializers and viewsets"],
+      },
+      {
+        skill: "PostgreSQL",
+        topics: ["Query optimization and EXPLAIN plans", "Indexing strategies (B-tree, GIN, GiST)", "Transaction isolation levels"],
+      },
+      {
+        skill: "Redis",
+        topics: ["Data structures and use cases for each type", "Persistence strategies (RDB vs AOF)", "Pub/Sub and Lua scripting"],
+      },
+      {
+        skill: "Kubernetes",
+        topics: ["Pod lifecycle and deployment strategies", "Services, ingress, and networking", "Resource limits, requests, and horizontal scaling"],
       },
     ],
   });
@@ -401,6 +447,15 @@
         </div>
       </div>
 
+      {#if result.experience_level}
+        <div class="mb-8 flex items-center gap-2">
+          <span class="text-sm text-gray-500">Experience Level:</span>
+          <span class="text-sm font-medium px-3 py-1 rounded-full {result.experience_level === 'senior' ? 'bg-purple-100 text-purple-700' : result.experience_level === 'mid' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}">
+            {result.experience_level.charAt(0).toUpperCase() + result.experience_level.slice(1)}
+          </span>
+        </div>
+      {/if}
+
       <div class="space-y-8">
         <!-- Strengths -->
         <section class="bg-white border border-gray-200 rounded-lg p-6">
@@ -454,6 +509,25 @@
           {/if}
         </section>
 
+        <!-- Portfolio Insights -->
+        {#if result.portfolio_insights && result.portfolio_insights.length > 0}
+          <section>
+            <h2 class="text-lg font-semibold mb-4">Portfolio Insights</h2>
+            <div class="space-y-3">
+              {#each result.portfolio_insights as insight}
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <div class="flex items-start gap-3">
+                    <span class="text-xs font-medium text-amber-600 uppercase tracking-wide bg-amber-100 px-2 py-0.5 rounded shrink-0 mt-0.5">
+                      {insight.category}
+                    </span>
+                    <p class="text-sm text-amber-900">{insight.message}</p>
+                  </div>
+                </div>
+              {/each}
+            </div>
+          </section>
+        {/if}
+
         <!-- Recommendations -->
         <section>
           <h2 class="text-lg font-semibold mb-4">Recommendations</h2>
@@ -487,6 +561,28 @@
             </div>
           {/if}
         </section>
+
+        <!-- Interview Preparation -->
+        {#if result.interview_topics && result.interview_topics.length > 0}
+          <section class="bg-white border border-gray-200 rounded-lg p-6">
+            <h2 class="text-lg font-semibold mb-4">Interview Preparation</h2>
+            <div class="space-y-4">
+              {#each result.interview_topics as entry}
+                <details class="group">
+                  <summary class="cursor-pointer flex items-center gap-2 font-medium text-sm hover:text-blue-600 transition-colors">
+                    <span class="text-gray-400 group-open:rotate-90 transition-transform text-xs">&#9654;</span>
+                    {entry.skill}
+                  </summary>
+                  <ul class="mt-2 ml-5 space-y-1">
+                    {#each entry.topics as topic}
+                      <li class="text-sm text-gray-600">- {topic}</li>
+                    {/each}
+                  </ul>
+                </details>
+              {/each}
+            </div>
+          </section>
+        {/if}
 
         <!-- Actions -->
         <div class="flex justify-center gap-6 pt-4 pb-8">

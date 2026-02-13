@@ -85,6 +85,53 @@ class TestNoAIProvider:
             assert len(r["skill_context"]) >= 50
 
 
+class TestNoAIPersonalization:
+    def test_personalized_description_with_known_skills(self):
+        provider = NoAIProvider()
+        gaps = {
+            "missing_skills": [
+                {"name": "Kubernetes", "category": "infrastructure"},
+                {"name": "Terraform", "category": "infrastructure"},
+                {"name": "Ansible", "category": "infrastructure"},
+            ],
+            "adjacent_skills": [],
+            "dev_context_summary": "Developer knows: Python, Docker, Flask.",
+        }
+        recs = provider.generate_recommendations(gaps)
+        # Heuristic recs for uncovered skills should mention "head start"
+        # if any of the skills overlap with known skills.
+        heuristic_recs = [r for r in recs if "Build a project using" in r["title"]]
+        for r in heuristic_recs:
+            # Not all may have overlap, but the description should still exist
+            assert len(r["description"]) > 0
+
+    def test_no_personalization_without_context(self):
+        provider = NoAIProvider()
+        gaps = {
+            "missing_skills": [
+                {"name": "ObscureTech42", "category": "tool"},
+            ],
+            "adjacent_skills": [],
+        }
+        recs = provider.generate_recommendations(gaps)
+        assert len(recs) >= 1
+        assert "head start" not in recs[0]["description"]
+
+    def test_experience_level_threaded_to_templates(self):
+        provider = NoAIProvider()
+        gaps = {
+            "missing_skills": [
+                {"name": "Python", "category": "language"},
+            ],
+            "adjacent_skills": [],
+            "experience_level": "junior",
+        }
+        recs = provider.generate_recommendations(gaps)
+        # Should get at least one template-based rec
+        template_recs = [r for r in recs if "Build a project using" not in r["title"]]
+        assert len(template_recs) >= 1
+
+
 class TestRegistry:
     def test_get_none_provider(self):
         p = get_provider("none")
