@@ -831,6 +831,73 @@ Developers don't just need to learn skills — they need to demonstrate them in 
 
 ---
 
+### PB-038: End-to-end setup and smoke test
+
+**Description:**
+Run through the complete setup experience as a new user would: install from source, run `--example` mode, configure Ollama, run a real analysis against a GitHub profile and job description, verify all new v1.2 features appear (experience level, portfolio insights, interview topics), export as Markdown and JSON, and launch the Tauri desktop app. Document any friction, missing instructions, or bugs found. This validates the full experience before sharing the repo publicly.
+
+**Acceptance Criteria:**
+
+1. `pip install -e ./engine` → `projectbridge analyze --example --no-ai` succeeds and output includes `experience_level`, `portfolio_insights`, and `interview_topics`.
+2. Ollama setup following `docs/AI_SETUP.md` works end-to-end — AI-enhanced recommendations are noticeably richer.
+3. Real analysis: `projectbridge analyze --job-text "..." --github-user <real-user> --no-ai` produces valid results.
+4. Non-technical JD rejection: `projectbridge analyze --job-text "Sales manager..." --github-user octocat --no-ai` fails with a clear `NonTechnicalJobError` message.
+5. `projectbridge export --example --format markdown` renders all new sections (Portfolio Insights, Interview Preparation).
+6. Tauri app (`npm run dev` in `app/`) displays all new UI sections with mock data.
+7. Any friction or bugs found are logged and fixed.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** Critical
+- **Depends on:** PB-033, PB-034, PB-035, PB-036, PB-037
+- **Blocks:** PB-040
+
+---
+
+### PB-039: Pre-launch polish — screenshot, GitHub metadata, contributor issues
+
+**Description:**
+Prepare the repo for public visibility. Currently missing: a dashboard screenshot in the README (placeholder exists at `docs/images/screenshot.png`), GitHub repo description and topics, a feature request issue template, contributor-friendly GitHub Issues with `good first issue` labels, and a CHANGELOG. These are table-stakes for an open-source project that people can discover, understand, and contribute to.
+
+**Acceptance Criteria:**
+
+1. A real screenshot of the Tauri dashboard (with mock data) exists at `docs/images/screenshot.png` and renders in the README.
+2. GitHub repo has a description and topics set (e.g., `developer-tools`, `skill-gap`, `python`, `career`, `github`, `tauri`, `svelte`).
+3. A `feature_request.md` issue template exists alongside the existing bug report and new AI provider templates.
+4. At least 5 GitHub Issues are created with `good first issue` or `help wanted` labels for contributors (e.g., expand interview topics, add Gemini provider, GitLab support, learning resource links).
+5. A `CHANGELOG.md` at the repo root documents v0.1.0, v0.1.1, and v0.2.0 releases.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** High
+- **Depends on:** —
+- **Blocks:** PB-040
+
+---
+
+### PB-040: Write and publish launch post
+
+**Description:**
+Write a post announcing ProjectBridge for LinkedIn and other relevant platforms (Reddit r/programming, Hacker News, Dev.to, Twitter/X). The post should explain the problem (generic AI career advice vs. concrete skill-gap analysis), what ProjectBridge does differently (analyzes your actual GitHub repos, produces actionable project recommendations calibrated to your level), and how to try it (3-command quickstart). Include a screenshot or GIF of the dashboard. Keep the tone practical, not hype — developers are allergic to marketing. Link to the repo and AI setup guide.
+
+**Acceptance Criteria:**
+
+1. A draft post exists in `docs/` or a scratch file, reviewed and ready to publish.
+2. Post covers: problem statement, what ProjectBridge does, how to try it (quickstart), screenshot/GIF, link to repo.
+3. Post is adapted for at least LinkedIn and one developer community (Reddit, HN, or Dev.to).
+4. Post is published after PB-038 and PB-039 are complete (don't share a repo with broken setup or missing screenshots).
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** High
+- **Depends on:** PB-038, PB-039
+- **Blocks:** —
+
+---
+
 ## Parking Lot
 
 _Ideas worth remembering — not yet actionable or fully defined._
