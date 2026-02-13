@@ -17,6 +17,7 @@ theme:
 
 nav:
   - Home: index.md
+  - AI Setup: ai-setup.md
   - Technical Spec: technical-spec.md
   - Contributing: contributing.md
   - Decisions: decisions.md

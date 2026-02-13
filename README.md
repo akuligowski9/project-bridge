@@ -137,18 +137,29 @@ Tauri Desktop App (Svelte 5 + TypeScript)
 
 ---
 
-## AI Providers
+## AI Setup
 
-AI is used in a bounded, optional layer. Core analysis runs without it.
+AI is optional — ProjectBridge works great without it. To enable AI-enhanced recommendations for free, use **Ollama** (local, no API key, no cost):
 
-| Provider | Install | Usage |
-|----------|---------|-------|
-| None (default) | — | `--no-ai` or omit provider flags |
-| OpenAI | `pip install projectbridge[openai]` | `--provider openai` |
-| Anthropic | `pip install projectbridge[anthropic]` | `--provider anthropic` |
-| Ollama | — (uses stdlib urllib) | `--provider ollama` |
+```bash
+# Install Ollama (macOS)
+brew install ollama
 
-Prompts and outputs are visible and editable. See `engine/projectbridge/ai/prompts/`.
+# Start the server and pull a model
+ollama serve
+ollama pull llama3.2
+```
+
+Then create `projectbridge.config.yaml`:
+
+```yaml
+ai:
+  provider: ollama
+```
+
+That's it. See the full **[AI Setup Guide](docs/AI_SETUP.md)** for other providers (OpenAI, Anthropic) and troubleshooting.
+
+Prompts are transparent and editable — see `engine/projectbridge/ai/prompts/`.
 
 ---
 

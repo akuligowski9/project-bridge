@@ -49,6 +49,10 @@ ruff check engine/
 pytest engine/tests/ -v
 ```
 
+### AI Provider (Optional)
+
+To test with AI-enhanced recommendations, set up Ollama (free, local). See the **[AI Setup Guide](AI_SETUP.md)**.
+
 ### Tauri App
 
 ```bash
