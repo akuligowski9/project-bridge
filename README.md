@@ -31,7 +31,8 @@ projectbridge analyze --example
 
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "1.2",
+  "experience_level": "mid",
   "strengths": [
     { "name": "Python", "category": "language" },
     { "name": "React", "category": "framework" },
@@ -47,13 +48,20 @@ projectbridge analyze --example
       "title": "Build a REST API with Django",
       "description": "Create a RESTful API using Django REST Framework...",
       "skills_addressed": ["Django", "REST API"],
-      "estimated_scope": "medium"
-    },
+      "estimated_scope": "medium",
+      "skill_context": "Django powers production web apps from startups to enterprises..."
+    }
+  ],
+  "portfolio_insights": [
     {
-      "title": "Deploy a containerized app with Kubernetes",
-      "description": "Dockerize a web app and deploy to a local cluster...",
-      "skills_addressed": ["Docker", "Kubernetes"],
-      "estimated_scope": "medium"
+      "category": "infrastructure",
+      "message": "Your portfolio doesn't demonstrate deployment or infrastructure skills..."
+    }
+  ],
+  "interview_topics": [
+    {
+      "skill": "Kubernetes",
+      "topics": ["Pod lifecycle and deployment strategies", "Services, ingress, and networking"]
     }
   ]
 }
@@ -95,9 +103,14 @@ Key capabilities:
 
 - **4 AI providers** — OpenAI, Anthropic, Ollama, or no-AI heuristic fallback
 - **97+ framework/tool detections** — from React to Terraform
-- **22 curated project templates** — scoped as small, medium, or large
+- **31 curated project templates** — scoped as small, medium, or large
+- **Experience calibration** — infers junior/mid/senior level, adjusts recommendation difficulty
+- **Portfolio insights** — surfaces underrepresented areas (missing infra, domain gaps, imbalance)
+- **Interview prep** — maps 40 gap skills to common interview topics
+- **Personalized recommendations** — references your existing skills as a foundation
+- **Non-technical JD rejection** — catches non-tech job descriptions early with a clear error
 - **Desktop app** — Tauri + Svelte 5 UI for visual exploration
-- **Structured JSON output** — schema v1.0, ready for CI/CD or downstream tools
+- **Structured JSON output** — schema v1.2, ready for CI/CD or downstream tools
 - **File-based caching** — skip redundant GitHub API calls
 - **Privacy-first** — tokens stay local, no telemetry, no uploads
 
@@ -119,7 +132,7 @@ Tauri Desktop App (Svelte 5 + TypeScript)
   AI Provider Interface (pluggable)
     ├── OpenAI  ├── Anthropic  ├── Ollama  ├── None (heuristic)
         ↓
-  Structured JSON Output (schema v1.0)
+  Structured JSON Output (schema v1.2)
 ```
 
 ---

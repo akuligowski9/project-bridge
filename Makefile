@@ -4,7 +4,7 @@ install:
 	pip install -e ./engine[dev]
 
 test:
-	pytest engine/tests/ -v
+	python3 -m pytest engine/tests/ -v
 
 lint:
 	ruff check engine/
