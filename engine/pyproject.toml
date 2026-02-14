@@ -47,7 +47,7 @@ where = ["."]
 exclude = ["tests", "tests.*"]
 
 [tool.setuptools.package-data]
-projectbridge = ["ai/prompts/*.txt", "recommend/templates.yaml"]
+projectbridge = ["ai/prompts/*.txt", "recommend/templates.yaml", "recommend/resources.yaml", "recommend/skill_features.yaml"]
 
 # --- Ruff ---
 

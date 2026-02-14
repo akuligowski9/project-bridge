@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 from projectbridge import __version__
-from projectbridge.export import create_snapshot, render_markdown
+from projectbridge.export import create_snapshot, render_markdown, render_project_spec
 from projectbridge.orchestrator import PipelineError, run_analysis
 from projectbridge.progress import Progress
 from projectbridge.schema import AnalysisResult
@@ -116,6 +116,47 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Export from bundled example data.",
     )
 
+    # -- export-project -----------------------------------------------------
+    export_proj = sub.add_parser(
+        "export-project",
+        help="Generate a rich project spec from a recommendation.",
+    )
+    export_proj.add_argument(
+        "--input",
+        metavar="FILE",
+        help="Path to a JSON analysis result file.",
+    )
+    export_proj.add_argument(
+        "--example",
+        action="store_true",
+        default=False,
+        help="Use bundled example data.",
+    )
+    export_proj.add_argument(
+        "--recommendation",
+        type=int,
+        required=True,
+        metavar="N",
+        help="1-based index of the recommendation to expand.",
+    )
+    export_proj.add_argument(
+        "--difficulty",
+        required=True,
+        choices=["beginner", "intermediate", "advanced"],
+        help="Difficulty tier for the project spec.",
+    )
+    export_proj.add_argument(
+        "--output",
+        metavar="FILE",
+        help="Write Markdown output to FILE instead of stdout.",
+    )
+    export_proj.add_argument(
+        "--no-ai",
+        action="store_true",
+        default=False,
+        help="Use heuristic generation only (no AI provider).",
+    )
+
     return parser
 
 
@@ -145,6 +186,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "export":
         return _cmd_export(args)
+
+    if args.command == "export-project":
+        return _cmd_export_project(args)
 
     parser.print_help()
     return 1
@@ -241,6 +285,68 @@ def _cmd_export(args: argparse.Namespace) -> int:
     else:
         snapshot = create_snapshot(result)
         output_text = snapshot.model_dump_json(indent=2) + "\n"
+
+    if args.output:
+        Path(args.output).write_text(output_text)
+    else:
+        print(output_text, end="")
+
+    return 0
+
+
+def _cmd_export_project(args: argparse.Namespace) -> int:
+    if args.example:
+        try:
+            result = run_analysis(example=True, no_ai=True)
+        except PipelineError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return 1
+    elif args.input:
+        path = Path(args.input)
+        if not path.is_file():
+            print(f"Error: input file not found: {args.input}", file=sys.stderr)
+            return 1
+        try:
+            result = AnalysisResult.model_validate_json(path.read_text())
+        except Exception as exc:
+            print(f"Error: invalid analysis result: {exc}", file=sys.stderr)
+            return 1
+    else:
+        print("Error: provide --input FILE or --example.", file=sys.stderr)
+        return 1
+
+    idx = args.recommendation - 1
+    if idx < 0 or idx >= len(result.recommendations):
+        print(
+            f"Error: recommendation index {args.recommendation} out of range "
+            f"(1-{len(result.recommendations)}).",
+            file=sys.stderr,
+        )
+        return 1
+
+    recommendation = result.recommendations[idx]
+
+    # Resolve AI provider.
+    from projectbridge.ai.provider import get_provider
+    from projectbridge.config.settings import load_config
+
+    config = load_config()
+    provider_name = "none" if args.no_ai else config.ai.provider
+    try:
+        provider = get_provider(provider_name)
+    except Exception as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+    from projectbridge.export_project import generate_project_spec
+
+    try:
+        spec = generate_project_spec(recommendation, args.difficulty, result, provider)
+    except Exception as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+    output_text = render_project_spec(spec)
 
     if args.output:
         Path(args.output).write_text(output_text)

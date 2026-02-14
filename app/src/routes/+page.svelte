@@ -37,7 +37,7 @@
     interview_topics?: InterviewTopic[];
   }
 
-  type View = "form" | "loading" | "results" | "export";
+  type View = "form" | "loading" | "results" | "export" | "project-spec";
 
   let view: View = $state("results");
   let result: AnalysisResult | null = $state({
@@ -152,6 +152,12 @@
   let exportPreview = $state("");
   let exportLoading = $state(false);
   let copied = $state(false);
+
+  // Project spec state
+  let specDifficulty = $state<string | null>(null);
+  let specPreview = $state("");
+  let specLoading = $state(false);
+  let specCopied = $state(false);
 
   const categoryLabels: Record<string, string> = {
     language: "Languages",
@@ -280,6 +286,54 @@
       error = String(e);
     }
   }
+
+  async function generateProjectSpec(recIndex: number, difficulty: string) {
+    if (!result) return;
+    specDifficulty = difficulty;
+    specLoading = true;
+    specPreview = "";
+    specCopied = false;
+    view = "project-spec";
+
+    try {
+      const analysisJson = JSON.stringify(result);
+      specPreview = await invoke<string>("export_project_spec", {
+        analysisJson,
+        recommendationIndex: recIndex + 1,
+        difficulty,
+        noAi: true,
+      });
+    } catch (e) {
+      error = String(e);
+      view = "results";
+    } finally {
+      specLoading = false;
+    }
+  }
+
+  async function saveSpecToFile() {
+    const path = await save({
+      defaultPath: "project-spec.md",
+      filters: [{ name: "Markdown", extensions: ["md"] }],
+    });
+    if (path) {
+      try {
+        await writeTextFile(path, specPreview);
+      } catch (e) {
+        error = String(e);
+      }
+    }
+  }
+
+  async function copySpecToClipboard() {
+    try {
+      await writeText(specPreview);
+      specCopied = true;
+      setTimeout(() => { specCopied = false; }, 2000);
+    } catch (e) {
+      error = String(e);
+    }
+  }
 </script>
 
 <main class="min-h-screen bg-gray-50 text-gray-900">
@@ -304,7 +358,7 @@
             New Analysis
           </button>
         {/if}
-        {#if view === "export"}
+        {#if view === "export" || view === "project-spec"}
           <button
             onclick={() => { view = "results"; }}
             class="text-sm text-blue-600 hover:text-blue-800 font-medium"
@@ -535,7 +589,7 @@
             <p class="text-gray-400 text-sm">No recommendations generated.</p>
           {:else}
             <div class="space-y-4">
-              {#each result.recommendations as rec}
+              {#each result.recommendations as rec, i}
                 <div class="bg-white border border-gray-200 rounded-lg p-5">
                   <div class="flex items-start justify-between gap-3">
                     <h3 class="font-medium">{rec.title}</h3>
@@ -555,6 +609,32 @@
                         {skill}
                       </span>
                     {/each}
+                  </div>
+                  <div class="mt-4 pt-3 border-t border-gray-100">
+                    <p class="text-xs text-gray-400 font-medium mb-2">Generate Project Spec</p>
+                    <div class="flex gap-2">
+                      <button
+                        onclick={() => generateProjectSpec(i, "beginner")}
+                        class="flex-1 text-xs px-3 py-2 rounded-lg font-medium transition-colors bg-green-50 text-green-700 hover:bg-green-100 border border-green-200"
+                      >
+                        Beginner
+                        <span class="block text-[10px] font-normal text-green-500 mt-0.5">3 features</span>
+                      </button>
+                      <button
+                        onclick={() => generateProjectSpec(i, "intermediate")}
+                        class="flex-1 text-xs px-3 py-2 rounded-lg font-medium transition-colors bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200"
+                      >
+                        Intermediate
+                        <span class="block text-[10px] font-normal text-amber-500 mt-0.5">5 features</span>
+                      </button>
+                      <button
+                        onclick={() => generateProjectSpec(i, "advanced")}
+                        class="flex-1 text-xs px-3 py-2 rounded-lg font-medium transition-colors bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
+                      >
+                        Advanced
+                        <span class="block text-[10px] font-normal text-red-500 mt-0.5">8 features</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               {/each}
@@ -652,6 +732,51 @@
             </div>
           {:else}
             <pre class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-xs text-gray-700 overflow-x-auto max-h-96 overflow-y-auto whitespace-pre-wrap">{exportPreview}</pre>
+          {/if}
+        </div>
+      </div>
+    {/if}
+
+    <!-- PROJECT SPEC VIEW -->
+    {#if view === "project-spec"}
+      <div class="space-y-6">
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold">Project Spec</h2>
+            {#if specDifficulty}
+              <span class="text-xs px-2.5 py-1 rounded-full font-medium {specDifficulty === 'beginner' ? 'bg-green-100 text-green-700' : specDifficulty === 'intermediate' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}">
+                {specDifficulty.charAt(0).toUpperCase() + specDifficulty.slice(1)}
+              </span>
+            {/if}
+          </div>
+
+          <div class="flex gap-3">
+            <button
+              onclick={saveSpecToFile}
+              disabled={specLoading || !specPreview}
+              class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              Save to File
+            </button>
+            <button
+              onclick={copySpecToClipboard}
+              disabled={specLoading || !specPreview}
+              class="bg-gray-100 text-gray-700 px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
+            >
+              {specCopied ? "Copied!" : "Copy to Clipboard"}
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+          <h3 class="text-sm font-medium text-gray-500 mb-3">Preview</h3>
+          {#if specLoading}
+            <div class="text-center py-8">
+              <div class="inline-block w-6 h-6 border-3 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+              <p class="text-gray-500 text-sm mt-3">Generating project spec...</p>
+            </div>
+          {:else}
+            <pre class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-xs text-gray-700 overflow-x-auto max-h-[32rem] overflow-y-auto whitespace-pre-wrap">{specPreview}</pre>
           {/if}
         </div>
       </div>

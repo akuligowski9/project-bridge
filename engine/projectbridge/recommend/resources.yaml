@@ -1,0 +1,171 @@
+# Official documentation links for skills referenced in recommendations.
+# Used by the project spec export to provide clickable learning resources.
+# Keys are case-sensitive display names; lookups are case-insensitive.
+
+Python:
+  - label: "Python Official Docs"
+    url: "https://docs.python.org/3/"
+JavaScript:
+  - label: "MDN JavaScript Guide"
+    url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide"
+TypeScript:
+  - label: "TypeScript Handbook"
+    url: "https://www.typescriptlang.org/docs/handbook/"
+Go:
+  - label: "Go Documentation"
+    url: "https://go.dev/doc/"
+Rust:
+  - label: "The Rust Programming Language"
+    url: "https://doc.rust-lang.org/book/"
+Java:
+  - label: "Java SE Documentation"
+    url: "https://docs.oracle.com/en/java/"
+C#:
+  - label: "C# Documentation"
+    url: "https://learn.microsoft.com/en-us/dotnet/csharp/"
+Ruby:
+  - label: "Ruby Documentation"
+    url: "https://www.ruby-lang.org/en/documentation/"
+PHP:
+  - label: "PHP Manual"
+    url: "https://www.php.net/manual/en/"
+Swift:
+  - label: "Swift Documentation"
+    url: "https://www.swift.org/documentation/"
+Kotlin:
+  - label: "Kotlin Documentation"
+    url: "https://kotlinlang.org/docs/home.html"
+Scala:
+  - label: "Scala Documentation"
+    url: "https://docs.scala-lang.org/"
+
+Django:
+  - label: "Django Documentation"
+    url: "https://docs.djangoproject.com/en/stable/"
+Flask:
+  - label: "Flask Documentation"
+    url: "https://flask.palletsprojects.com/"
+FastAPI:
+  - label: "FastAPI Documentation"
+    url: "https://fastapi.tiangolo.com/"
+React:
+  - label: "React Documentation"
+    url: "https://react.dev/"
+Vue:
+  - label: "Vue.js Documentation"
+    url: "https://vuejs.org/guide/"
+Angular:
+  - label: "Angular Documentation"
+    url: "https://angular.dev/"
+Next.js:
+  - label: "Next.js Documentation"
+    url: "https://nextjs.org/docs"
+Svelte:
+  - label: "Svelte Documentation"
+    url: "https://svelte.dev/docs"
+Express:
+  - label: "Express.js Documentation"
+    url: "https://expressjs.com/"
+Spring Boot:
+  - label: "Spring Boot Documentation"
+    url: "https://docs.spring.io/spring-boot/docs/current/reference/html/"
+Ruby on Rails:
+  - label: "Rails Guides"
+    url: "https://guides.rubyonrails.org/"
+Laravel:
+  - label: "Laravel Documentation"
+    url: "https://laravel.com/docs"
+ASP.NET:
+  - label: "ASP.NET Documentation"
+    url: "https://learn.microsoft.com/en-us/aspnet/core/"
+Django REST Framework:
+  - label: "DRF Documentation"
+    url: "https://www.django-rest-framework.org/"
+
+Docker:
+  - label: "Docker Documentation"
+    url: "https://docs.docker.com/"
+Kubernetes:
+  - label: "Kubernetes Documentation"
+    url: "https://kubernetes.io/docs/"
+AWS:
+  - label: "AWS Documentation"
+    url: "https://docs.aws.amazon.com/"
+GCP:
+  - label: "Google Cloud Documentation"
+    url: "https://cloud.google.com/docs"
+Azure:
+  - label: "Azure Documentation"
+    url: "https://learn.microsoft.com/en-us/azure/"
+Terraform:
+  - label: "Terraform Documentation"
+    url: "https://developer.hashicorp.com/terraform/docs"
+Ansible:
+  - label: "Ansible Documentation"
+    url: "https://docs.ansible.com/"
+GitHub Actions:
+  - label: "GitHub Actions Documentation"
+    url: "https://docs.github.com/en/actions"
+CI/CD:
+  - label: "GitHub Actions Documentation"
+    url: "https://docs.github.com/en/actions"
+Serverless:
+  - label: "Serverless Framework Docs"
+    url: "https://www.serverless.com/framework/docs"
+Nginx:
+  - label: "Nginx Documentation"
+    url: "https://nginx.org/en/docs/"
+
+PostgreSQL:
+  - label: "PostgreSQL Documentation"
+    url: "https://www.postgresql.org/docs/"
+MySQL:
+  - label: "MySQL Documentation"
+    url: "https://dev.mysql.com/doc/"
+MongoDB:
+  - label: "MongoDB Documentation"
+    url: "https://www.mongodb.com/docs/"
+Redis:
+  - label: "Redis Documentation"
+    url: "https://redis.io/docs/"
+Elasticsearch:
+  - label: "Elasticsearch Documentation"
+    url: "https://www.elastic.co/guide/en/elasticsearch/reference/current/"
+SQLite:
+  - label: "SQLite Documentation"
+    url: "https://www.sqlite.org/docs.html"
+DynamoDB:
+  - label: "DynamoDB Documentation"
+    url: "https://docs.aws.amazon.com/dynamodb/"
+
+GraphQL:
+  - label: "GraphQL Documentation"
+    url: "https://graphql.org/learn/"
+REST API:
+  - label: "MDN HTTP Guide"
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTTP"
+gRPC:
+  - label: "gRPC Documentation"
+    url: "https://grpc.io/docs/"
+WebSocket:
+  - label: "MDN WebSocket API"
+    url: "https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API"
+Socket.IO:
+  - label: "Socket.IO Documentation"
+    url: "https://socket.io/docs/"
+
+Git:
+  - label: "Git Documentation"
+    url: "https://git-scm.com/doc"
+Linux:
+  - label: "Linux Documentation Project"
+    url: "https://tldp.org/"
+Celery:
+  - label: "Celery Documentation"
+    url: "https://docs.celeryq.dev/"
+RabbitMQ:
+  - label: "RabbitMQ Documentation"
+    url: "https://www.rabbitmq.com/docs"
+Kafka:
+  - label: "Apache Kafka Documentation"
+    url: "https://kafka.apache.org/documentation/"

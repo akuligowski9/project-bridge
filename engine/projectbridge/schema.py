@@ -68,6 +68,44 @@ class InterviewTopic(BaseModel):
     topics: list[str] = Field(description="2-3 common interview topics for this skill.")
 
 
+class DifficultyTier(str, Enum):
+    BEGINNER = "beginner"
+    INTERMEDIATE = "intermediate"
+    ADVANCED = "advanced"
+
+
+class DocLink(BaseModel):
+    """A link to official documentation for a skill."""
+
+    label: str = Field(description="Display label for the link.")
+    url: str = Field(description="URL to official documentation.")
+    skill: str = Field(description="Skill this documentation relates to.")
+
+
+class ProjectSpec(BaseModel):
+    """A rich project specification generated from a recommendation."""
+
+    title: str = Field(description="Project title from the recommendation.")
+    difficulty: DifficultyTier = Field(description="Chosen difficulty tier.")
+    description: str = Field(description="Multi-paragraph project description.")
+    features: list[str] = Field(
+        min_length=3,
+        description="Demonstrable features to build (3+ items).",
+    )
+    skills_addressed: list[str] = Field(description="Skills this project demonstrates.")
+    why_skills_matter: str = Field(
+        description="Career mentorship context for the addressed skills.",
+    )
+    doc_links: list[DocLink] = Field(
+        default_factory=list,
+        description="Official documentation links for addressed skills.",
+    )
+    strengths_referenced: list[str] = Field(
+        default_factory=list,
+        description="Developer strengths referenced in the description.",
+    )
+
+
 class AnalysisResult(BaseModel):
     """Top-level analysis output conforming to schema v1.2."""
 

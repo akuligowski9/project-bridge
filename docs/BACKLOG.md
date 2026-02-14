@@ -1391,3 +1391,19 @@ Built `pb-scan`, a standalone Rust CLI under `scanner/` that scans local directo
 Clean-venv install + full pipeline smoke test. All automated checks pass: `--example` with v1.2 fields (experience_level, portfolio_insights, interview_topics), real analysis against octocat, non-technical JD rejection with clear error, Markdown export with Portfolio Insights + Interview Preparation sections, `--local-repos` end-to-end via pb-scan, mutual exclusivity guard. No bugs or friction found. Ollama and Tauri GUI require manual verification with running services.
 
 ---
+
+### PB-049: Project spec export (`export-project`)
+
+**Status:** Done
+
+Added `export-project` CLI subcommand that generates a rich Markdown project specification from a single recommendation at a chosen difficulty tier (beginner/intermediate/advanced). Includes multi-paragraph personalized description referencing developer strengths, 3+ demonstrable features from curated per-skill per-difficulty data, career mentorship context, and clickable official documentation links. New data files: `resources.yaml` (~50 skills with doc links) and `skill_features.yaml` (~30 skills x 3 tiers). New schema types: `DifficultyTier`, `DocLink`, `ProjectSpec`. Core generation in `export_project.py` with both NoAI heuristic and AI provider paths (AI falls back to heuristic on failure). Markdown renderer `render_project_spec()` in `export.py`. AI prompt template `generate_project_spec.txt`. Tauri `export_project_spec` IPC command. Svelte UI: "Generate Project Spec" button on each recommendation card with inline difficulty selector, full Markdown preview with Save/Copy buttons. 38 new tests covering loaders, schema, generation, rendering, and CLI integration. Decision logged as DEC-018.
+
+---
+
+### PB-050: Tier-based feature counts for project specs
+
+**Status:** Done
+
+Difficulty tiers now produce different feature counts: beginner=3, intermediate=5, advanced=8. Expanded `skill_features.yaml` from 3 features per tier to 5 (intermediate) and 8 (advanced) for all ~28 skills. Updated `_collect_features()` with `_FEATURE_TARGETS` dict and cap logic. Expanded `_GENERIC_FEATURES` fallbacks to match. Redesigned Svelte recommendation cards to show all three tier buttons (Beginner/Intermediate/Advanced) directly on each card with feature count badges, replacing the previous two-step "Generate Project Spec" → difficulty selector flow. 40 tests passing (added `test_intermediate_has_5_features` and `test_advanced_has_8_features`).
+
+---

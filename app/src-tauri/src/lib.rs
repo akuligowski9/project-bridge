@@ -79,6 +79,47 @@ fn scan_local_repos(paths: Vec<String>) -> Result<String, String> {
     run_analysis(cmd_args)
 }
 
+#[tauri::command]
+fn export_project_spec(
+    analysis_json: String,
+    recommendation_index: usize,
+    difficulty: String,
+    no_ai: bool,
+) -> Result<String, String> {
+    let tmp = std::env::temp_dir().join("pb_export_project_input.json");
+    std::fs::write(&tmp, &analysis_json)
+        .map_err(|e| format!("Failed to write temp file: {}", e))?;
+
+    let mut cmd_args = vec![
+        "export-project".to_string(),
+        "--input".to_string(),
+        tmp.to_str().unwrap().to_string(),
+        "--recommendation".to_string(),
+        recommendation_index.to_string(),
+        "--difficulty".to_string(),
+        difficulty,
+    ];
+
+    if no_ai {
+        cmd_args.push("--no-ai".to_string());
+    }
+
+    let output = Command::new("projectbridge")
+        .args(&cmd_args)
+        .output()
+        .map_err(|e| format!("Failed to run projectbridge: {}", e))?;
+
+    let _ = std::fs::remove_file(&tmp);
+
+    if output.status.success() {
+        String::from_utf8(output.stdout)
+            .map_err(|e| format!("Invalid UTF-8 output: {}", e))
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        Err(format!("projectbridge export-project failed: {}", stderr))
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -91,7 +132,8 @@ pub fn run() {
             run_analysis,
             run_analysis_form,
             export_analysis,
-            scan_local_repos
+            scan_local_repos,
+            export_project_spec
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

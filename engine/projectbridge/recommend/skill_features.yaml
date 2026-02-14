@@ -1,0 +1,591 @@
+# Per-skill, per-difficulty feature suggestions for project specs.
+# Feature counts by tier: beginner=3, intermediate=5, advanced=8.
+# Features describe concrete, demonstrable things to build.
+
+Python:
+  beginner:
+    - "Implement a command-line interface with argument parsing and help text"
+    - "Read and write structured data using JSON or CSV files"
+    - "Add unit tests with pytest and achieve basic test coverage"
+  intermediate:
+    - "Build a package with proper project structure, dependencies, and PyPI-ready packaging"
+    - "Implement async I/O with asyncio for concurrent operations"
+    - "Add type hints throughout and validate with mypy strict mode"
+    - "Build a configuration system with environment variables and dotenv"
+    - "Implement structured logging with different verbosity levels"
+  advanced:
+    - "Implement a plugin architecture using entry points or importlib"
+    - "Profile and optimize hot paths with cProfile and memory profiling"
+    - "Build a custom context manager and decorator library for cross-cutting concerns"
+    - "Implement async I/O with asyncio for concurrent network operations"
+    - "Add comprehensive type hints with generics, protocols, and TypeVar"
+    - "Build a configuration system with validation, defaults, and environment overrides"
+    - "Implement structured logging with JSON output and correlation IDs"
+    - "Add a test suite with fixtures, parametrize, mocking, and coverage reporting"
+
+JavaScript:
+  beginner:
+    - "Build interactive DOM manipulation with event listeners and dynamic content"
+    - "Fetch data from a public API and render results on the page"
+    - "Implement form validation with real-time feedback"
+  intermediate:
+    - "Build a modular application using ES modules and a bundler"
+    - "Implement client-side routing with the History API"
+    - "Add comprehensive error handling with try/catch and custom error types"
+    - "Build a data fetching layer with loading states and caching"
+    - "Implement localStorage persistence with serialization and migration"
+  advanced:
+    - "Implement a Web Worker for CPU-intensive background processing"
+    - "Build a custom state management system with the Observer pattern"
+    - "Create a service worker for offline-first functionality and caching"
+    - "Build a modular plugin system using ES modules and dynamic imports"
+    - "Implement client-side routing with nested routes and route guards"
+    - "Add comprehensive error boundaries with retry and fallback strategies"
+    - "Build a real-time data sync layer with WebSockets and conflict resolution"
+    - "Implement performance monitoring with custom metrics and Web Vitals"
+
+TypeScript:
+  beginner:
+    - "Define interfaces and types for all data models in the application"
+    - "Implement type-safe API client functions with proper return types"
+    - "Configure tsconfig.json with strict mode and compile without errors"
+  intermediate:
+    - "Build generic utility types and reusable type-safe data structures"
+    - "Implement discriminated unions for state management patterns"
+    - "Add runtime validation with Zod schemas that infer TypeScript types"
+    - "Build type-safe event handlers with mapped types for DOM events"
+    - "Implement branded types for domain primitives like IDs and emails"
+  advanced:
+    - "Implement advanced mapped types and conditional types for a type-safe ORM layer"
+    - "Build a type-safe event emitter using template literal types"
+    - "Create declaration files for an untyped third-party library"
+    - "Implement a type-safe builder pattern with fluent chaining"
+    - "Build generic utility types for deep partial, readonly, and path access"
+    - "Add runtime validation layer with Zod schemas inferring TypeScript types"
+    - "Implement branded/opaque types for domain primitives with type guards"
+    - "Build a type-safe API client with inference from route definitions"
+
+Django:
+  beginner:
+    - "Implement a basic CRUD model with Django's admin interface"
+    - "Create URL routes and views that render HTML templates with context data"
+    - "Add a SQLite-backed data model with Django ORM migrations"
+  intermediate:
+    - "Build token-based authentication with Django REST Framework"
+    - "Implement model serializers with nested relationships and validation"
+    - "Add paginated list endpoints with filtering and search"
+    - "Build custom management commands for data import and maintenance"
+    - "Implement Django signals for cross-model side effects"
+  advanced:
+    - "Implement custom middleware for request logging and rate limiting"
+    - "Build a multi-tenant data layer with row-level permissions"
+    - "Configure Celery task queues for async background processing"
+    - "Implement token-based auth with refresh tokens and session management"
+    - "Build model serializers with nested writes and custom validation"
+    - "Add paginated, filterable, and searchable list endpoints"
+    - "Implement custom management commands for data migration and maintenance"
+    - "Build a caching layer with per-view cache and cache invalidation"
+
+Flask:
+  beginner:
+    - "Create route handlers for GET and POST requests with JSON responses"
+    - "Implement request validation and structured error responses"
+    - "Add configuration management with environment-specific settings"
+  intermediate:
+    - "Build a Blueprint-based application structure with modular routes"
+    - "Implement SQLAlchemy models with relationships and migrations via Alembic"
+    - "Add JWT authentication with protected route decorators"
+    - "Build a test suite with pytest-flask and factory fixtures"
+    - "Implement structured error handling with custom exception classes"
+  advanced:
+    - "Implement a custom Flask extension with init_app pattern"
+    - "Build request/response middleware for logging, CORS, and rate limiting"
+    - "Add WebSocket support with Flask-SocketIO for real-time features"
+    - "Implement SQLAlchemy models with polymorphic relationships and events"
+    - "Build a JWT auth system with refresh tokens and role-based access"
+    - "Add database migrations with Alembic including data migrations"
+    - "Implement background task processing with Celery integration"
+    - "Build a comprehensive test suite with fixtures, mocking, and coverage"
+
+FastAPI:
+  beginner:
+    - "Create async endpoint handlers with Pydantic request/response models"
+    - "Implement path and query parameter validation with automatic docs"
+    - "Add health check and version endpoints with proper HTTP status codes"
+  intermediate:
+    - "Build dependency injection for database sessions and authentication"
+    - "Implement background tasks with Starlette's BackgroundTasks"
+    - "Add OpenAPI schema customization with response examples"
+    - "Build a test suite with TestClient and dependency overrides"
+    - "Implement structured error responses with custom exception handlers"
+  advanced:
+    - "Implement WebSocket endpoints with connection management"
+    - "Build custom middleware for request tracing and performance monitoring"
+    - "Add streaming responses for large dataset exports"
+    - "Implement dependency injection for database sessions, auth, and rate limiting"
+    - "Build background task processing with task status tracking"
+    - "Add OpenAPI schema customization with multiple response types and examples"
+    - "Implement a test suite with async fixtures and dependency overrides"
+    - "Build a caching layer with Redis integration and cache invalidation"
+
+React:
+  beginner:
+    - "Build reusable UI components with props and conditional rendering"
+    - "Implement state management with useState and useEffect hooks"
+    - "Add client-side routing with React Router and navigation"
+  intermediate:
+    - "Build custom hooks for shared logic like data fetching and form handling"
+    - "Implement context-based state management for cross-component data"
+    - "Add optimistic UI updates with loading states and error boundaries"
+    - "Build a form system with validation, error display, and submission"
+    - "Implement responsive layouts with CSS modules or Tailwind integration"
+  advanced:
+    - "Implement virtualized lists for rendering large datasets efficiently"
+    - "Build a compound component pattern with shared implicit state"
+    - "Add server-side rendering with streaming and Suspense boundaries"
+    - "Build custom hooks for data fetching with caching and revalidation"
+    - "Implement context-based state management with reducer patterns"
+    - "Add error boundaries with retry logic and fallback UI"
+    - "Build an accessible form system with ARIA attributes and keyboard nav"
+    - "Implement code splitting with lazy loading and route-based chunking"
+
+Vue:
+  beginner:
+    - "Build reactive components with the Composition API and template syntax"
+    - "Implement two-way data binding with v-model for form inputs"
+    - "Add client-side routing with Vue Router"
+  intermediate:
+    - "Build composables for reusable stateful logic across components"
+    - "Implement a Pinia store for centralized application state"
+    - "Add dynamic component loading with async components and Suspense"
+    - "Build a form validation system with custom composables"
+    - "Implement transition animations for route changes and list updates"
+  advanced:
+    - "Implement custom directives for DOM manipulation patterns"
+    - "Build a render function-based component library"
+    - "Add server-side rendering with Nuxt.js and hydration"
+    - "Build composables for data fetching with caching and error handling"
+    - "Implement a Pinia store with plugins for persistence and devtools"
+    - "Add dynamic component loading with code splitting and prefetching"
+    - "Build a form system with validation, dirty tracking, and submission"
+    - "Implement accessibility features with ARIA bindings and focus management"
+
+Next.js:
+  beginner:
+    - "Create pages with file-based routing and dynamic route segments"
+    - "Implement server-side data fetching with getServerSideProps"
+    - "Add a layout component with shared navigation and metadata"
+  intermediate:
+    - "Build API routes with request validation and database integration"
+    - "Implement incremental static regeneration for cached dynamic pages"
+    - "Add authentication with NextAuth.js and protected routes"
+    - "Build a data fetching layer with SWR for client-side caching"
+    - "Implement SEO optimization with dynamic metadata and Open Graph tags"
+  advanced:
+    - "Implement middleware for A/B testing and geographic routing"
+    - "Build a custom server with WebSocket support alongside Next.js"
+    - "Add edge runtime functions for low-latency global responses"
+    - "Build API routes with database integration and transaction handling"
+    - "Implement incremental static regeneration with on-demand revalidation"
+    - "Add authentication with NextAuth.js including OAuth and role-based access"
+    - "Build a data layer with React Server Components and streaming"
+    - "Implement image optimization and lazy loading for performance"
+
+Docker:
+  beginner:
+    - "Write a Dockerfile with multi-stage builds for a web application"
+    - "Create a docker-compose.yml that runs the app with a database service"
+    - "Add health checks and proper signal handling for graceful shutdown"
+  intermediate:
+    - "Implement a multi-service architecture with networking and shared volumes"
+    - "Build optimized images with layer caching and minimal base images"
+    - "Add Docker-based development environment with hot reloading"
+    - "Implement container health checks with proper restart policies"
+    - "Build a secrets management strategy with Docker configs and secrets"
+  advanced:
+    - "Implement a custom entrypoint script with secret injection and config templating"
+    - "Build a CI pipeline that builds, tests, and pushes images to a registry"
+    - "Add resource constraints, logging drivers, and production-grade compose configs"
+    - "Implement a multi-service architecture with internal networking and service discovery"
+    - "Build optimized images under 100MB with distroless or Alpine bases"
+    - "Add Docker-based dev, test, and production environment parity"
+    - "Implement container orchestration with rolling updates and health monitoring"
+    - "Build a security scanning pipeline for container image vulnerabilities"
+
+Kubernetes:
+  beginner:
+    - "Write Deployment and Service manifests for a web application"
+    - "Configure ConfigMaps and Secrets for environment-specific settings"
+    - "Deploy to a local cluster with minikube and verify with kubectl"
+  intermediate:
+    - "Implement Ingress with TLS termination and path-based routing"
+    - "Add horizontal pod autoscaling based on CPU and custom metrics"
+    - "Configure liveness and readiness probes for reliable rolling updates"
+    - "Build namespace-based environment isolation with resource quotas"
+    - "Implement persistent storage with PersistentVolumeClaims"
+  advanced:
+    - "Implement a Helm chart with templated values for multi-environment deployment"
+    - "Build a custom controller or operator for application-specific automation"
+    - "Add service mesh integration with Istio for observability and traffic management"
+    - "Implement Ingress with TLS, rate limiting, and path-based routing"
+    - "Add horizontal and vertical pod autoscaling with custom metrics"
+    - "Configure pod disruption budgets and affinity rules for high availability"
+    - "Build a GitOps pipeline with ArgoCD for declarative deployments"
+    - "Implement network policies for pod-to-pod traffic control"
+
+AWS:
+  beginner:
+    - "Deploy a static website to S3 with CloudFront CDN distribution"
+    - "Create an EC2 instance with security groups and SSH access"
+    - "Set up IAM users, roles, and policies with least-privilege access"
+  intermediate:
+    - "Build a serverless API with Lambda, API Gateway, and DynamoDB"
+    - "Implement an SQS queue with Lambda triggers for async processing"
+    - "Add CloudWatch alarms and dashboards for monitoring"
+    - "Build an S3 event pipeline for file processing workflows"
+    - "Implement RDS with automated backups and read replicas"
+  advanced:
+    - "Implement infrastructure as code with CDK for a multi-service architecture"
+    - "Build a VPC with public/private subnets, NAT gateway, and bastion host"
+    - "Add a CI/CD pipeline with CodePipeline deploying to ECS Fargate"
+    - "Implement a serverless API with Lambda, API Gateway, and DynamoDB"
+    - "Build an event-driven architecture with SQS, SNS, and EventBridge"
+    - "Add comprehensive CloudWatch monitoring with custom metrics and alarms"
+    - "Implement secrets management with SSM Parameter Store and Secrets Manager"
+    - "Build a multi-region failover strategy with Route 53 health checks"
+
+PostgreSQL:
+  beginner:
+    - "Design a normalized schema with primary keys, foreign keys, and constraints"
+    - "Write CRUD queries with joins, aggregations, and subqueries"
+    - "Add indexes on frequently queried columns and verify with EXPLAIN"
+  intermediate:
+    - "Implement database migrations with version control and rollback support"
+    - "Build complex queries with CTEs, window functions, and lateral joins"
+    - "Add connection pooling and query performance monitoring"
+    - "Implement check constraints and triggers for data integrity"
+    - "Build a seed data system for development and testing environments"
+  advanced:
+    - "Implement row-level security policies for multi-tenant data isolation"
+    - "Build a full-text search system with tsvector, GIN indexes, and ranking"
+    - "Add logical replication and partitioning for large-scale data management"
+    - "Implement database migrations with zero-downtime schema changes"
+    - "Build complex reporting queries with CTEs, window functions, and materialized views"
+    - "Add connection pooling with PgBouncer and query performance monitoring"
+    - "Implement stored procedures and functions for complex business logic"
+    - "Build an audit trail system with triggers and change data capture"
+
+Redis:
+  beginner:
+    - "Implement key-value caching with TTL expiration for API responses"
+    - "Build a session store with Redis strings and proper serialization"
+    - "Add rate limiting using Redis counters with expiry"
+  intermediate:
+    - "Implement a task queue with Redis lists and reliable processing"
+    - "Build a leaderboard system using Redis sorted sets"
+    - "Add pub/sub messaging for real-time event notifications"
+    - "Implement cache invalidation patterns for data consistency"
+    - "Build a distributed counter with atomic increment operations"
+  advanced:
+    - "Implement a distributed lock with Redlock for concurrent operations"
+    - "Build a Redis Streams consumer group for event sourcing"
+    - "Add Lua scripting for atomic multi-step operations"
+    - "Implement a task queue with reliable processing and dead letter handling"
+    - "Build a real-time leaderboard with sorted sets and pagination"
+    - "Add pub/sub messaging with pattern subscriptions and channel management"
+    - "Implement cache warming and multi-level caching strategies"
+    - "Build a rate limiter with sliding window algorithm using sorted sets"
+
+MongoDB:
+  beginner:
+    - "Design document schemas with embedded and referenced relationships"
+    - "Implement CRUD operations with the MongoDB driver or Mongoose"
+    - "Add indexes and use explain() to verify query performance"
+  intermediate:
+    - "Build an aggregation pipeline for analytics and reporting"
+    - "Implement schema validation rules and data migration scripts"
+    - "Add text search indexes with scoring and language support"
+    - "Build a data access layer with connection pooling and error handling"
+    - "Implement pagination with cursor-based navigation for large collections"
+  advanced:
+    - "Implement change streams for real-time data synchronization"
+    - "Build a sharding strategy for horizontal scaling"
+    - "Add transactions with read/write concerns for data consistency"
+    - "Build an aggregation pipeline for complex analytics and reporting"
+    - "Implement schema validation with JSON Schema and migration scripts"
+    - "Add text search with compound indexes, scoring, and faceted results"
+    - "Build a data archival system with TTL indexes and cold storage"
+    - "Implement role-based access control with database-level permissions"
+
+GraphQL:
+  beginner:
+    - "Define a schema with types, queries, and mutations"
+    - "Implement resolvers that fetch data from a database or API"
+    - "Add input validation and meaningful error responses"
+  intermediate:
+    - "Build a DataLoader for batching and caching to avoid N+1 queries"
+    - "Implement pagination with cursor-based connections"
+    - "Add authentication and field-level authorization"
+    - "Build a schema with interfaces and union types for polymorphic data"
+    - "Implement error handling with custom error codes and extensions"
+  advanced:
+    - "Implement subscriptions for real-time data with WebSocket transport"
+    - "Build a federated schema for a microservices architecture"
+    - "Add persisted queries and query complexity analysis for security"
+    - "Build a DataLoader for batching with per-request caching"
+    - "Implement cursor-based pagination with relay-style connections"
+    - "Add field-level authorization with directive-based permission checks"
+    - "Build a schema stitching layer for combining multiple data sources"
+    - "Implement automatic schema documentation with introspection and examples"
+
+GitHub Actions:
+  beginner:
+    - "Create a workflow that runs tests on every push and pull request"
+    - "Add linting and formatting checks as required CI steps"
+    - "Configure build matrix for multiple OS and language versions"
+  intermediate:
+    - "Build reusable composite actions for shared CI/CD steps"
+    - "Implement environment-based deployments with approval gates"
+    - "Add artifact caching and dependency caching for faster builds"
+    - "Build a notification system for failed builds and deployments"
+    - "Implement conditional job execution based on changed files"
+  advanced:
+    - "Build a custom GitHub Action with Docker or JavaScript runtime"
+    - "Implement a release workflow with semantic versioning and changelogs"
+    - "Add security scanning with CodeQL and dependency review"
+    - "Build reusable composite actions for shared CI/CD steps"
+    - "Implement environment-based deployments with approval gates and rollback"
+    - "Add artifact and dependency caching with cache key strategies"
+    - "Build a monorepo CI pipeline with path-based job filtering"
+    - "Implement parallel test splitting for faster CI execution"
+
+CI/CD:
+  beginner:
+    - "Set up an automated test pipeline that runs on every commit"
+    - "Add code quality checks including linting and formatting"
+    - "Configure branch protection rules to enforce passing checks"
+  intermediate:
+    - "Build a deployment pipeline with staging and production environments"
+    - "Implement rollback capability with versioned deployments"
+    - "Add integration tests that run against a test database in CI"
+    - "Build a notification system for deployment status and failures"
+    - "Implement secret management for CI/CD pipeline credentials"
+  advanced:
+    - "Implement blue-green or canary deployment strategies"
+    - "Build a pipeline that runs security scans and compliance checks"
+    - "Add performance regression testing with automated benchmarks"
+    - "Implement deployment pipeline with staging, canary, and production stages"
+    - "Build rollback automation with health check verification"
+    - "Add integration and end-to-end tests in isolated CI environments"
+    - "Implement artifact versioning with immutable builds and provenance"
+    - "Build a pipeline dashboard with deployment history and metrics"
+
+Terraform:
+  beginner:
+    - "Write HCL configurations to provision cloud resources"
+    - "Implement state management with remote backend storage"
+    - "Add variable definitions and output values for reusable configs"
+  intermediate:
+    - "Build reusable modules for common infrastructure patterns"
+    - "Implement workspace-based multi-environment management"
+    - "Add data sources and dynamic blocks for flexible configurations"
+    - "Build a module registry for sharing infrastructure components"
+    - "Implement import workflows for existing infrastructure resources"
+  advanced:
+    - "Implement a custom provider for an internal service"
+    - "Build a CI/CD pipeline with plan review and automated apply"
+    - "Add Sentinel policies for infrastructure compliance enforcement"
+    - "Build reusable modules with versioning and documentation"
+    - "Implement workspace-based multi-environment management with shared state"
+    - "Add data sources and dynamic blocks for flexible configurations"
+    - "Build a drift detection system with automated remediation"
+    - "Implement cost estimation and budget alerts for infrastructure changes"
+
+REST API:
+  beginner:
+    - "Design RESTful endpoints following resource naming conventions"
+    - "Implement proper HTTP methods and status codes for CRUD operations"
+    - "Add request/response validation with clear error messages"
+  intermediate:
+    - "Build pagination, filtering, and sorting for collection endpoints"
+    - "Implement API versioning and content negotiation"
+    - "Add rate limiting and API key authentication"
+    - "Build comprehensive error responses with error codes and details"
+    - "Implement request logging and correlation IDs for debugging"
+  advanced:
+    - "Implement HATEOAS with hypermedia links for API discoverability"
+    - "Build an OpenAPI specification with generated client SDKs"
+    - "Add request tracing, circuit breaking, and graceful degradation"
+    - "Build pagination with cursor-based navigation and page metadata"
+    - "Implement API versioning with header-based content negotiation"
+    - "Add rate limiting with sliding window and tiered API key access"
+    - "Build a webhook system for event notifications to consumers"
+    - "Implement API documentation with interactive examples and sandboxing"
+
+Serverless:
+  beginner:
+    - "Create a Lambda function triggered by API Gateway requests"
+    - "Implement environment variable configuration and IAM permissions"
+    - "Add CloudWatch logging and basic error monitoring"
+  intermediate:
+    - "Build an event-driven architecture with SQS/SNS triggers"
+    - "Implement DynamoDB single-table design for serverless data access"
+    - "Add SAM or CDK templates for infrastructure as code deployment"
+    - "Build a scheduled Lambda for periodic data processing jobs"
+    - "Implement structured logging with correlation IDs across functions"
+  advanced:
+    - "Implement Step Functions for orchestrating multi-step workflows"
+    - "Build a custom authorizer Lambda for JWT validation"
+    - "Add X-Ray tracing and custom metrics for observability"
+    - "Build an event-driven architecture with SQS, SNS, and EventBridge"
+    - "Implement DynamoDB single-table design with GSI access patterns"
+    - "Add infrastructure as code with CDK including automated testing"
+    - "Build a multi-function pipeline with fan-out and error handling"
+    - "Implement cold start optimization with provisioned concurrency"
+
+Go:
+  beginner:
+    - "Build a CLI tool with the standard library flag package"
+    - "Implement HTTP handlers with net/http and JSON serialization"
+    - "Add unit tests with the testing package and table-driven tests"
+  intermediate:
+    - "Build a concurrent data pipeline using goroutines and channels"
+    - "Implement a REST API with proper error handling and middleware"
+    - "Add structured logging and configuration with environment variables"
+    - "Build a database access layer with sqlx and connection pooling"
+    - "Implement graceful shutdown with context and signal handling"
+  advanced:
+    - "Implement a custom protocol server with connection pooling"
+    - "Build a gRPC service with protobuf definitions and streaming"
+    - "Add distributed tracing with OpenTelemetry instrumentation"
+    - "Build a concurrent data pipeline using goroutines, channels, and worker pools"
+    - "Implement a REST API with middleware chain, error handling, and validation"
+    - "Add structured logging with zerolog and request-scoped context"
+    - "Build a database layer with transactions, migrations, and connection pooling"
+    - "Implement graceful shutdown with signal handling and drain timeout"
+
+Rust:
+  beginner:
+    - "Build a CLI tool with clap for argument parsing and error handling"
+    - "Implement file I/O with proper Result handling and error propagation"
+    - "Add unit tests and integration tests with Rust's built-in test framework"
+  intermediate:
+    - "Build a web server with Actix-web or Axum with typed extractors"
+    - "Implement traits and generics for a reusable library component"
+    - "Add serde serialization with custom derive macros"
+    - "Build error handling with thiserror and custom error types"
+    - "Implement configuration with config-rs and environment variables"
+  advanced:
+    - "Implement async runtime patterns with Tokio for concurrent I/O"
+    - "Build a zero-copy parser using nom or custom combinators"
+    - "Add unsafe FFI bindings to a C library with safe Rust wrappers"
+    - "Build a web server with Axum including middleware, extractors, and state"
+    - "Implement traits and generics for a reusable, well-documented library"
+    - "Add serde serialization with custom implementations and format support"
+    - "Build error handling with thiserror, anyhow, and custom error chains"
+    - "Implement a CI pipeline with clippy, rustfmt, and coverage reporting"
+
+Elasticsearch:
+  beginner:
+    - "Create indexes with mappings and index sample documents"
+    - "Implement full-text search queries with highlighting"
+    - "Add filters and aggregations for faceted search results"
+  intermediate:
+    - "Build a search-as-you-type autocomplete with completion suggesters"
+    - "Implement index aliases and reindexing for zero-downtime schema changes"
+    - "Add relevance tuning with boosting, function scores, and analyzers"
+    - "Build a faceted navigation system with bucket aggregations"
+    - "Implement synonym and stopword filters for improved search quality"
+  advanced:
+    - "Implement a multi-index search strategy for cross-entity queries"
+    - "Build an ingest pipeline for document enrichment and transformation"
+    - "Add cluster monitoring, shard allocation tuning, and backup strategies"
+    - "Build a search-as-you-type autocomplete with completion and phrase suggesters"
+    - "Implement index lifecycle management with rollover and retention policies"
+    - "Add relevance tuning with function scores, boosting, and custom analyzers"
+    - "Build a real-time analytics dashboard with date histogram aggregations"
+    - "Implement cross-cluster search for federated data access"
+
+Kafka:
+  beginner:
+    - "Set up a producer that publishes messages to a Kafka topic"
+    - "Implement a consumer that reads and processes messages reliably"
+    - "Add message serialization with Avro or JSON Schema"
+  intermediate:
+    - "Build a consumer group with partition assignment and offset management"
+    - "Implement a dead letter queue for failed message handling"
+    - "Add Kafka Connect for streaming data between systems"
+    - "Build a message retry strategy with exponential backoff"
+    - "Implement topic configuration with retention and compaction policies"
+  advanced:
+    - "Implement Kafka Streams for real-time data transformation"
+    - "Build exactly-once processing with idempotent producers and transactions"
+    - "Add schema registry with compatibility checks for schema evolution"
+    - "Build a consumer group with partition assignment and rebalancing strategy"
+    - "Implement a dead letter queue with retry scheduling and alerting"
+    - "Add Kafka Connect with custom transforms for data pipeline integration"
+    - "Build a monitoring dashboard with consumer lag tracking and alerts"
+    - "Implement multi-cluster replication with MirrorMaker 2"
+
+Spring Boot:
+  beginner:
+    - "Create REST controllers with request mapping and JSON responses"
+    - "Implement JPA entities with Spring Data repositories"
+    - "Add application.yml configuration with profiles for environments"
+  intermediate:
+    - "Build a security layer with Spring Security and JWT authentication"
+    - "Implement service layer patterns with dependency injection and transactions"
+    - "Add integration tests with TestContainers for database testing"
+    - "Build a validation layer with Bean Validation annotations and custom validators"
+    - "Implement exception handling with @ControllerAdvice and problem details"
+  advanced:
+    - "Implement a custom starter for shared cross-service configuration"
+    - "Build reactive endpoints with Spring WebFlux and R2DBC"
+    - "Add distributed tracing with Micrometer and observability stack"
+    - "Build a security layer with OAuth2, JWT, and role-based access control"
+    - "Implement service layer with transactions, caching, and retry policies"
+    - "Add integration tests with TestContainers and test slices"
+    - "Build a validation layer with custom validators and error response formatting"
+    - "Implement health indicators and custom actuator endpoints for monitoring"
+
+Celery:
+  beginner:
+    - "Create async tasks that run in the background with a Redis broker"
+    - "Implement task status tracking and result retrieval"
+    - "Add basic error handling with retries and max retry limits"
+  intermediate:
+    - "Build task chains and groups for workflow orchestration"
+    - "Implement periodic tasks with Celery Beat scheduling"
+    - "Add priority queues with dedicated workers for different task types"
+    - "Build a task result backend with expiration and cleanup"
+    - "Implement task logging with structured output and correlation IDs"
+  advanced:
+    - "Implement custom task base classes with shared pre/post processing"
+    - "Build a monitoring dashboard with Flower and custom metrics"
+    - "Add task rate limiting and circuit breakers for external API calls"
+    - "Build task chains, chords, and groups for complex workflow orchestration"
+    - "Implement periodic tasks with Celery Beat and dynamic schedule management"
+    - "Add priority queues with worker routing and concurrency control"
+    - "Build a dead letter queue with retry scheduling and alerting"
+    - "Implement task idempotency with deduplication and locking"
+
+Nginx:
+  beginner:
+    - "Configure a reverse proxy that forwards requests to an application server"
+    - "Set up virtual hosts for serving multiple domains"
+    - "Add SSL/TLS certificates with Let's Encrypt"
+  intermediate:
+    - "Implement load balancing across multiple upstream servers"
+    - "Build caching rules for static assets and API responses"
+    - "Add rate limiting and request size limits for security"
+    - "Implement gzip compression and static file serving optimization"
+    - "Build a logging configuration with access and error log rotation"
+  advanced:
+    - "Implement a custom configuration for WebSocket proxying"
+    - "Build a multi-tier caching strategy with microcaching for dynamic content"
+    - "Add OpenResty/Lua scripting for custom request processing"
+    - "Implement load balancing with health checks and failover strategies"
+    - "Build caching rules with cache purging and conditional invalidation"
+    - "Add rate limiting with different tiers for authenticated and anonymous users"
+    - "Implement security headers, CSP policies, and request filtering"
+    - "Build a monitoring setup with stub_status, Prometheus metrics, and alerting"
