@@ -614,19 +614,16 @@
                     {/if}
                   </div>
 
-                  <!-- Tab bar -->
-                  <div class="border-t border-gray-200 bg-gray-50 px-5">
-                    <div class="flex">
-                      {#each [{ key: "beginner", label: "Beginner", count: 3, text: "text-green-600", textHover: "text-gray-500 hover:text-green-600", countActive: "text-green-400", bar: "bg-green-500" }, { key: "intermediate", label: "Intermediate", count: 5, text: "text-amber-600", textHover: "text-gray-500 hover:text-amber-600", countActive: "text-amber-400", bar: "bg-amber-500" }, { key: "advanced", label: "Advanced", count: 8, text: "text-red-600", textHover: "text-gray-500 hover:text-red-600", countActive: "text-red-400", bar: "bg-red-500" }] as tab}
+                  <!-- Tier tabs -->
+                  <div class="border-t border-gray-200 bg-gray-50 px-5 py-3">
+                    <div class="flex gap-2">
+                      {#each [{ key: "beginner", label: "Beginner", count: 3, active: "bg-green-100 text-green-800 ring-1 ring-green-300", inactive: "bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-green-50 hover:text-green-700 hover:ring-green-200" }, { key: "intermediate", label: "Intermediate", count: 5, active: "bg-amber-100 text-amber-800 ring-1 ring-amber-300", inactive: "bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-amber-50 hover:text-amber-700 hover:ring-amber-200" }, { key: "advanced", label: "Advanced", count: 8, active: "bg-red-100 text-red-800 ring-1 ring-red-300", inactive: "bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-red-50 hover:text-red-700 hover:ring-red-200" }] as tab}
                         <button
                           onclick={() => selectTier(i, tab.key)}
-                          class="relative px-4 py-3 text-sm font-medium transition-colors {activeTier === tab.key ? tab.text : tab.textHover}"
+                          class="px-4 py-1.5 rounded-full text-sm font-medium transition-all {activeTier === tab.key ? tab.active : tab.inactive}"
                         >
                           {tab.label}
-                          <span class="text-xs font-normal ml-1 {activeTier === tab.key ? tab.countActive : 'text-gray-400'}">({tab.count})</span>
-                          {#if activeTier === tab.key}
-                            <span class="absolute bottom-0 left-0 right-0 h-0.5 {tab.bar}"></span>
-                          {/if}
+                          <span class="text-xs font-normal ml-1">({tab.count})</span>
                         </button>
                       {/each}
                     </div>

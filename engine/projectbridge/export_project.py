@@ -144,17 +144,30 @@ def _build_heuristic_description(
     difficulty: DifficultyTier,
     strengths: list[str],
 ) -> str:
-    """Build a multi-paragraph description from the recommendation."""
-    difficulty_context = {
+    """Build a multi-paragraph description from the recommendation.
+
+    Paragraph count scales with difficulty:
+    - Beginner: 2 paragraphs (scope + personalization)
+    - Intermediate: 3 paragraphs (scope + personalization + technical approach)
+    - Advanced: 4 paragraphs (scope + personalization + architecture + mastery)
+    """
+    skills_str = ", ".join(rec.skills_addressed)
+    known_lower = {k.lower() for k in strengths}
+    new_skills = [s for s in rec.skills_addressed if s.lower() not in known_lower]
+    skills_lower = {s.lower() for s in rec.skills_addressed}
+    known_overlap = [s for s in strengths if s.lower() in skills_lower]
+
+    # -- P1: Scope framing (always present) --
+    scope_context = {
         DifficultyTier.BEGINNER: (
             "This project is scoped for someone getting started with these technologies. "
             "Focus on understanding the fundamentals — how the pieces fit together, "
             "basic configuration, and getting a working result you can demonstrate."
         ),
         DifficultyTier.INTERMEDIATE: (
-            "This project assumes some foundational knowledge and pushes into "
-            "real-world patterns. You'll work with production-relevant features "
-            "like authentication, data relationships, and proper error handling."
+            "This project assumes foundational knowledge and pushes into real-world "
+            "patterns. You'll work with production-relevant features like "
+            "authentication, data relationships, and proper error handling."
         ),
         DifficultyTier.ADVANCED: (
             "This project targets experienced developers ready for production-grade "
@@ -162,16 +175,9 @@ def _build_heuristic_description(
             "optimization, and operational concerns that teams face at scale."
         ),
     }
+    p1 = f"{rec.description} {scope_context[difficulty]}"
 
-    # Paragraph 1: Expand the recommendation with scope context.
-    p1 = f"{rec.description} {difficulty_context[difficulty]}"
-
-    # Paragraph 2: Personalize with developer's existing strengths.
-    skills_lower = {s.lower() for s in rec.skills_addressed}
-    known_overlap = [s for s in strengths if s.lower() in skills_lower]
-    known_lower = {k.lower() for k in strengths}
-    new_skills = [s for s in rec.skills_addressed if s.lower() not in known_lower]
-
+    # -- P2: Personalization (always present) --
     if known_overlap and new_skills:
         p2 = (
             f"Your experience with {', '.join(known_overlap)} gives you a solid "
@@ -193,7 +199,47 @@ def _build_heuristic_description(
             "piece that demonstrates mastery, not just familiarity."
         )
 
-    return f"{p1}\n\n{p2}"
+    paragraphs = [p1, p2]
+
+    # -- P3: Technical approach (intermediate + advanced) --
+    if difficulty in (DifficultyTier.INTERMEDIATE, DifficultyTier.ADVANCED):
+        p3_context = {
+            DifficultyTier.INTERMEDIATE: (
+                f"At this level, hiring managers expect to see more than a tutorial "
+                f"follow-along. Structure your {skills_str} project with clear "
+                f"separation between layers — data access, business logic, and "
+                f"presentation. Add input validation that handles real edge cases, "
+                f"write tests that verify behavior (not just coverage), and include "
+                f"a README that explains your design decisions. These details signal "
+                f"that you can ship features a team can maintain."
+            ),
+            DifficultyTier.ADVANCED: (
+                f"Engineering teams evaluating senior candidates look for evidence "
+                f"of systems thinking. Your {skills_str} project should demonstrate "
+                f"clear architectural boundaries, explicit trade-off decisions, and "
+                f"operational awareness. Think about failure modes — what happens "
+                f"when a dependency is down, when input volume spikes, or when "
+                f"configuration is missing? Build in graceful degradation, structured "
+                f"logging, and health checks that make the system observable."
+            ),
+        }
+        paragraphs.append(p3_context[difficulty])
+
+    # -- P4: Mastery / production depth (advanced only) --
+    if difficulty == DifficultyTier.ADVANCED:
+        p4 = (
+            "The difference between a portfolio project and a production system is "
+            "in the details most developers skip: database migrations that handle "
+            "rollbacks, CI pipelines that catch regressions before merge, security "
+            "headers and rate limiting, and documentation that helps the next "
+            "developer understand not just what the code does but why it's "
+            "structured that way. Completing this project at an advanced level "
+            "demonstrates the kind of ownership and foresight that distinguishes "
+            "senior engineers."
+        )
+        paragraphs.append(p4)
+
+    return "\n\n".join(paragraphs)
 
 
 def _collect_features(skills: list[str], difficulty: str) -> list[str]:
