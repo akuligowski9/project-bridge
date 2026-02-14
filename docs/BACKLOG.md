@@ -848,10 +848,12 @@ Run through the complete setup experience as a new user would: install from sour
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Critical
 - **Depends on:** PB-033, PB-034, PB-035, PB-036, PB-037
 - **Blocks:** PB-040
+
+**Done:** Clean-venv install + full pipeline smoke test. All automated checks pass: --example with v1.2 fields (experience_level, portfolio_insights, interview_topics), real analysis against octocat, non-technical JD rejection, Markdown export with Portfolio Insights + Interview Preparation sections, --local-repos end-to-end via pb-scan, mutual exclusivity guard. No bugs or friction found. Ollama (AC-2) and Tauri GUI (AC-6) require manual verification.
 
 ---
 
@@ -1379,5 +1381,13 @@ Bumped schema to v1.2 (backwards compatible with 1.0, 1.1). Added `experience_le
 **Status:** Done
 
 Built `pb-scan`, a standalone Rust CLI under `scanner/` that scans local directories and outputs JSON matching the Python `dev_context` format. ~800 lines of Rust across 7 modules: directory walking via `ignore` crate (`.gitignore`-aware), extension→language mapping with byte counting (~45 languages), 38 file indicators ported from `github.py`, 6 dependency parsers (package.json, requirements.txt, Cargo.toml, Gemfile, go.mod, composer.json), project structure detection, and clap CLI with single/multi-directory scanning. 34 Rust tests (28 unit + 6 integration) against 4 synthetic fixture repos. Integrated with Python: `--local-repos` CLI flag (mutually exclusive with `--github-user`) invokes `pb-scan` via subprocess. Added Tauri `scan_local_repos` IPC command. Makefile scanner targets + CI workflow with fmt/clippy/test/build. Decision logged as DEC-017.
+
+---
+
+### PB-038: End-to-end setup and smoke test
+
+**Status:** Done
+
+Clean-venv install + full pipeline smoke test. All automated checks pass: `--example` with v1.2 fields (experience_level, portfolio_insights, interview_topics), real analysis against octocat, non-technical JD rejection with clear error, Markdown export with Portfolio Insights + Interview Preparation sections, `--local-repos` end-to-end via pb-scan, mutual exclusivity guard. No bugs or friction found. Ollama and Tauri GUI require manual verification with running services.
 
 ---
