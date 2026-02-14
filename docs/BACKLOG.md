@@ -1407,3 +1407,11 @@ Added `export-project` CLI subcommand that generates a rich Markdown project spe
 Difficulty tiers now produce different feature counts: beginner=3, intermediate=5, advanced=8. Expanded `skill_features.yaml` from 3 features per tier to 5 (intermediate) and 8 (advanced) for all ~28 skills. Updated `_collect_features()` with `_FEATURE_TARGETS` dict and cap logic. Expanded `_GENERIC_FEATURES` fallbacks to match. Redesigned Svelte recommendation cards to show all three tier buttons (Beginner/Intermediate/Advanced) directly on each card with feature count badges, replacing the previous two-step "Generate Project Spec" → difficulty selector flow. 40 tests passing (added `test_intermediate_has_5_features` and `test_advanced_has_8_features`).
 
 ---
+
+### PB-051: Redesign recommendation cards with tab-append UX and colored tiers
+
+**Status:** Done
+
+Redesigned recommendation cards with a base-content-always-visible pattern: description paragraph and blue "Why These Skills Matter" callout shown by default without selecting a tier. Added proper underline-style tab bar (Beginner | Intermediate | Advanced) that appends content below the base — additional description paragraphs, numbered features list, documentation links, and Save/Copy export buttons. Tabs are color-coded: green (Beginner), amber (Intermediate), red (Advanced). Clicking the same tab collapses the expanded content. Spec data fetched on first tab click via `export_project_spec` IPC with `format: "json"` and cached client-side for instant switching. Added `pb_binary()` helper to Rust backend to resolve `projectbridge` CLI via `PROJECTBRIDGE_BIN` env var (fixes IPC failures when CLI isn't on system PATH). Removed Interview Preparation section and Experience Level badge from the UI to keep focus on project specs. All checks passing: 252 Python tests, svelte-check clean, cargo check clean.
+
+---

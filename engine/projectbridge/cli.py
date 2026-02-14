@@ -146,9 +146,15 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Difficulty tier for the project spec.",
     )
     export_proj.add_argument(
+        "--format",
+        choices=["json", "markdown"],
+        default="markdown",
+        help="Output format (default: markdown).",
+    )
+    export_proj.add_argument(
         "--output",
         metavar="FILE",
-        help="Write Markdown output to FILE instead of stdout.",
+        help="Write output to FILE instead of stdout.",
     )
     export_proj.add_argument(
         "--no-ai",
@@ -346,7 +352,10 @@ def _cmd_export_project(args: argparse.Namespace) -> int:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
 
-    output_text = render_project_spec(spec)
+    if args.format == "json":
+        output_text = spec.model_dump_json(indent=2) + "\n"
+    else:
+        output_text = render_project_spec(spec)
 
     if args.output:
         Path(args.output).write_text(output_text)

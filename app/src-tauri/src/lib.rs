@@ -1,8 +1,14 @@
 use std::process::Command;
 
+/// Resolve the `projectbridge` CLI binary path.
+/// Checks `PROJECTBRIDGE_BIN` env var first, then falls back to PATH lookup.
+fn pb_binary() -> String {
+    std::env::var("PROJECTBRIDGE_BIN").unwrap_or_else(|_| "projectbridge".to_string())
+}
+
 #[tauri::command]
 fn run_analysis(args: Vec<String>) -> Result<String, String> {
-    let output = Command::new("projectbridge")
+    let output = Command::new(pb_binary())
         .args(&args)
         .output()
         .map_err(|e| format!("Failed to run projectbridge: {}", e))?;
@@ -51,7 +57,7 @@ fn export_analysis(analysis_json: String, format: String) -> Result<String, Stri
     std::fs::write(&tmp, &analysis_json)
         .map_err(|e| format!("Failed to write temp file: {}", e))?;
 
-    let output = Command::new("projectbridge")
+    let output = Command::new(pb_binary())
         .args(["export", "--input", tmp.to_str().unwrap(), "--format", &format])
         .output()
         .map_err(|e| format!("Failed to run projectbridge: {}", e))?;
@@ -84,11 +90,14 @@ fn export_project_spec(
     analysis_json: String,
     recommendation_index: usize,
     difficulty: String,
+    format: Option<String>,
     no_ai: bool,
 ) -> Result<String, String> {
     let tmp = std::env::temp_dir().join("pb_export_project_input.json");
     std::fs::write(&tmp, &analysis_json)
         .map_err(|e| format!("Failed to write temp file: {}", e))?;
+
+    let fmt = format.unwrap_or_else(|| "markdown".to_string());
 
     let mut cmd_args = vec![
         "export-project".to_string(),
@@ -98,13 +107,15 @@ fn export_project_spec(
         recommendation_index.to_string(),
         "--difficulty".to_string(),
         difficulty,
+        "--format".to_string(),
+        fmt,
     ];
 
     if no_ai {
         cmd_args.push("--no-ai".to_string());
     }
 
-    let output = Command::new("projectbridge")
+    let output = Command::new(pb_binary())
         .args(&cmd_args)
         .output()
         .map_err(|e| format!("Failed to run projectbridge: {}", e))?;

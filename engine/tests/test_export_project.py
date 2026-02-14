@@ -441,6 +441,31 @@ class TestCLIExportProject:
         assert "# Project Spec:" in content
         assert "## Key Features" in content
 
+    def test_json_format(self, capsys):
+        import json
+
+        from projectbridge.cli import main
+
+        exit_code = main(
+            [
+                "export-project",
+                "--example",
+                "--recommendation",
+                "1",
+                "--difficulty",
+                "intermediate",
+                "--format",
+                "json",
+                "--no-ai",
+            ]
+        )
+        assert exit_code == 0
+        output = capsys.readouterr().out
+        data = json.loads(output)
+        assert data["title"]
+        assert data["difficulty"] == "intermediate"
+        assert len(data["features"]) == 5
+
     def test_no_input_fails(self):
         from projectbridge.cli import main
 

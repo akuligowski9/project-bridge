@@ -22,22 +22,32 @@
     message: string;
   }
 
-  interface InterviewTopic {
-    skill: string;
-    topics: string[];
-  }
-
   interface AnalysisResult {
     schema_version: string;
     strengths: Skill[];
     gaps: Skill[];
     recommendations: Recommendation[];
-    experience_level?: string | null;
     portfolio_insights?: PortfolioInsight[];
-    interview_topics?: InterviewTopic[];
   }
 
-  type View = "form" | "loading" | "results" | "export" | "project-spec";
+  interface DocLink {
+    label: string;
+    url: string;
+    skill: string;
+  }
+
+  interface ProjectSpec {
+    title: string;
+    difficulty: string;
+    description: string;
+    features: string[];
+    skills_addressed: string[];
+    why_skills_matter: string;
+    doc_links: DocLink[];
+    strengths_referenced: string[];
+  }
+
+  type View = "form" | "loading" | "results" | "export";
 
   let view: View = $state("results");
   let result: AnalysisResult | null = $state({
@@ -96,7 +106,6 @@
         skill_context: "Cloud infrastructure is a fundamental part of modern software delivery, and AWS dominates the market. Understanding serverless architecture shows you can think about cost, scalability, and operational concerns — not just application code. These skills make you more valuable in any engineering team that deploys to the cloud.",
       },
     ],
-    experience_level: "mid",
     portfolio_insights: [
       {
         category: "infrastructure",
@@ -105,28 +114,6 @@
       {
         category: "domain",
         message: "The target role values cloud experience. Consider projects in this domain even if you use familiar technologies.",
-      },
-    ],
-    interview_topics: [
-      {
-        skill: "TypeScript",
-        topics: ["Generic types and utility types", "Type narrowing and discriminated unions", "Declaration files and module augmentation"],
-      },
-      {
-        skill: "Django",
-        topics: ["ORM query optimization and N+1 problems", "Middleware pipeline and request lifecycle", "Django REST Framework serializers and viewsets"],
-      },
-      {
-        skill: "PostgreSQL",
-        topics: ["Query optimization and EXPLAIN plans", "Indexing strategies (B-tree, GIN, GiST)", "Transaction isolation levels"],
-      },
-      {
-        skill: "Redis",
-        topics: ["Data structures and use cases for each type", "Persistence strategies (RDB vs AOF)", "Pub/Sub and Lua scripting"],
-      },
-      {
-        skill: "Kubernetes",
-        topics: ["Pod lifecycle and deployment strategies", "Services, ingress, and networking", "Resource limits, requests, and horizontal scaling"],
       },
     ],
   });
@@ -153,11 +140,11 @@
   let exportLoading = $state(false);
   let copied = $state(false);
 
-  // Project spec state
-  let specDifficulty = $state<string | null>(null);
-  let specPreview = $state("");
-  let specLoading = $state(false);
-  let specCopied = $state(false);
+  // Per-recommendation spec state
+  let selectedTier: Record<number, string> = $state({});
+  let specCache: Record<string, ProjectSpec> = $state({});
+  let specLoadingKey = $state<string | null>(null);
+  let specExportCopied = $state(false);
 
   const categoryLabels: Record<string, string> = {
     language: "Languages",
@@ -228,6 +215,8 @@
     result = null;
     error = null;
     submitted = false;
+    selectedTier = {};
+    specCache = {};
   }
 
   async function openExport() {
@@ -287,49 +276,83 @@
     }
   }
 
-  async function generateProjectSpec(recIndex: number, difficulty: string) {
+  async function selectTier(recIndex: number, difficulty: string) {
     if (!result) return;
-    specDifficulty = difficulty;
-    specLoading = true;
-    specPreview = "";
-    specCopied = false;
-    view = "project-spec";
 
+    // Toggle off if clicking the already-selected tier.
+    if (selectedTier[recIndex] === difficulty) {
+      selectedTier[recIndex] = "";
+      return;
+    }
+
+    selectedTier[recIndex] = difficulty;
+
+    // Return cached data if available.
+    const cacheKey = `${recIndex}-${difficulty}`;
+    if (specCache[cacheKey]) return;
+
+    // Fetch from backend.
+    specLoadingKey = cacheKey;
     try {
       const analysisJson = JSON.stringify(result);
-      specPreview = await invoke<string>("export_project_spec", {
+      const jsonStr = await invoke<string>("export_project_spec", {
         analysisJson,
         recommendationIndex: recIndex + 1,
         difficulty,
+        format: "json",
         noAi: true,
       });
+      specCache[cacheKey] = JSON.parse(jsonStr);
     } catch (e) {
       error = String(e);
-      view = "results";
     } finally {
-      specLoading = false;
+      specLoadingKey = null;
     }
   }
 
-  async function saveSpecToFile() {
-    const path = await save({
-      defaultPath: "project-spec.md",
-      filters: [{ name: "Markdown", extensions: ["md"] }],
-    });
-    if (path) {
-      try {
-        await writeTextFile(path, specPreview);
-      } catch (e) {
-        error = String(e);
-      }
-    }
-  }
+  async function exportSpecMarkdown(recIndex: number) {
+    if (!result) return;
+    const difficulty = selectedTier[recIndex];
+    if (!difficulty) return;
 
-  async function copySpecToClipboard() {
     try {
-      await writeText(specPreview);
-      specCopied = true;
-      setTimeout(() => { specCopied = false; }, 2000);
+      const analysisJson = JSON.stringify(result);
+      const markdown = await invoke<string>("export_project_spec", {
+        analysisJson,
+        recommendationIndex: recIndex + 1,
+        difficulty,
+        format: "markdown",
+        noAi: true,
+      });
+      const path = await save({
+        defaultPath: "project-spec.md",
+        filters: [{ name: "Markdown", extensions: ["md"] }],
+      });
+      if (path) {
+        await writeTextFile(path, markdown);
+      }
+    } catch (e) {
+      error = String(e);
+    }
+  }
+
+  async function copySpecMarkdown(recIndex: number) {
+    if (!result) return;
+    const difficulty = selectedTier[recIndex];
+    if (!difficulty) return;
+
+    try {
+      const analysisJson = JSON.stringify(result);
+      const markdown = await invoke<string>("export_project_spec", {
+        analysisJson,
+        recommendationIndex: recIndex + 1,
+        difficulty,
+        format: "markdown",
+        noAi: true,
+      });
+      await writeText(markdown);
+      specExportCopied = true;
+      setTimeout(() => { specExportCopied = false; }, 2000);
     } catch (e) {
       error = String(e);
     }
@@ -358,7 +381,7 @@
             New Analysis
           </button>
         {/if}
-        {#if view === "export" || view === "project-spec"}
+        {#if view === "export"}
           <button
             onclick={() => { view = "results"; }}
             class="text-sm text-blue-600 hover:text-blue-800 font-medium"
@@ -394,7 +417,6 @@
         <h2 class="text-lg font-semibold mb-6">Run Analysis</h2>
 
         <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-5">
-          <!-- GitHub Username -->
           <div>
             <label for="github-user" class="block text-sm font-medium text-gray-700 mb-1">
               GitHub Username <span class="text-red-500">*</span>
@@ -411,7 +433,6 @@
             {/if}
           </div>
 
-          <!-- Job Description -->
           <div>
             <label for="job-text" class="block text-sm font-medium text-gray-700 mb-1">
               Job Description <span class="text-red-500">*</span>
@@ -428,7 +449,6 @@
             {/if}
           </div>
 
-          <!-- Resume (optional) -->
           <div>
             <label for="resume-text" class="block text-sm font-medium text-gray-700 mb-1">
               Resume Text <span class="text-gray-400 font-normal">(optional)</span>
@@ -442,20 +462,11 @@
             ></textarea>
           </div>
 
-          <!-- No AI toggle -->
           <div class="flex items-center gap-2">
-            <input
-              id="no-ai"
-              type="checkbox"
-              bind:checked={noAi}
-              class="rounded border-gray-300"
-            />
-            <label for="no-ai" class="text-sm text-gray-700">
-              Heuristic only (no AI provider)
-            </label>
+            <input id="no-ai" type="checkbox" bind:checked={noAi} class="rounded border-gray-300" />
+            <label for="no-ai" class="text-sm text-gray-700">Heuristic only (no AI provider)</label>
           </div>
 
-          <!-- Actions -->
           <div class="flex items-center gap-4 pt-2">
             <button
               type="submit"
@@ -485,7 +496,6 @@
 
     <!-- RESULTS DASHBOARD -->
     {#if view === "results" && result}
-      <!-- Summary bar -->
       <div class="grid grid-cols-3 gap-4 mb-8">
         <div class="bg-white border border-gray-200 rounded-lg p-4 text-center">
           <p class="text-2xl font-bold text-green-600">{result.strengths.length}</p>
@@ -501,15 +511,6 @@
         </div>
       </div>
 
-      {#if result.experience_level}
-        <div class="mb-8 flex items-center gap-2">
-          <span class="text-sm text-gray-500">Experience Level:</span>
-          <span class="text-sm font-medium px-3 py-1 rounded-full {result.experience_level === 'senior' ? 'bg-purple-100 text-purple-700' : result.experience_level === 'mid' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}">
-            {result.experience_level.charAt(0).toUpperCase() + result.experience_level.slice(1)}
-          </span>
-        </div>
-      {/if}
-
       <div class="space-y-8">
         <!-- Strengths -->
         <section class="bg-white border border-gray-200 rounded-lg p-6">
@@ -521,14 +522,10 @@
             <div class="space-y-3">
               {#each Object.entries(groups) as [cat, skills]}
                 <div>
-                  <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1.5">
-                    {categoryLabels[cat] || cat}
-                  </p>
+                  <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1.5">{categoryLabels[cat] || cat}</p>
                   <div class="flex flex-wrap gap-2">
                     {#each skills as skill}
-                      <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                        {skill.name}
-                      </span>
+                      <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">{skill.name}</span>
                     {/each}
                   </div>
                 </div>
@@ -547,14 +544,10 @@
             <div class="space-y-3">
               {#each Object.entries(groups) as [cat, skills]}
                 <div>
-                  <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1.5">
-                    {categoryLabels[cat] || cat}
-                  </p>
+                  <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1.5">{categoryLabels[cat] || cat}</p>
                   <div class="flex flex-wrap gap-2">
                     {#each skills as skill}
-                      <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
-                        {skill.name}
-                      </span>
+                      <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">{skill.name}</span>
                     {/each}
                   </div>
                 </div>
@@ -571,9 +564,7 @@
               {#each result.portfolio_insights as insight}
                 <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
                   <div class="flex items-start gap-3">
-                    <span class="text-xs font-medium text-amber-600 uppercase tracking-wide bg-amber-100 px-2 py-0.5 rounded shrink-0 mt-0.5">
-                      {insight.category}
-                    </span>
+                    <span class="text-xs font-medium text-amber-600 uppercase tracking-wide bg-amber-100 px-2 py-0.5 rounded shrink-0 mt-0.5">{insight.category}</span>
                     <p class="text-sm text-amber-900">{insight.message}</p>
                   </div>
                 </div>
@@ -588,83 +579,131 @@
           {#if result.recommendations.length === 0}
             <p class="text-gray-400 text-sm">No recommendations generated.</p>
           {:else}
-            <div class="space-y-4">
+            <div class="space-y-6">
               {#each result.recommendations as rec, i}
-                <div class="bg-white border border-gray-200 rounded-lg p-5">
-                  <div class="flex items-start justify-between gap-3">
-                    <h3 class="font-medium">{rec.title}</h3>
-                    <span class="text-xs px-2 py-1 rounded shrink-0 {scopeStyles[rec.estimated_scope] || 'bg-gray-100 text-gray-600'}">
-                      {rec.estimated_scope}
-                    </span>
+                {@const activeTier = selectedTier[i] || ""}
+                {@const cacheKey = `${i}-${activeTier}`}
+                {@const spec = activeTier ? specCache[cacheKey] : null}
+                {@const isLoading = specLoadingKey === cacheKey}
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                  <div class="p-5">
+                    <!-- Header -->
+                    <div class="flex items-start justify-between gap-3">
+                      <h3 class="font-semibold text-base">{rec.title}</h3>
+                      <span class="text-xs px-2 py-1 rounded shrink-0 {scopeStyles[rec.estimated_scope] || 'bg-gray-100 text-gray-600'}">
+                        {rec.estimated_scope}
+                      </span>
+                    </div>
+
+                    <!-- Skill tags -->
+                    <div class="flex flex-wrap gap-2 mt-2">
+                      {#each rec.skills_addressed as skill}
+                        <span class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded">{skill}</span>
+                      {/each}
+                    </div>
+
+                    <!-- Base description — always visible -->
+                    <p class="text-sm text-gray-700 leading-relaxed mt-4">{rec.description}</p>
+
+                    <!-- Why these skills matter — always visible -->
+                    {#if rec.skill_context}
+                      <div class="bg-blue-50 border-l-4 border-blue-300 p-3 mt-4 rounded-r">
+                        <p class="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">Why These Skills Matter</p>
+                        <p class="text-sm text-blue-900 italic">{rec.skill_context}</p>
+                      </div>
+                    {/if}
                   </div>
-                  <p class="text-gray-600 text-sm mt-2">{rec.description}</p>
-                  {#if rec.skill_context}
-                    <div class="bg-blue-50 border-l-4 border-blue-300 p-3 mt-3 rounded-r">
-                      <p class="text-sm text-blue-900 italic">{rec.skill_context}</p>
+
+                  <!-- Tab bar -->
+                  <div class="border-t border-gray-200 bg-gray-50 px-5">
+                    <div class="flex">
+                      {#each [{ key: "beginner", label: "Beginner", count: 3, text: "text-green-600", textHover: "text-gray-500 hover:text-green-600", countActive: "text-green-400", bar: "bg-green-500" }, { key: "intermediate", label: "Intermediate", count: 5, text: "text-amber-600", textHover: "text-gray-500 hover:text-amber-600", countActive: "text-amber-400", bar: "bg-amber-500" }, { key: "advanced", label: "Advanced", count: 8, text: "text-red-600", textHover: "text-gray-500 hover:text-red-600", countActive: "text-red-400", bar: "bg-red-500" }] as tab}
+                        <button
+                          onclick={() => selectTier(i, tab.key)}
+                          class="relative px-4 py-3 text-sm font-medium transition-colors {activeTier === tab.key ? tab.text : tab.textHover}"
+                        >
+                          {tab.label}
+                          <span class="text-xs font-normal ml-1 {activeTier === tab.key ? tab.countActive : 'text-gray-400'}">({tab.count})</span>
+                          {#if activeTier === tab.key}
+                            <span class="absolute bottom-0 left-0 right-0 h-0.5 {tab.bar}"></span>
+                          {/if}
+                        </button>
+                      {/each}
+                    </div>
+                  </div>
+
+                  <!-- Expanded tier content -->
+                  {#if activeTier}
+                    <div class="p-5 border-t border-gray-200">
+                      {#if isLoading}
+                        <div class="text-center py-6">
+                          <div class="inline-block w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                          <p class="text-gray-400 text-xs mt-2">Loading {activeTier} spec...</p>
+                        </div>
+                      {:else if spec}
+                        <!-- Additional description paragraphs from spec -->
+                        {@const specParagraphs = spec.description.split("\n\n")}
+                        {#if specParagraphs.length > 1}
+                          <div class="space-y-3 mb-5">
+                            {#each specParagraphs.slice(1) as paragraph}
+                              <p class="text-sm text-gray-700 leading-relaxed">{paragraph}</p>
+                            {/each}
+                          </div>
+                        {/if}
+
+                        <!-- Features list -->
+                        <div class="mb-5">
+                          <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Key Features</h4>
+                          <ol class="space-y-2">
+                            {#each spec.features as feature, fi}
+                              <li class="text-sm text-gray-700 flex gap-2.5">
+                                <span class="text-gray-400 font-mono text-xs mt-0.5 shrink-0">{fi + 1}.</span>
+                                {feature}
+                              </li>
+                            {/each}
+                          </ol>
+                        </div>
+
+                        <!-- Documentation Links -->
+                        {#if spec.doc_links && spec.doc_links.length > 0}
+                          <div class="mb-5">
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Documentation & Resources</h4>
+                            <div class="space-y-1">
+                              {#each spec.doc_links as link}
+                                <div class="flex items-center gap-2 text-sm">
+                                  <span class="text-gray-500 font-medium">{link.skill}</span>
+                                  <span class="text-gray-300">&mdash;</span>
+                                  <a href={link.url} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 hover:underline">{link.label}</a>
+                                </div>
+                              {/each}
+                            </div>
+                          </div>
+                        {/if}
+
+                        <!-- Export actions -->
+                        <div class="flex gap-2 pt-3 border-t border-gray-100">
+                          <button
+                            onclick={() => exportSpecMarkdown(i)}
+                            class="text-xs bg-blue-600 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                          >
+                            Save Project Spec
+                          </button>
+                          <button
+                            onclick={() => copySpecMarkdown(i)}
+                            class="text-xs bg-gray-100 text-gray-700 px-4 py-1.5 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                          >
+                            {specExportCopied ? "Copied!" : "Copy to Clipboard"}
+                          </button>
+                        </div>
+                      {/if}
                     </div>
                   {/if}
-                  <div class="flex flex-wrap gap-2 mt-3">
-                    {#each rec.skills_addressed as skill}
-                      <span class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded">
-                        {skill}
-                      </span>
-                    {/each}
-                  </div>
-                  <div class="mt-4 pt-3 border-t border-gray-100">
-                    <p class="text-xs text-gray-400 font-medium mb-2">Generate Project Spec</p>
-                    <div class="flex gap-2">
-                      <button
-                        onclick={() => generateProjectSpec(i, "beginner")}
-                        class="flex-1 text-xs px-3 py-2 rounded-lg font-medium transition-colors bg-green-50 text-green-700 hover:bg-green-100 border border-green-200"
-                      >
-                        Beginner
-                        <span class="block text-[10px] font-normal text-green-500 mt-0.5">3 features</span>
-                      </button>
-                      <button
-                        onclick={() => generateProjectSpec(i, "intermediate")}
-                        class="flex-1 text-xs px-3 py-2 rounded-lg font-medium transition-colors bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200"
-                      >
-                        Intermediate
-                        <span class="block text-[10px] font-normal text-amber-500 mt-0.5">5 features</span>
-                      </button>
-                      <button
-                        onclick={() => generateProjectSpec(i, "advanced")}
-                        class="flex-1 text-xs px-3 py-2 rounded-lg font-medium transition-colors bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
-                      >
-                        Advanced
-                        <span class="block text-[10px] font-normal text-red-500 mt-0.5">8 features</span>
-                      </button>
-                    </div>
-                  </div>
                 </div>
               {/each}
             </div>
           {/if}
         </section>
 
-        <!-- Interview Preparation -->
-        {#if result.interview_topics && result.interview_topics.length > 0}
-          <section class="bg-white border border-gray-200 rounded-lg p-6">
-            <h2 class="text-lg font-semibold mb-4">Interview Preparation</h2>
-            <div class="space-y-4">
-              {#each result.interview_topics as entry}
-                <details class="group">
-                  <summary class="cursor-pointer flex items-center gap-2 font-medium text-sm hover:text-blue-600 transition-colors">
-                    <span class="text-gray-400 group-open:rotate-90 transition-transform text-xs">&#9654;</span>
-                    {entry.skill}
-                  </summary>
-                  <ul class="mt-2 ml-5 space-y-1">
-                    {#each entry.topics as topic}
-                      <li class="text-sm text-gray-600">- {topic}</li>
-                    {/each}
-                  </ul>
-                </details>
-              {/each}
-            </div>
-          </section>
-        {/if}
-
-        <!-- Actions -->
         <div class="flex justify-center gap-6 pt-4 pb-8">
           <button
             onclick={openExport}
@@ -685,10 +724,8 @@
     <!-- EXPORT VIEW -->
     {#if view === "export" && result}
       <div class="space-y-6">
-        <!-- Format selector -->
         <div class="bg-white border border-gray-200 rounded-lg p-6">
           <h2 class="text-lg font-semibold mb-4">Export Analysis</h2>
-
           <div class="flex gap-3 mb-4">
             <button
               onclick={() => handleFormatChange("markdown")}
@@ -703,8 +740,6 @@
               JSON
             </button>
           </div>
-
-          <!-- Action buttons -->
           <div class="flex gap-3">
             <button
               onclick={saveToFile}
@@ -723,7 +758,6 @@
           </div>
         </div>
 
-        <!-- Preview -->
         <div class="bg-white border border-gray-200 rounded-lg p-6">
           <h3 class="text-sm font-medium text-gray-500 mb-3">Preview</h3>
           {#if exportLoading}
@@ -732,51 +766,6 @@
             </div>
           {:else}
             <pre class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-xs text-gray-700 overflow-x-auto max-h-96 overflow-y-auto whitespace-pre-wrap">{exportPreview}</pre>
-          {/if}
-        </div>
-      </div>
-    {/if}
-
-    <!-- PROJECT SPEC VIEW -->
-    {#if view === "project-spec"}
-      <div class="space-y-6">
-        <div class="bg-white border border-gray-200 rounded-lg p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold">Project Spec</h2>
-            {#if specDifficulty}
-              <span class="text-xs px-2.5 py-1 rounded-full font-medium {specDifficulty === 'beginner' ? 'bg-green-100 text-green-700' : specDifficulty === 'intermediate' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}">
-                {specDifficulty.charAt(0).toUpperCase() + specDifficulty.slice(1)}
-              </span>
-            {/if}
-          </div>
-
-          <div class="flex gap-3">
-            <button
-              onclick={saveSpecToFile}
-              disabled={specLoading || !specPreview}
-              class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
-            >
-              Save to File
-            </button>
-            <button
-              onclick={copySpecToClipboard}
-              disabled={specLoading || !specPreview}
-              class="bg-gray-100 text-gray-700 px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
-            >
-              {specCopied ? "Copied!" : "Copy to Clipboard"}
-            </button>
-          </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 class="text-sm font-medium text-gray-500 mb-3">Preview</h3>
-          {#if specLoading}
-            <div class="text-center py-8">
-              <div class="inline-block w-6 h-6 border-3 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
-              <p class="text-gray-500 text-sm mt-3">Generating project spec...</p>
-            </div>
-          {:else}
-            <pre class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-xs text-gray-700 overflow-x-auto max-h-[32rem] overflow-y-auto whitespace-pre-wrap">{specPreview}</pre>
           {/if}
         </div>
       </div>
