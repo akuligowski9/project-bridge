@@ -32,6 +32,12 @@ class ValidationError(Exception):
 # - No consecutive hyphens
 _GITHUB_USER_RE = re.compile(r"^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$")
 
+# Matches GitHub profile URLs like https://github.com/octocat or github.com/user/
+_GITHUB_URL_RE = re.compile(
+    r"^(?:https?://)?github\.com/([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]?)/?$",
+    re.IGNORECASE,
+)
+
 # Minimum meaningful job description length (characters).
 _MIN_JOB_TEXT_LENGTH = 20
 
@@ -50,6 +56,10 @@ def validate_github_username(username: str | None) -> str:
         raise ValidationError("github_user", "GitHub username is required.")
 
     username = username.strip()
+
+    url_match = _GITHUB_URL_RE.match(username)
+    if url_match:
+        username = url_match.group(1)
 
     if len(username) > 39:
         raise ValidationError(

@@ -425,7 +425,7 @@
               id="github-user"
               type="text"
               bind:value={githubUser}
-              placeholder="e.g. octocat"
+              placeholder="e.g. octocat or https://github.com/octocat"
               class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {githubUserError ? 'border-red-300' : 'border-gray-300'}"
             />
             {#if githubUserError}

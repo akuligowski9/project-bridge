@@ -1029,7 +1029,7 @@ The GitHub username field in the Tauri input form (and CLI) should accept a full
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Medium
 - **Depends on:** PB-025
 - **Blocks:** —
@@ -1139,6 +1139,14 @@ _Known limitations accepted by design._
 ---
 
 ## Done
+
+### PB-052: Accept GitHub profile URL in username field
+
+**Status:** Done
+
+Added `_GITHUB_URL_RE` regex to `validate_github_username()` in the validation layer to extract usernames from GitHub profile URLs (`https://github.com/octocat`, `http://github.com/octocat`, `github.com/octocat`, with optional trailing slash). Bare usernames continue to work. Invalid usernames extracted from URLs still fail validation. Updated Tauri form placeholder to show URL example. Added 6 test cases; 258 tests passing, lint clean.
+
+---
 
 ### PB-001: Initialize Python engine package structure
 

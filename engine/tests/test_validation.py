@@ -55,6 +55,25 @@ class TestValidateGitHubUsername:
         with pytest.raises(ValidationError, match="alphanumeric"):
             validate_github_username("octo cat")
 
+    def test_https_github_url(self):
+        assert validate_github_username("https://github.com/octocat") == "octocat"
+
+    def test_http_github_url(self):
+        assert validate_github_username("http://github.com/octocat") == "octocat"
+
+    def test_github_url_no_scheme(self):
+        assert validate_github_username("github.com/octocat") == "octocat"
+
+    def test_github_url_trailing_slash(self):
+        assert validate_github_username("https://github.com/octocat/") == "octocat"
+
+    def test_github_url_with_hyphens(self):
+        assert validate_github_username("https://github.com/my-user-1") == "my-user-1"
+
+    def test_github_url_invalid_username(self):
+        with pytest.raises(ValidationError, match="cannot start or end"):
+            validate_github_username("https://github.com/-baduser")
+
 
 class TestValidateJobText:
     def test_valid_text(self):
