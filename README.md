@@ -12,6 +12,8 @@ Runs entirely on your machine. No accounts. No uploads.
 
 ![ProjectBridge Dashboard](docs/images/screenshot.png)
 
+![Recommendation with project spec](docs/images/screenshot-recommendations.png)
+
 ---
 
 ## Quickstart
