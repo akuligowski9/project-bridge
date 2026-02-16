@@ -1014,6 +1014,96 @@ Add `scan_local_repos` Tauri command that invokes the Python CLI with `--local-r
 
 ---
 
+### PB-052: Accept GitHub profile URL in username field
+
+**Description:**
+The GitHub username field in the Tauri input form (and CLI) should accept a full GitHub profile URL like `https://github.com/octocat` and automatically extract the username. Users naturally copy their profile URL rather than typing a bare username. The extraction should handle common variants: `https://github.com/user`, `http://github.com/user`, `github.com/user`, and trailing slashes. Invalid GitHub URLs should produce a clear validation error.
+
+**Acceptance Criteria:**
+
+1. Pasting `https://github.com/octocat` in the GitHub username field extracts `octocat` and runs the analysis.
+2. Bare usernames (`octocat`) continue to work as before.
+3. URLs with trailing slashes, `http://`, or missing protocol (`github.com/user`) are handled.
+4. URLs with paths beyond the username (e.g., `github.com/user/repo`) produce a validation error or strip to the username.
+5. The extraction happens in the validation layer so both CLI and UI benefit.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** Medium
+- **Depends on:** PB-025
+- **Blocks:** —
+
+---
+
+### PB-053: Add resume file upload to input form
+
+**Description:**
+Replace or supplement the resume text area in the Tauri input form with a "Load from file" button that opens a native file picker. The current UX requires pasting resume text, which is awkward for a multi-page document. The CLI already supports `--resume FILE` for text files. The UI should use `tauri-plugin-dialog` (already installed) for the file picker and `tauri-plugin-fs` (already installed) to read the file contents. Initially support `.txt` files; stretch goal is PDF text extraction via a Python library like `pypdf` or `pdfminer.six`.
+
+**Acceptance Criteria:**
+
+1. A "Load from file" button next to the resume text area opens a native file dialog filtered to text files.
+2. Selecting a `.txt` file populates the resume text area with the file contents.
+3. The user can still manually type/paste resume text (file upload is additive, not a replacement).
+4. Error message if the selected file can't be read or is empty.
+5. (Stretch) PDF files are converted to plain text before populating the field.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** Medium
+- **Depends on:** PB-019
+- **Blocks:** —
+
+---
+
+### PB-054: Accept job description URL with web page extraction
+
+**Description:**
+Allow users to paste a URL to a job posting instead of (or in addition to) raw job description text. The engine fetches the page, extracts the main text content (stripping navigation, scripts, footers), and feeds it to the existing job description parser. This requires an HTTP fetch step and HTML-to-text extraction. Many job boards (Greenhouse, Lever, Ashby) serve clean HTML that extracts well; others (LinkedIn, Workday) may require login or block scraping. When extraction fails, the user should get a clear message to paste the text manually instead. Add a `--job-url URL` CLI flag alongside the existing `--job` and `--job-text` flags.
+
+**Acceptance Criteria:**
+
+1. Pasting a URL in the job description field (detected by `http://` or `https://` prefix) triggers a fetch-and-extract flow.
+2. A new `--job-url URL` CLI flag fetches the page and extracts text (mutually exclusive with `--job` and `--job-text`).
+3. HTML-to-text extraction strips nav, scripts, and boilerplate, preserving the job description body.
+4. When the fetch fails (timeout, 403, login wall), the error message suggests pasting the text manually.
+5. The Tauri IPC command passes the URL to the engine for server-side fetching (not client-side).
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** Medium
+- **Depends on:** PB-005
+- **Blocks:** —
+
+---
+
+### PB-055: Add AI provider selection to input form
+
+**Description:**
+The Tauri input form currently has a binary "Heuristic only" checkbox but no way to select which AI provider to use or provide API keys. Users must edit `projectbridge.config.yaml` to enable AI — a hidden step that most won't discover. The form should expose a provider selector (None / OpenAI / Anthropic / Ollama) with conditional fields: an API key input for OpenAI and Anthropic, and a model selector for Ollama. The selected provider and credentials should be passed to the engine via new CLI flags (`--provider NAME`, `--api-key KEY`). This replaces the `--no-ai` toggle — selecting "None" is equivalent. API keys entered in the UI should not be logged or persisted to disk (session-only). For Ollama, the UI should check if the server is reachable and list available models.
+
+**Acceptance Criteria:**
+
+1. The input form has a provider dropdown: None (heuristic), OpenAI, Anthropic, Ollama.
+2. Selecting OpenAI or Anthropic reveals an API key text input (masked).
+3. Selecting Ollama reveals a model selector; the UI checks `localhost:11434` reachability and lists available models.
+4. The selected provider and API key are passed to the engine via new `--provider` and `--api-key` CLI flags.
+5. API keys are never logged, cached, or written to disk by the engine.
+6. The `--no-ai` checkbox is removed in favor of selecting "None" from the provider dropdown.
+7. Results produced with an AI provider are noticeably richer than heuristic-only results.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** High
+- **Depends on:** PB-007, PB-019
+- **Blocks:** —
+
+---
+
 ## Parking Lot
 
 _Ideas worth remembering — not yet actionable or fully defined._
