@@ -48,6 +48,10 @@ _CATEGORY_CONTEXT: dict[str, str] = {
 class NoAIProvider(AIProvider):
     """Heuristic-only provider that requires no API keys or network."""
 
+    def _chat(self, system_prompt: str, user_message: str) -> str:
+        """Not used — NoAI provider uses heuristic logic instead."""
+        return ""
+
     def analyze_context(self, context: dict[str, Any]) -> dict[str, Any]:
         """Return the context unchanged — no AI enrichment."""
         return context

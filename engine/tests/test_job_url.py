@@ -5,11 +5,14 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
+from projectbridge import __version__
 from projectbridge.input.job_url import (
     JobURLExtractionError,
     JobURLFetchError,
     fetch_job_text,
 )
+
+EXPECTED_UA = {"User-Agent": f"ProjectBridge/{__version__}"}
 
 SAMPLE_HTML = """
 <html>
@@ -48,7 +51,7 @@ class TestFetchJobText:
         mock_get.assert_called_once_with(
             "https://example.com/jobs/123",
             timeout=15,
-            headers={"User-Agent": "ProjectBridge/0.2.0"},
+            headers=EXPECTED_UA,
         )
         mock_extract.assert_called_once_with(SAMPLE_HTML)
 
@@ -155,5 +158,5 @@ class TestFetchJobText:
         mock_get.assert_called_once_with(
             "https://example.com/jobs/123",
             timeout=30,
-            headers={"User-Agent": "ProjectBridge/0.2.0"},
+            headers=EXPECTED_UA,
         )

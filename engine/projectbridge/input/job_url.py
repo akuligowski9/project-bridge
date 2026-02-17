@@ -5,6 +5,8 @@ from __future__ import annotations
 import requests
 import trafilatura
 
+from projectbridge import __version__
+
 
 class JobURLError(Exception):
     """Base error for job URL operations."""
@@ -39,7 +41,7 @@ def fetch_job_text(url: str, *, timeout: int = 15) -> str:
         resp = requests.get(
             url,
             timeout=timeout,
-            headers={"User-Agent": "ProjectBridge/0.2.0"},
+            headers={"User-Agent": f"ProjectBridge/{__version__}"},
         )
     except requests.Timeout:
         raise JobURLFetchError(

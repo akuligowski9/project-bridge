@@ -96,6 +96,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Bypass cached GitHub API responses and fetch fresh data.",
     )
     analyze.add_argument(
+        "--ollama-model",
+        metavar="MODEL",
+        default=None,
+        help="Ollama model name (overrides config file).",
+    )
+    analyze.add_argument(
         "--example",
         action="store_true",
         default=False,
@@ -263,6 +269,7 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
             resume_text=resume_text,
             no_ai=args.no_ai,
             provider_name=args.provider,
+            ollama_model=args.ollama_model,
             example=args.example,
             no_cache=args.no_cache,
             progress=Progress(),

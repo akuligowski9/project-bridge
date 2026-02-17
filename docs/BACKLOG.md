@@ -1119,7 +1119,7 @@ The Tauri input form currently has a binary "Heuristic only" checkbox but no way
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** —
 - **Blocks:** —
@@ -1140,7 +1140,7 @@ The Svelte form captures `ollamaModel` from the dropdown, but `handleSubmit()` n
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** PB-055
 - **Blocks:** —
@@ -1162,7 +1162,7 @@ The Svelte form captures `ollamaModel` from the dropdown, but `handleSubmit()` n
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** —
 - **Blocks:** —
@@ -1182,7 +1182,7 @@ The Svelte form captures `ollamaModel` from the dropdown, but `handleSubmit()` n
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** PB-054
 - **Blocks:** —
@@ -1790,5 +1790,37 @@ Replaced the binary "Heuristic only" checkbox with a full provider dropdown (Non
 **Status:** Done
 
 Added `trafilatura` as a core dependency for web page text extraction. New `engine/projectbridge/input/job_url.py` module with `fetch_job_text(url)` that fetches a URL via `requests`, extracts main content via `trafilatura.extract()`, and raises typed errors (`JobURLFetchError`, `JobURLExtractionError`) with user-friendly messages suggesting manual paste on failure. Added `--job-url URL` CLI flag (mutually exclusive with `--job` and `--job-text`). Orchestrator gains `job_url` parameter — fetches and extracts text before feeding into existing `validate_job_text()` → `parse_job_description()` pipeline. Tauri IPC auto-detects URLs in the job text field (`http://`/`https://` prefix) and passes `--job-url` instead of `--job-text` — zero-friction UX, no new form field needed. Updated form placeholder to hint at URL support. 14 new tests (12 unit + 2 integration). All checks passing: 259 Python tests (excl. optional deps), svelte-check clean, cargo check clean, ruff clean.
+
+---
+
+### PB-056: Remove hardcoded fixture data from Svelte component
+
+**Status:** Done
+
+Removed the large hardcoded fixture object from `+page.svelte` that was left from development. Changed initial state from `view = "results"` with mock data to `view = "form"` and `result = null`. App now opens to the input form as expected.
+
+---
+
+### PB-057: Wire Ollama model selection through to the engine
+
+**Status:** Done
+
+Added `ollamaModel` parameter to the `handleSubmit()` Svelte call and `run_analysis_form` Tauri IPC command. Tauri passes it as `--ollama-model MODEL` to the Python CLI. New `--ollama-model` CLI flag feeds through orchestrator's `ollama_model` parameter, overriding the config-file `ai.ollama_model` setting. Config fallback remains for users who set the model via YAML.
+
+---
+
+### PB-058: Extract shared logic from AI providers into base class
+
+**Status:** Done
+
+Moved `analyze_context()`, `generate_recommendations()`, and `load_prompt()` into the `AIProvider` base class in `provider.py`. The abstract method is now `_chat()` instead of the two public methods. Each concrete provider (OpenAI, Anthropic, Ollama) only implements `__init__` and `_chat()` — reduced from ~150 lines to ~90 lines each. Added `AIProviderError` base exception and `_error_class` class variable for branded error messages. `NoAIProvider` implements `_chat()` as a no-op and overrides both public methods with heuristic logic. Provider error classes now inherit from `AIProviderError`. All 263 tests passing (excl. optional deps), lint clean.
+
+---
+
+### PB-059: Use `__version__` in job URL fetcher User-Agent header
+
+**Status:** Done
+
+Replaced hardcoded `"ProjectBridge/0.2.0"` User-Agent string in `job_url.py` with `f"ProjectBridge/{__version__}"`. Updated test assertions to use a dynamic `EXPECTED_UA` constant derived from `__version__`. No hardcoded version strings remain.
 
 ---

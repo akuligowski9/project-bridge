@@ -125,6 +125,7 @@ def run_analysis(
     resume_text: str | None = None,
     no_ai: bool = False,
     provider_name: str | None = None,
+    ollama_model: str | None = None,
     example: bool = False,
     no_cache: bool = False,
     progress: Progress | None = None,
@@ -161,7 +162,7 @@ def run_analysis(
         logger.info("Resolving AI provider: %s", final_provider)
         provider_kwargs: dict[str, Any] = {}
         if final_provider == "ollama":
-            provider_kwargs["model"] = config.ai.ollama_model
+            provider_kwargs["model"] = ollama_model or config.ai.ollama_model
         provider: AIProvider = get_provider(final_provider, **provider_kwargs)
     except Exception as exc:
         raise PipelineError("ai_provider", str(exc)) from exc

@@ -41,6 +41,7 @@ fn run_analysis_form(
     resume_text: Option<String>,
     provider: String,
     api_key: Option<String>,
+    ollama_model: Option<String>,
 ) -> Result<String, String> {
     let job_is_url = job_text.starts_with("http://") || job_text.starts_with("https://");
     let mut cmd_args = vec![
@@ -60,6 +61,13 @@ fn run_analysis_form(
 
     cmd_args.push("--provider".to_string());
     cmd_args.push(provider.clone());
+
+    if let Some(model) = ollama_model {
+        if !model.is_empty() {
+            cmd_args.push("--ollama-model".to_string());
+            cmd_args.push(model);
+        }
+    }
 
     let mut env_vars: Vec<(String, String)> = vec![];
     if let Some(key) = api_key {
