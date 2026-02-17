@@ -1,8 +1,8 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
-  import { save } from "@tauri-apps/plugin-dialog";
+  import { save, open } from "@tauri-apps/plugin-dialog";
   import { writeText } from "@tauri-apps/plugin-clipboard-manager";
-  import { writeTextFile } from "@tauri-apps/plugin-fs";
+  import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 
   interface Skill {
     name: string;
@@ -168,6 +168,15 @@
       groups[cat].push(skill);
     }
     return groups;
+  }
+
+  async function loadResumeFile() {
+    const path = await open({
+      filters: [{ name: "Text Files", extensions: ["txt", "md", "text"] }],
+    });
+    if (path) {
+      resumeText = await readTextFile(path);
+    }
   }
 
   async function handleSubmit() {
@@ -450,9 +459,18 @@
           </div>
 
           <div>
-            <label for="resume-text" class="block text-sm font-medium text-gray-700 mb-1">
-              Resume Text <span class="text-gray-400 font-normal">(optional)</span>
-            </label>
+            <div class="flex items-center justify-between mb-1">
+              <label for="resume-text" class="text-sm font-medium text-gray-700">
+                Resume Text <span class="text-gray-400 font-normal">(optional)</span>
+              </label>
+              <button
+                type="button"
+                onclick={loadResumeFile}
+                class="text-xs text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Load from file...
+              </button>
+            </div>
             <textarea
               id="resume-text"
               bind:value={resumeText}

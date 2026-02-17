@@ -1051,10 +1051,12 @@ Replace or supplement the resume text area in the Tauri input form with a "Load 
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Medium
 - **Depends on:** PB-019
 - **Blocks:** —
+
+**Done:** Added "Load from file..." button next to the resume textarea label. Uses `tauri-plugin-dialog` `open()` for native file picker (filtered to `.txt`, `.md`, `.text`) and `tauri-plugin-fs` `readTextFile()` to populate the textarea. Cancel is a no-op. Manual paste still works. No backend changes — loaded text flows through existing `resumeText` binding.
 
 ---
 
@@ -1521,5 +1523,13 @@ Redesigned recommendation cards with a base-content-always-visible pattern: desc
 **Status:** Done
 
 Added feature request issue template, CHANGELOG.md (v0.1.0, v0.1.1, v0.2.0), GitHub repo description and 10 topics, dashboard screenshots (input form + recommendation card), and 6 contributor-friendly GitHub Issues (3 good first issue, 3 help wanted).
+
+---
+
+### PB-053: Add resume file upload to input form
+
+**Status:** Done
+
+Added "Load from file..." button next to the resume textarea label. Uses `tauri-plugin-dialog` `open()` for native file picker (filtered to `.txt`, `.md`, `.text`) and `tauri-plugin-fs` `readTextFile()` to populate the textarea. Cancel is a no-op. Manual paste still works. No backend changes — loaded text flows through existing `resumeText` binding.
 
 ---
