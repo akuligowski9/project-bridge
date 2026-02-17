@@ -1106,6 +1106,249 @@ The Tauri input form currently has a binary "Heuristic only" checkbox but no way
 
 ---
 
+### PB-056: Remove hardcoded fixture data from Svelte component
+
+**Description:**
+`+page.svelte` initializes `result` with a large hardcoded fixture object (lines 53–119) and sets `view = "results"`, so the app opens to a fake results screen instead of the form. This is dev scaffolding that was never removed. Set initial state to `view = "form"` and `result = null`.
+
+**Acceptance Criteria:**
+
+1. App opens to the input form, not a mock results view.
+2. No hardcoded fixture data remains in the component.
+3. `result` starts as `null` and is only populated after a real analysis.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** High
+- **Depends on:** —
+- **Blocks:** —
+
+---
+
+### PB-057: Wire Ollama model selection through to the engine
+
+**Description:**
+The Svelte form captures `ollamaModel` from the dropdown, but `handleSubmit()` never sends it to the Tauri backend. The `run_analysis_form` Tauri command doesn't accept a model parameter either. The user's Ollama model selection has no effect on the analysis. Wire the selected model from the frontend through the IPC to the CLI (e.g., via a `--ollama-model` flag or by extending `--provider ollama:model-name`).
+
+**Acceptance Criteria:**
+
+1. The selected Ollama model in the form is passed to the Tauri backend.
+2. The Tauri backend passes the model to the Python CLI.
+3. The Python engine uses the specified model when calling Ollama.
+4. Existing config-file `ai.ollama_model` setting remains as fallback.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** High
+- **Depends on:** PB-055
+- **Blocks:** —
+
+---
+
+### PB-058: Extract shared logic from AI providers into base class
+
+**Description:**
+`openai_provider.py`, `anthropic_provider.py`, and `ollama_provider.py` each copy-paste ~60 lines of identical logic: `_load_prompt()` (prompt file loading), `analyze_context()` (JSON parse with fallback), and `generate_recommendations()` (list-vs-dict unwrapping). Extract these into shared methods on the `AIProvider` base class or a mixin, with provider-specific error classes passed as parameters.
+
+**Acceptance Criteria:**
+
+1. `_load_prompt()` lives in one place (base class or `ai/_utils.py`).
+2. JSON response parsing for `analyze_context()` is shared (parse, fallback, key preservation).
+3. List-vs-dict unwrapping for `generate_recommendations()` is shared.
+4. Each provider only implements `_chat()` and provider-specific init.
+5. All existing AI provider tests pass unchanged.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** High
+- **Depends on:** —
+- **Blocks:** —
+
+---
+
+### PB-059: Use `__version__` in job URL fetcher User-Agent header
+
+**Description:**
+`input/job_url.py:42` hardcodes `"ProjectBridge/0.2.0"` as the User-Agent header, and `test_job_url.py:51` also hardcodes this string. Both will go stale on version bumps. Import `__version__` from `projectbridge` and use `f"ProjectBridge/{__version__}"`.
+
+**Acceptance Criteria:**
+
+1. User-Agent header uses the dynamic `__version__` value.
+2. Test assertion matches dynamically against `__version__`.
+3. No hardcoded version strings remain in `job_url.py` or its tests.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** High
+- **Depends on:** PB-054
+- **Blocks:** —
+
+---
+
+### PB-060: Split Svelte monolith into components
+
+**Description:**
+`+page.svelte` is 889 lines containing the entire app UI. At minimum 4 sections should be extracted into separate components: `AnalysisForm.svelte` (form view), `SkillSection.svelte` (strengths and gaps — currently near-identical duplicate blocks differing only by color), `RecommendationCard.svelte` (recommendation with tier tabs and spec viewer), and `ExportView.svelte` (export format picker, preview, save/copy). The strengths and gaps sections should use one `SkillSection` component with props for title, color, and data.
+
+**Acceptance Criteria:**
+
+1. At least 4 new `.svelte` component files extracted from `+page.svelte`.
+2. Strengths and Gaps use a shared `SkillSection` component (no duplicate markup).
+3. `+page.svelte` is reduced to layout, routing between views, and top-level state.
+4. `svelte-check` passes with 0 errors.
+5. No visual or behavioral regressions.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** Medium
+- **Depends on:** PB-056
+- **Blocks:** —
+
+---
+
+### PB-061: Extract duplicated helpers in Svelte and Rust
+
+**Description:**
+Several smaller duplication issues across the frontend and backend:
+- Svelte: `exportSpecMarkdown()` and `copySpecMarkdown()` share 90% of their logic. Extract a shared `fetchSpecMarkdown()` helper.
+- Svelte: Tier tab config array is an inline literal inside `{#each}`, re-created every render. Move to a `const` at the top of `<script>`.
+- Svelte: `specExportCopied` is a single global boolean — clicking "Copy" on one recommendation shows "Copied!" on all cards. Make it per-recommendation.
+- Rust `lib.rs`: `export_analysis` and `export_project_spec` duplicate the temp-file write/cleanup pattern. Extract a `with_temp_json()` helper.
+
+**Acceptance Criteria:**
+
+1. Svelte: single `fetchSpecMarkdown()` helper used by both export and copy functions.
+2. Svelte: tier tab config is a top-level `const`.
+3. Svelte: "Copied!" state is per-recommendation, not global.
+4. Rust: temp-file pattern extracted to a shared helper.
+5. All checks pass (svelte-check, cargo check).
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** Medium
+- **Depends on:** PB-060
+- **Blocks:** —
+
+---
+
+### PB-062: Extract keyword data and shared helpers from input modules
+
+**Description:**
+`input/job_description.py` contains ~165 lines of keyword dictionaries (`TECHNOLOGY_KEYWORDS`, `DOMAIN_KEYWORDS`, `ARCHITECTURE_KEYWORDS`) that are also imported by `input/resume.py`. Both modules also define an identical `_match_keywords()` function. Extract keyword data and the shared helper to `input/keywords.py` so the parser modules focus on parsing logic.
+
+**Acceptance Criteria:**
+
+1. Keyword dictionaries live in `input/keywords.py`.
+2. `_match_keywords()` is defined once in `input/keywords.py`.
+3. `job_description.py` and `resume.py` import from `keywords.py`.
+4. No functional changes — all existing tests pass.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** Medium
+- **Depends on:** —
+- **Blocks:** —
+
+---
+
+### PB-063: Split `input/github.py` — extract detection registries
+
+**Description:**
+`input/github.py` is 568 lines mixing the GitHub API client, the `GitHubAnalyzer` business logic, and ~100 lines of framework/dependency detection registry data (`FRAMEWORK_INDICATORS`, `NPM_FRAMEWORK_MAP`, `PYTHON_FRAMEWORK_MAP`, `RUST_CRATE_MAP`, `RUBY_GEM_MAP`, `GO_MODULE_MAP`, `PHP_PACKAGE_MAP`). Move inline `import base64`/`json` to module-level. Extract detection maps to `input/detection_maps.py` so `github.py` focuses on the API client and analyzer.
+
+**Acceptance Criteria:**
+
+1. Detection registry dicts live in `input/detection_maps.py`.
+2. `github.py` imports them from the new module.
+3. Inline imports (`base64`, `json`) moved to top-level.
+4. All existing GitHub-related tests pass.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** Medium
+- **Depends on:** —
+- **Blocks:** —
+
+---
+
+### PB-064: Scanner cleanup — remove dead `toml` dep, fix double-walk, add `pyproject.toml` detection
+
+**Description:**
+Three scanner issues:
+1. `scanner/Cargo.toml` declares `toml = "0.8"` but no source file uses it. Remove the dead dependency.
+2. `scan_directories` in `scan.rs` walks each root directory twice — once for `scan_directory()` and again for language byte accumulation. Refactor to merge into a single pass.
+3. `detect_python` in `dependencies.rs` only reads `requirements.txt`, missing modern Python projects that use `pyproject.toml`. Add a fallback read for `pyproject.toml` dependencies.
+
+**Acceptance Criteria:**
+
+1. `toml` crate removed from `Cargo.toml`; `cargo check` still passes.
+2. `scan_directories` performs a single walk per root (no double iteration).
+3. Stale multi-line comment block (14 lines) cleaned up.
+4. `detect_python` reads `pyproject.toml` `[project.dependencies]` as a fallback when `requirements.txt` is absent.
+5. All scanner tests pass.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** Medium
+- **Depends on:** —
+- **Blocks:** —
+
+---
+
+### PB-065: Add CI job for Tauri Rust backend
+
+**Description:**
+The CI workflow (`test.yml`) has jobs for the Python engine and the Rust scanner, but `app/src-tauri/` is never compiled, linted, or checked in CI. A `cargo check` or `cargo clippy` step on the Tauri backend would catch regressions from Rust code changes (like the PB-054 URL detection change). Also add the `Makefile` target `tauri-check`.
+
+**Acceptance Criteria:**
+
+1. `.github/workflows/test.yml` includes a job that runs `cargo check` (or `cargo clippy`) on `app/src-tauri/`.
+2. `Makefile` has a `tauri-check` target.
+3. `make check` includes the Tauri backend validation.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** Medium
+- **Depends on:** —
+- **Blocks:** —
+
+---
+
+### PB-066: Add tests for `progress.py` and untested orchestrator/export paths
+
+**Description:**
+Several modules have no test coverage:
+- `progress.py` has no test file at all. At minimum, test `Progress(enabled=False)` no-ops and `Progress(enabled=True)` with mocked TTY.
+- `orchestrator.py` `_run_local_scan()` error paths (FileNotFoundError, CalledProcessError, JSONDecodeError) are untested.
+- `export_project.py` `_generate_with_ai()` fallback path (AI returns insufficient response, falls back to heuristic) is untested.
+- `EXAMPLE_DEV_CONTEXT` is duplicated between `orchestrator.py` and `tests/conftest.py` — tests should reference the orchestrator constant.
+
+**Acceptance Criteria:**
+
+1. `test_progress.py` exists with tests for enabled/disabled modes.
+2. `_run_local_scan()` error paths have unit tests.
+3. `_generate_with_ai()` fallback is tested with a mock provider returning insufficient data.
+4. Test fixtures reference `orchestrator.EXAMPLE_DEV_CONTEXT` instead of duplicating it.
+
+**Metadata:**
+
+- **Status:** Planned
+- **Priority:** Medium
+- **Depends on:** —
+- **Blocks:** —
+
+---
+
 ## Parking Lot
 
 _Ideas worth remembering — not yet actionable or fully defined._
