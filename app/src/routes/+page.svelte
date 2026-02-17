@@ -484,7 +484,7 @@
               id="job-text"
               bind:value={jobText}
               rows={6}
-              placeholder="Paste the job description here..."
+              placeholder="Paste job description text or a URL to the posting..."
               class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y {jobTextError ? 'border-red-300' : 'border-gray-300'}"
             ></textarea>
             {#if jobTextError}

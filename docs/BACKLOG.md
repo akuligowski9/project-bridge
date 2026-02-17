@@ -1075,7 +1075,7 @@ Allow users to paste a URL to a job posting instead of (or in addition to) raw j
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** Medium
 - **Depends on:** PB-005
 - **Blocks:** —
@@ -1539,5 +1539,13 @@ Added "Load from file..." button next to the resume textarea label. Uses `tauri-
 **Status:** Done
 
 Replaced the binary "Heuristic only" checkbox with a full provider dropdown (None / OpenAI / Anthropic / Ollama). Selecting OpenAI or Anthropic reveals a masked API key input; selecting Ollama triggers a live server check via new `list_ollama_models` Tauri IPC command (raw `TcpStream` to `localhost:11434/api/tags`) and populates a model selector with status indicator. Added `--provider` CLI flag (`choices: none/openai/anthropic/ollama`) that overrides the config file; `--no-ai` kept for backward compat. API keys passed via env var on the subprocess (`OPENAI_API_KEY` / `ANTHROPIC_API_KEY`) — never logged, cached, or in CLI args. Extracted `execute_pb` helper in Rust backend to support env var injection. 11 new tests (5 CLI + 6 orchestrator). All checks passing: 245 Python tests (excl. optional deps), svelte-check clean, cargo check clean, lint clean.
+
+---
+
+### PB-054: Accept job description URL with web page extraction
+
+**Status:** Done
+
+Added `trafilatura` as a core dependency for web page text extraction. New `engine/projectbridge/input/job_url.py` module with `fetch_job_text(url)` that fetches a URL via `requests`, extracts main content via `trafilatura.extract()`, and raises typed errors (`JobURLFetchError`, `JobURLExtractionError`) with user-friendly messages suggesting manual paste on failure. Added `--job-url URL` CLI flag (mutually exclusive with `--job` and `--job-text`). Orchestrator gains `job_url` parameter — fetches and extracts text before feeding into existing `validate_job_text()` → `parse_job_description()` pipeline. Tauri IPC auto-detects URLs in the job text field (`http://`/`https://` prefix) and passes `--job-url` instead of `--job-text` — zero-friction UX, no new form field needed. Updated form placeholder to hint at URL support. 14 new tests (12 unit + 2 integration). All checks passing: 259 Python tests (excl. optional deps), svelte-check clean, cargo check clean, ruff clean.
 
 ---

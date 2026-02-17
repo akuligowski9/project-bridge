@@ -118,6 +118,7 @@ def _run_local_scan(local_repos: list[str]) -> dict[str, Any]:
 def run_analysis(
     *,
     job_text: str | None = None,
+    job_url: str | None = None,
     github_user: str | None = None,
     github_token: str | None = None,
     local_repos: list[str] | None = None,
@@ -133,6 +134,7 @@ def run_analysis(
 
     Args:
         job_text: Raw job description text.
+        job_url: URL to a job posting page (fetches and extracts text).
         github_user: GitHub username to analyze.
         github_token: GitHub personal access token (or read from env).
         local_repos: Local directory paths to scan with pb-scan.
@@ -163,6 +165,18 @@ def run_analysis(
         provider: AIProvider = get_provider(final_provider, **provider_kwargs)
     except Exception as exc:
         raise PipelineError("ai_provider", str(exc)) from exc
+
+    # -- 1b. Fetch job URL if provided --------------------------------------
+    if job_url:
+        from projectbridge.input.job_url import JobURLError, fetch_job_text
+
+        progress.start_spinner("Fetching job posting...")
+        try:
+            job_text = fetch_job_text(job_url)
+        except JobURLError as exc:
+            progress.stop_spinner()
+            raise PipelineError("job_url_fetch", str(exc)) from exc
+        progress.stop_spinner()
 
     # -- 2. Validate & gather inputs ----------------------------------------
     if example:

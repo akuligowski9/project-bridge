@@ -42,11 +42,12 @@ fn run_analysis_form(
     provider: String,
     api_key: Option<String>,
 ) -> Result<String, String> {
+    let job_is_url = job_text.starts_with("http://") || job_text.starts_with("https://");
     let mut cmd_args = vec![
         "analyze".to_string(),
         "--github-user".to_string(),
         github_user,
-        "--job-text".to_string(),
+        if job_is_url { "--job-url" } else { "--job-text" }.to_string(),
         job_text,
     ];
 

@@ -47,6 +47,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Job description as inline text (alternative to --job).",
     )
     analyze.add_argument(
+        "--job-url",
+        metavar="URL",
+        help="URL to a job posting page (fetches and extracts text).",
+    )
+    analyze.add_argument(
         "--github-user",
         metavar="USERNAME",
         help="GitHub username to analyze.",
@@ -217,8 +222,13 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
         return 1
 
     job_text: str | None = None
-    if args.job and args.job_text:
-        print("Error: --job and --job-text are mutually exclusive.", file=sys.stderr)
+    job_url: str | None = None
+    job_sources = [args.job, args.job_text, args.job_url]
+    if sum(1 for s in job_sources if s) > 1:
+        print(
+            "Error: --job, --job-text, and --job-url are mutually exclusive.",
+            file=sys.stderr,
+        )
         return 1
     if args.job:
         path = Path(args.job)
@@ -228,6 +238,8 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
         job_text = path.read_text()
     elif args.job_text:
         job_text = args.job_text
+    elif args.job_url:
+        job_url = args.job_url
 
     resume_text: str | None = None
     if args.resume and args.resume_text:
@@ -245,6 +257,7 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
     try:
         result = run_analysis(
             job_text=job_text,
+            job_url=job_url,
             github_user=args.github_user,
             local_repos=args.local_repos,
             resume_text=resume_text,

@@ -103,3 +103,27 @@ class TestFullPipeline:
     def test_export_markdown_cli(self):
         exit_code = main(["export", "--example", "--format", "markdown"])
         assert exit_code == 0
+
+    def test_job_url_flag_exclusive_with_job_text(self):
+        exit_code = main(
+            [
+                "analyze",
+                "--job-text",
+                "inline text here enough chars",
+                "--job-url",
+                "https://example.com/jobs/123",
+            ]
+        )
+        assert exit_code == 1
+
+    def test_job_url_flag_exclusive_with_job_file(self):
+        exit_code = main(
+            [
+                "analyze",
+                "--job",
+                "some.txt",
+                "--job-url",
+                "https://example.com/jobs/123",
+            ]
+        )
+        assert exit_code == 1
