@@ -80,3 +80,28 @@ jobs:
 
       - name: Build release
         run: cargo build --manifest-path scanner/Cargo.toml --release
+
+  tauri:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            app/src-tauri/target
+          key: ${{ runner.os }}-tauri-cargo-${{ hashFiles('app/src-tauri/Cargo.lock') }}
+
+      - name: Cargo check
+        run: cargo check --manifest-path app/src-tauri/Cargo.toml

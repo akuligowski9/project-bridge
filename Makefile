@@ -1,4 +1,4 @@
-.PHONY: install test lint format check docs build scanner-build scanner-test scanner-lint
+.PHONY: install test lint format check docs build scanner-build scanner-test scanner-lint tauri-check
 
 install:
 	pip install -e ./engine[dev]
@@ -24,7 +24,10 @@ scanner-lint:
 	cargo fmt --manifest-path scanner/Cargo.toml -- --check
 	cargo clippy --manifest-path scanner/Cargo.toml -- -D warnings
 
-check: lint test scanner-lint scanner-test
+tauri-check:
+	cargo check --manifest-path app/src-tauri/Cargo.toml
+
+check: lint test scanner-lint scanner-test tauri-check
 
 docs:
 	mkdocs serve

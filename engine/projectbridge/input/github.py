@@ -7,158 +7,26 @@ rather than deep static analysis to maintain performance and privacy.
 
 from __future__ import annotations
 
+import base64
+import json
 import logging
 from typing import Any
 
 import requests
 
+from projectbridge.input.detection_maps import (
+    FRAMEWORK_INDICATORS,
+    GO_MODULE_MAP,
+    NPM_FRAMEWORK_MAP,
+    PHP_PACKAGE_MAP,
+    PYTHON_FRAMEWORK_MAP,
+    RUBY_GEM_MAP,
+    RUST_CRATE_MAP,
+)
+
 logger = logging.getLogger(__name__)
 
 API_BASE = "https://api.github.com"
-
-# ---------------------------------------------------------------------------
-# Detection registry — data-driven heuristic rules
-# ---------------------------------------------------------------------------
-
-# Files/dirs whose presence indicates a framework or infrastructure tool.
-FRAMEWORK_INDICATORS: dict[str, tuple[str, str]] = {
-    # filename or dir → (name, category)
-    "Dockerfile": ("Docker", "infrastructure"),
-    "docker-compose.yml": ("Docker Compose", "infrastructure"),
-    "docker-compose.yaml": ("Docker Compose", "infrastructure"),
-    ".github/workflows": ("GitHub Actions", "infrastructure"),
-    ".gitlab-ci.yml": ("GitLab CI", "infrastructure"),
-    ".circleci": ("CircleCI", "infrastructure"),
-    "Jenkinsfile": ("Jenkins", "infrastructure"),
-    "terraform": ("Terraform", "infrastructure"),
-    "kubernetes": ("Kubernetes", "infrastructure"),
-    "k8s": ("Kubernetes", "infrastructure"),
-    "helm": ("Helm", "infrastructure"),
-    ".travis.yml": ("Travis CI", "infrastructure"),
-    "netlify.toml": ("Netlify", "infrastructure"),
-    "vercel.json": ("Vercel", "infrastructure"),
-    "fly.toml": ("Fly.io", "infrastructure"),
-    "render.yaml": ("Render", "infrastructure"),
-    "nginx.conf": ("Nginx", "infrastructure"),
-    "Vagrantfile": ("Vagrant", "infrastructure"),
-    "ansible": ("Ansible", "infrastructure"),
-    ".eslintrc.js": ("ESLint", "tool"),
-    ".eslintrc.json": ("ESLint", "tool"),
-    "tailwind.config.js": ("Tailwind CSS", "framework"),
-    "tailwind.config.ts": ("Tailwind CSS", "framework"),
-    "tsconfig.json": ("TypeScript", "language"),
-    "webpack.config.js": ("Webpack", "tool"),
-    "vite.config.ts": ("Vite", "tool"),
-    "vite.config.js": ("Vite", "tool"),
-    ".prettierrc": ("Prettier", "tool"),
-    "jest.config.js": ("Jest", "tool"),
-    "jest.config.ts": ("Jest", "tool"),
-    "pytest.ini": ("pytest", "tool"),
-    "pyproject.toml": ("Python Package", "tool"),
-    "Cargo.toml": ("Rust", "language"),
-    "go.mod": ("Go", "language"),
-    "Gemfile": ("Ruby", "language"),
-    "composer.json": ("PHP", "language"),
-    "build.gradle": ("Gradle", "tool"),
-    "pom.xml": ("Maven", "tool"),
-}
-
-# Keys to look for inside package.json dependencies.
-NPM_FRAMEWORK_MAP: dict[str, tuple[str, str]] = {
-    "react": ("React", "framework"),
-    "react-native": ("React Native", "framework"),
-    "next": ("Next.js", "framework"),
-    "vue": ("Vue", "framework"),
-    "nuxt": ("Nuxt", "framework"),
-    "svelte": ("Svelte", "framework"),
-    "@angular/core": ("Angular", "framework"),
-    "express": ("Express", "framework"),
-    "fastify": ("Fastify", "framework"),
-    "gatsby": ("Gatsby", "framework"),
-    "remix": ("Remix", "framework"),
-    "@nestjs/core": ("NestJS", "framework"),
-    "koa": ("Koa", "framework"),
-    "tailwindcss": ("Tailwind CSS", "framework"),
-    "prisma": ("Prisma", "tool"),
-    "mongoose": ("Mongoose", "tool"),
-    "sequelize": ("Sequelize", "tool"),
-    "jest": ("Jest", "tool"),
-    "mocha": ("Mocha", "tool"),
-    "webpack": ("Webpack", "tool"),
-    "vite": ("Vite", "tool"),
-    "typescript": ("TypeScript", "language"),
-    "three": ("Three.js", "framework"),
-    "electron": ("Electron", "framework"),
-    "socket.io": ("Socket.IO", "framework"),
-    "graphql": ("GraphQL", "tool"),
-    "@apollo/client": ("Apollo", "framework"),
-    "redis": ("Redis", "tool"),
-    "pg": ("PostgreSQL", "tool"),
-    "mongodb": ("MongoDB", "tool"),
-    "supabase": ("Supabase", "tool"),
-    "firebase": ("Firebase", "tool"),
-}
-
-# Keys to look for inside requirements.txt lines.
-PYTHON_FRAMEWORK_MAP: dict[str, tuple[str, str]] = {
-    "django": ("Django", "framework"),
-    "flask": ("Flask", "framework"),
-    "fastapi": ("FastAPI", "framework"),
-    "tornado": ("Tornado", "framework"),
-    "celery": ("Celery", "tool"),
-    "sqlalchemy": ("SQLAlchemy", "tool"),
-    "pandas": ("pandas", "framework"),
-    "numpy": ("NumPy", "framework"),
-    "scipy": ("SciPy", "framework"),
-    "scikit-learn": ("scikit-learn", "framework"),
-    "tensorflow": ("TensorFlow", "framework"),
-    "torch": ("PyTorch", "framework"),
-    "pytest": ("pytest", "tool"),
-    "pydantic": ("Pydantic", "tool"),
-    "requests": ("Requests", "tool"),
-    "boto3": ("AWS SDK", "tool"),
-    "redis": ("Redis", "tool"),
-    "psycopg2": ("PostgreSQL", "tool"),
-}
-
-# Cargo.toml [dependencies] keys.
-RUST_CRATE_MAP: dict[str, tuple[str, str]] = {
-    "actix-web": ("Actix Web", "framework"),
-    "axum": ("Axum", "framework"),
-    "rocket": ("Rocket", "framework"),
-    "tokio": ("Tokio", "tool"),
-    "serde": ("Serde", "tool"),
-    "diesel": ("Diesel", "tool"),
-    "sqlx": ("SQLx", "tool"),
-    "leptos": ("Leptos", "framework"),
-    "yew": ("Yew", "framework"),
-    "tauri": ("Tauri", "framework"),
-    "wasm-bindgen": ("WebAssembly", "tool"),
-}
-
-# Gemfile dependency keys.
-RUBY_GEM_MAP: dict[str, tuple[str, str]] = {
-    "rails": ("Ruby on Rails", "framework"),
-    "sinatra": ("Sinatra", "framework"),
-    "sidekiq": ("Sidekiq", "tool"),
-    "rspec": ("RSpec", "tool"),
-}
-
-# go.mod module paths (prefix match).
-GO_MODULE_MAP: dict[str, tuple[str, str]] = {
-    "github.com/gin-gonic/gin": ("Gin", "framework"),
-    "github.com/gorilla/mux": ("Gorilla Mux", "framework"),
-    "github.com/labstack/echo": ("Echo", "framework"),
-    "github.com/gofiber/fiber": ("Fiber", "framework"),
-    "gorm.io/gorm": ("GORM", "tool"),
-}
-
-# composer.json dependency keys.
-PHP_PACKAGE_MAP: dict[str, tuple[str, str]] = {
-    "laravel/framework": ("Laravel", "framework"),
-    "symfony/symfony": ("Symfony", "framework"),
-    "slim/slim": ("Slim", "framework"),
-}
 
 
 # ---------------------------------------------------------------------------
@@ -442,8 +310,6 @@ class GitHubAnalyzer:
         if "requirements.txt" not in names:
             return
         try:
-            import base64
-
             file_info = self.client._request(f"/repos/{owner}/{repo}/contents/requirements.txt")
             content = base64.b64decode(file_info.get("content", "")).decode()
         except (GitHubAnalyzerError, Exception):
@@ -461,9 +327,6 @@ class GitHubAnalyzer:
         mapping: dict[str, tuple[str, str]],
         dep_keys: tuple[str, ...] = ("dependencies", "devDependencies"),
     ) -> None:
-        import base64
-        import json
-
         try:
             content = base64.b64decode(file_info.get("content", "")).decode()
             pkg = json.loads(content)
@@ -545,8 +408,6 @@ class GitHubAnalyzer:
 
     def _fetch_file_text(self, owner: str, repo: str, path: str) -> str | None:
         """Fetch and decode a text file from a repo. Returns None on failure."""
-        import base64
-
         try:
             file_info = self.client._request(f"/repos/{owner}/{repo}/contents/{path}")
             return base64.b64decode(file_info.get("content", "")).decode()

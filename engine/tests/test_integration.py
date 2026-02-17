@@ -1,9 +1,12 @@
 """Integration tests — exercise the full pipeline."""
 
+import subprocess
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from projectbridge.cli import main
-from projectbridge.orchestrator import run_analysis
+from projectbridge.orchestrator import PipelineError, run_analysis
 from projectbridge.schema import AnalysisResult
 
 JOB_URL_HTML = """\
@@ -229,3 +232,36 @@ class TestFullPipeline:
             ]
         )
         assert exit_code == 1
+
+
+class TestLocalScanErrors:
+    @patch("projectbridge.orchestrator.subprocess.run", side_effect=FileNotFoundError)
+    def test_pb_scan_not_found(self, _mock_run):
+        with pytest.raises(PipelineError, match="local_scan") as exc_info:
+            run_analysis(
+                local_repos=["/some/path"],
+                job_text="We need a Python engineer with Django, Docker, REST APIs.",
+                no_ai=True,
+            )
+        assert "pb-scan not found" in str(exc_info.value)
+
+    @patch("projectbridge.orchestrator.subprocess.run")
+    def test_pb_scan_nonzero_exit(self, mock_run):
+        mock_run.side_effect = subprocess.CalledProcessError(1, "pb-scan", stderr="scan failed")
+        with pytest.raises(PipelineError, match="local_scan"):
+            run_analysis(
+                local_repos=["/some/path"],
+                job_text="We need a Python engineer with Django, Docker, REST APIs.",
+                no_ai=True,
+            )
+
+    @patch("projectbridge.orchestrator.subprocess.run")
+    def test_pb_scan_invalid_json(self, mock_run):
+        mock_run.return_value = MagicMock(stdout="not json", stderr="")
+        with pytest.raises(PipelineError, match="local_scan") as exc_info:
+            run_analysis(
+                local_repos=["/some/path"],
+                job_text="We need a Python engineer with Django, Docker, REST APIs.",
+                no_ai=True,
+            )
+        assert "Invalid JSON" in str(exc_info.value)

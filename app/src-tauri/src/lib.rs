@@ -9,6 +9,18 @@ fn pb_binary() -> String {
     std::env::var("PROJECTBRIDGE_BIN").unwrap_or_else(|_| "projectbridge".to_string())
 }
 
+/// Write JSON to a temp file, run a CLI operation, then clean up.
+fn with_temp_json<F>(json: &str, filename: &str, f: F) -> Result<String, String>
+where
+    F: FnOnce(&str) -> Result<String, String>,
+{
+    let tmp = std::env::temp_dir().join(filename);
+    std::fs::write(&tmp, json).map_err(|e| format!("Failed to write temp file: {}", e))?;
+    let result = f(tmp.to_str().unwrap());
+    let _ = std::fs::remove_file(&tmp);
+    result
+}
+
 /// Execute the `projectbridge` CLI with the given args and optional env vars.
 fn execute_pb(args: Vec<String>, env_vars: Vec<(String, String)>) -> Result<String, String> {
     let mut cmd = Command::new(pb_binary());
@@ -85,23 +97,18 @@ fn run_analysis_form(
 
 #[tauri::command]
 fn export_analysis(analysis_json: String, format: String) -> Result<String, String> {
-    let tmp = std::env::temp_dir().join("pb_export_input.json");
-    std::fs::write(&tmp, &analysis_json)
-        .map_err(|e| format!("Failed to write temp file: {}", e))?;
-
-    let result = execute_pb(
-        vec![
-            "export".to_string(),
-            "--input".to_string(),
-            tmp.to_str().unwrap().to_string(),
-            "--format".to_string(),
-            format,
-        ],
-        vec![],
-    );
-
-    let _ = std::fs::remove_file(&tmp);
-    result
+    with_temp_json(&analysis_json, "pb_export_input.json", |path| {
+        execute_pb(
+            vec![
+                "export".to_string(),
+                "--input".to_string(),
+                path.to_string(),
+                "--format".to_string(),
+                format.clone(),
+            ],
+            vec![],
+        )
+    })
 }
 
 #[tauri::command]
@@ -124,32 +131,27 @@ fn export_project_spec(
     format: Option<String>,
     no_ai: bool,
 ) -> Result<String, String> {
-    let tmp = std::env::temp_dir().join("pb_export_project_input.json");
-    std::fs::write(&tmp, &analysis_json)
-        .map_err(|e| format!("Failed to write temp file: {}", e))?;
-
     let fmt = format.unwrap_or_else(|| "markdown".to_string());
 
-    let mut cmd_args = vec![
-        "export-project".to_string(),
-        "--input".to_string(),
-        tmp.to_str().unwrap().to_string(),
-        "--recommendation".to_string(),
-        recommendation_index.to_string(),
-        "--difficulty".to_string(),
-        difficulty,
-        "--format".to_string(),
-        fmt,
-    ];
+    with_temp_json(&analysis_json, "pb_export_project_input.json", |path| {
+        let mut cmd_args = vec![
+            "export-project".to_string(),
+            "--input".to_string(),
+            path.to_string(),
+            "--recommendation".to_string(),
+            recommendation_index.to_string(),
+            "--difficulty".to_string(),
+            difficulty.clone(),
+            "--format".to_string(),
+            fmt.clone(),
+        ];
 
-    if no_ai {
-        cmd_args.push("--no-ai".to_string());
-    }
+        if no_ai {
+            cmd_args.push("--no-ai".to_string());
+        }
 
-    let result = execute_pb(cmd_args, vec![]);
-
-    let _ = std::fs::remove_file(&tmp);
-    result
+        execute_pb(cmd_args, vec![])
+    })
 }
 
 #[tauri::command]

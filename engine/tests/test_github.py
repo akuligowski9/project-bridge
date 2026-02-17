@@ -101,7 +101,7 @@ class TestGitHubErrors:
 
 class TestFrameworkDetection:
     def test_at_least_20_detectable(self):
-        from projectbridge.input.github import (
+        from projectbridge.input.detection_maps import (
             FRAMEWORK_INDICATORS,
             GO_MODULE_MAP,
             NPM_FRAMEWORK_MAP,
@@ -127,7 +127,7 @@ class TestFrameworkDetection:
 
     def test_registry_not_monolithic(self):
         """Detection maps are organized as separate registries, not one giant dict."""
-        from projectbridge.input.github import (
+        from projectbridge.input.detection_maps import (
             FRAMEWORK_INDICATORS,
             GO_MODULE_MAP,
             NPM_FRAMEWORK_MAP,

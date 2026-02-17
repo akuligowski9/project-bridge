@@ -13,7 +13,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from projectbridge.input.job_description import DOMAIN_KEYWORDS, TECHNOLOGY_KEYWORDS
+from projectbridge.input.keywords import DOMAIN_KEYWORDS, TECHNOLOGY_KEYWORDS, match_keywords
 
 
 class ResumeContext(BaseModel):
@@ -51,8 +51,8 @@ def parse_resume(text: str) -> ResumeContext:
     if not text or not text.strip():
         raise ResumeParseError("Resume text is empty. Provide non-empty resume content.")
 
-    skills = _match_keywords(text, TECHNOLOGY_KEYWORDS)
-    domains = _match_keywords(text, DOMAIN_KEYWORDS)
+    skills = match_keywords(text, TECHNOLOGY_KEYWORDS)
+    domains = match_keywords(text, DOMAIN_KEYWORDS)
     years = _extract_years(text)
 
     return ResumeContext(
@@ -85,22 +85,6 @@ def merge_resume_context(
     enriched["resume_domains"] = resume.experience_domains
     enriched["resume_years"] = resume.years_of_experience
     return enriched
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
-def _match_keywords(text: str, keywords: dict[str, str]) -> list[str]:
-    """Match keywords in *text*, returning deduplicated canonical names."""
-    found: dict[str, None] = {}
-    lower = text.lower()
-    for pattern, canonical in sorted(keywords.items(), key=lambda kv: len(kv[0]), reverse=True):
-        if re.search(rf"\b{re.escape(pattern)}\b", lower):
-            if canonical not in found:
-                found[canonical] = None
-    return list(found)
 
 
 _YEARS_PATTERN = re.compile(

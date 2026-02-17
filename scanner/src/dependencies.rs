@@ -214,10 +214,49 @@ pub fn detect_php(dir: &Path, frameworks: &mut HashMap<String, String>) {
     }
 }
 
+/// Detect frameworks from pyproject.toml dependencies.
+/// Fallback for Python projects that don't use requirements.txt.
+pub fn detect_pyproject(dir: &Path, frameworks: &mut HashMap<String, String>) {
+    let path = dir.join("pyproject.toml");
+    let content = match fs::read_to_string(&path) {
+        Ok(c) => c,
+        Err(_) => return,
+    };
+    let lower = content.to_lowercase();
+
+    const PYTHON_MAP: &[(&str, &str, &str)] = &[
+        ("django", "Django", "framework"),
+        ("flask", "Flask", "framework"),
+        ("fastapi", "FastAPI", "framework"),
+        ("tornado", "Tornado", "framework"),
+        ("celery", "Celery", "tool"),
+        ("sqlalchemy", "SQLAlchemy", "tool"),
+        ("pandas", "pandas", "framework"),
+        ("numpy", "NumPy", "framework"),
+        ("scipy", "SciPy", "framework"),
+        ("scikit-learn", "scikit-learn", "framework"),
+        ("tensorflow", "TensorFlow", "framework"),
+        ("torch", "PyTorch", "framework"),
+        ("pytest", "pytest", "tool"),
+        ("pydantic", "Pydantic", "tool"),
+        ("requests", "Requests", "tool"),
+        ("boto3", "AWS SDK", "tool"),
+        ("redis", "Redis", "tool"),
+        ("psycopg2", "PostgreSQL", "tool"),
+    ];
+
+    for &(key, name, category) in PYTHON_MAP {
+        if lower.contains(key) {
+            frameworks.insert(name.to_string(), category.to_string());
+        }
+    }
+}
+
 /// Run all dependency parsers for a given directory.
 pub fn detect_all(dir: &Path, frameworks: &mut HashMap<String, String>) {
     detect_npm(dir, frameworks);
     detect_python(dir, frameworks);
+    detect_pyproject(dir, frameworks);
     detect_rust(dir, frameworks);
     detect_ruby(dir, frameworks);
     detect_go(dir, frameworks);
@@ -304,6 +343,20 @@ mod tests {
         let mut fw = HashMap::new();
         detect_php(tmp.path(), &mut fw);
         assert!(fw.contains_key("Laravel"));
+    }
+
+    #[test]
+    fn test_detect_pyproject_flask() {
+        let tmp = TempDir::new().unwrap();
+        fs::write(
+            tmp.path().join("pyproject.toml"),
+            "[project]\ndependencies = [\n  \"flask>=2.3.0\",\n  \"pydantic>=2.0\",\n]\n",
+        )
+        .unwrap();
+        let mut fw = HashMap::new();
+        detect_pyproject(tmp.path(), &mut fw);
+        assert!(fw.contains_key("Flask"));
+        assert!(fw.contains_key("Pydantic"));
     }
 
     #[test]

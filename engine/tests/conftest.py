@@ -8,30 +8,16 @@ from typing import Any
 
 import pytest
 
+from projectbridge.orchestrator import EXAMPLE_DEV_CONTEXT
+
 # ---------------------------------------------------------------------------
-# Sample developer context (mirrors orchestrator.EXAMPLE_DEV_CONTEXT)
+# Sample developer context (reuses orchestrator.EXAMPLE_DEV_CONTEXT)
 # ---------------------------------------------------------------------------
 
 
 @pytest.fixture()
 def sample_dev_context() -> dict[str, Any]:
-    return {
-        "languages": [
-            {"name": "Python", "category": "language", "percentage": 45.0},
-            {"name": "JavaScript", "category": "language", "percentage": 30.0},
-            {"name": "HTML", "category": "language", "percentage": 15.0},
-            {"name": "CSS", "category": "language", "percentage": 10.0},
-        ],
-        "frameworks": [
-            {"name": "Flask", "category": "framework"},
-            {"name": "React", "category": "framework"},
-        ],
-        "infrastructure_signals": [
-            {"name": "Docker", "category": "infrastructure"},
-            {"name": "GitHub Actions", "category": "infrastructure"},
-        ],
-        "project_structures": ["src_layout", "python_package", "node_project"],
-    }
+    return dict(EXAMPLE_DEV_CONTEXT)
 
 
 # ---------------------------------------------------------------------------

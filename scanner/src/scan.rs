@@ -32,6 +32,15 @@ const HIDDEN_INDICATORS: &[&str] = &[
     ".travis.yml",
 ];
 
+/// Raw scan data before percentage conversion. Used internally so that
+/// `scan_directories` can merge byte counts across multiple roots.
+struct RawScanResult {
+    bytes_by_lang: HashMap<String, u64>,
+    frameworks: HashMap<String, String>,
+    infra: HashMap<String, String>,
+    project_structures: Vec<String>,
+}
+
 /// Check for hidden-file indicators that the gitignore-aware walker skips.
 fn check_hidden_indicators(root: &Path, top_level_names: &mut Vec<String>) {
     for &indicator in HIDDEN_INDICATORS {
@@ -41,8 +50,8 @@ fn check_hidden_indicators(root: &Path, top_level_names: &mut Vec<String>) {
     }
 }
 
-/// Scan a single directory and return aggregated results.
-pub fn scan_directory(root: &Path) -> ScanResult {
+/// Scan a single directory, returning raw byte counts and detection results.
+fn scan_directory_raw(root: &Path) -> RawScanResult {
     let mut bytes_by_lang: HashMap<String, u64> = HashMap::new();
     let mut top_level_names: Vec<String> = Vec::new();
     let mut frameworks: HashMap<String, String> = HashMap::new();
@@ -113,11 +122,22 @@ pub fn scan_directory(root: &Path) -> ScanResult {
     // Parse dependency files.
     dependencies::detect_all(root, &mut frameworks);
 
-    ScanResult {
-        languages: build_language_list(&bytes_by_lang),
-        frameworks: into_sorted_entries(&frameworks),
+    RawScanResult {
+        bytes_by_lang,
+        frameworks,
+        infra,
         project_structures,
-        infrastructure_signals: into_sorted_entries(&infra),
+    }
+}
+
+/// Scan a single directory and return aggregated results.
+pub fn scan_directory(root: &Path) -> ScanResult {
+    let raw = scan_directory_raw(root);
+    ScanResult {
+        languages: build_language_list(&raw.bytes_by_lang),
+        frameworks: into_sorted_entries(&raw.frameworks),
+        project_structures: raw.project_structures,
+        infrastructure_signals: into_sorted_entries(&raw.infra),
     }
 }
 
@@ -129,55 +149,19 @@ pub fn scan_directories(roots: &[&Path]) -> ScanResult {
     let mut all_structures: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
 
     for root in roots {
-        let result = scan_directory(root);
+        let raw = scan_directory_raw(root);
 
-        // Merge languages by recombining byte counts isn't possible from percentages,
-        // so we re-scan and merge at the byte level.
-        // Actually, we need to re-do the walk for byte counts. Let's just merge the
-        // individual scan results instead (frameworks/infra are deduped by HashMap).
-
-        // For languages, we need the raw bytes. Let's just accumulate from each scan's
-        // percentage-based output (approximation), or better: refactor to expose bytes.
-        // Since we want exact merging, let's use a helper that returns raw bytes too.
-
-        // For now, merge at the result level: treat each scan's percentages as weights.
-        // This is an approximation. For proper merging we'd need byte counts.
-        // Actually, let's just re-walk each directory for bytes directly.
-
-        // Simpler approach: merge frameworks/infra/structures from individual results,
-        // and for languages, do a combined walk.
-        for entry in &result.frameworks {
-            frameworks.insert(entry.name.clone(), entry.category.clone());
+        // Merge byte counts for accurate cross-root language percentages.
+        for (lang, bytes) in raw.bytes_by_lang {
+            *bytes_by_lang.entry(lang).or_insert(0) += bytes;
         }
-        for entry in &result.infrastructure_signals {
-            infra.insert(entry.name.clone(), entry.category.clone());
+        for (name, category) in raw.frameworks {
+            frameworks.insert(name, category);
         }
-        all_structures.extend(result.project_structures);
-    }
-
-    // Combined language walk across all roots.
-    for root in roots {
-        let walker = WalkBuilder::new(root)
-            .hidden(true)
-            .git_ignore(true)
-            .git_global(true)
-            .git_exclude(true)
-            .build();
-
-        for entry in walker.flatten() {
-            let path = entry.path();
-            if entry.file_type().is_some_and(|ft| ft.is_dir()) {
-                continue;
-            }
-            if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
-                if is_binary_extension(ext) {
-                    continue;
-                }
-            }
-            if let Ok(meta) = entry.metadata() {
-                record_language(path, meta.len(), &mut bytes_by_lang);
-            }
+        for (name, category) in raw.infra {
+            infra.insert(name, category);
         }
+        all_structures.extend(raw.project_structures);
     }
 
     ScanResult {
