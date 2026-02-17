@@ -123,6 +123,7 @@ def run_analysis(
     local_repos: list[str] | None = None,
     resume_text: str | None = None,
     no_ai: bool = False,
+    provider_name: str | None = None,
     example: bool = False,
     no_cache: bool = False,
     progress: Progress | None = None,
@@ -137,6 +138,7 @@ def run_analysis(
         local_repos: Local directory paths to scan with pb-scan.
         resume_text: Optional plain-text resume for contextual enrichment.
         no_ai: Force the NoAI heuristic provider.
+        provider_name: AI provider override (none/openai/anthropic/ollama).
         example: Use bundled example data instead of live inputs.
         no_cache: Bypass GitHub API cache.
         config: Pre-loaded config; loaded from disk if *None*.
@@ -153,12 +155,12 @@ def run_analysis(
     # -- 1. Resolve AI provider --------------------------------------------
     progress.step("Resolving AI provider...")
     try:
-        provider_name = "none" if no_ai else config.ai.provider
-        logger.info("Resolving AI provider: %s", provider_name)
+        final_provider = provider_name or ("none" if no_ai else config.ai.provider)
+        logger.info("Resolving AI provider: %s", final_provider)
         provider_kwargs: dict[str, Any] = {}
-        if provider_name == "ollama":
+        if final_provider == "ollama":
             provider_kwargs["model"] = config.ai.ollama_model
-        provider: AIProvider = get_provider(provider_name, **provider_kwargs)
+        provider: AIProvider = get_provider(final_provider, **provider_kwargs)
     except Exception as exc:
         raise PipelineError("ai_provider", str(exc)) from exc
 
@@ -234,7 +236,7 @@ def run_analysis(
         raise PipelineError("job_parser", str(exc)) from exc
 
     # -- 5. AI context enrichment (optional) --------------------------------
-    if provider_name != "none":
+    if final_provider != "none":
         progress.start_spinner("Running AI analysis...")
     logger.info("Running AI context enrichment")
     try:

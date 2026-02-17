@@ -123,7 +123,12 @@
   let githubUser = $state("");
   let jobText = $state("");
   let resumeText = $state("");
-  let noAi = $state(false);
+  let provider = $state("none");
+  let apiKey = $state("");
+  let ollamaModels: string[] = $state([]);
+  let ollamaModel = $state("");
+  let ollamaChecking = $state(false);
+  let ollamaError: string | null = $state(null);
 
   // Validation
   let submitted = $state(false);
@@ -179,6 +184,34 @@
     }
   }
 
+  async function checkOllamaModels() {
+    ollamaChecking = true;
+    ollamaError = null;
+    ollamaModels = [];
+    ollamaModel = "";
+    try {
+      const models = await invoke<string[]>("list_ollama_models");
+      ollamaModels = models;
+      if (models.length > 0) {
+        ollamaModel = models[0];
+      }
+    } catch (e) {
+      ollamaError = String(e);
+    } finally {
+      ollamaChecking = false;
+    }
+  }
+
+  function handleProviderChange(e: Event) {
+    const target = e.target as HTMLSelectElement;
+    provider = target.value;
+    apiKey = "";
+    ollamaError = null;
+    if (provider === "ollama") {
+      checkOllamaModels();
+    }
+  }
+
   async function handleSubmit() {
     submitted = true;
     if (githubUser.trim() === "" || jobText.trim() === "") return;
@@ -192,7 +225,8 @@
         githubUser: githubUser.trim(),
         jobText: jobText.trim(),
         resumeText: resumeText.trim() || null,
-        noAi,
+        provider,
+        apiKey: apiKey.trim() || null,
       });
       result = JSON.parse(json);
       view = "results";
@@ -480,10 +514,75 @@
             ></textarea>
           </div>
 
-          <div class="flex items-center gap-2">
-            <input id="no-ai" type="checkbox" bind:checked={noAi} class="rounded border-gray-300" />
-            <label for="no-ai" class="text-sm text-gray-700">Heuristic only (no AI provider)</label>
+          <div>
+            <label for="provider" class="block text-sm font-medium text-gray-700 mb-1">
+              AI Provider
+            </label>
+            <select
+              id="provider"
+              value={provider}
+              onchange={handleProviderChange}
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            >
+              <option value="none">None (heuristic only)</option>
+              <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic</option>
+              <option value="ollama">Ollama (local)</option>
+            </select>
           </div>
+
+          {#if provider === "openai" || provider === "anthropic"}
+            <div>
+              <label for="api-key" class="block text-sm font-medium text-gray-700 mb-1">
+                API Key
+              </label>
+              <input
+                id="api-key"
+                type="password"
+                bind:value={apiKey}
+                placeholder={provider === "openai" ? "sk-..." : "sk-ant-..."}
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <p class="text-xs text-gray-400 mt-1">Not stored. Falls back to env var if empty.</p>
+            </div>
+          {/if}
+
+          {#if provider === "ollama"}
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <label for="ollama-model" class="text-sm font-medium text-gray-700">Model</label>
+                {#if ollamaChecking}
+                  <div class="inline-block w-3 h-3 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                {:else if ollamaModels.length > 0}
+                  <span class="inline-block w-2 h-2 rounded-full bg-green-500" title="Connected"></span>
+                {:else if ollamaError}
+                  <span class="inline-block w-2 h-2 rounded-full bg-red-500" title="Unreachable"></span>
+                {/if}
+              </div>
+              {#if ollamaModels.length > 0}
+                <select
+                  id="ollama-model"
+                  bind:value={ollamaModel}
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                >
+                  {#each ollamaModels as model}
+                    <option value={model}>{model}</option>
+                  {/each}
+                </select>
+              {:else if ollamaError}
+                <p class="text-red-500 text-xs">{ollamaError}</p>
+              {:else if !ollamaChecking}
+                <p class="text-gray-400 text-xs">Checking Ollama server...</p>
+              {/if}
+              <button
+                type="button"
+                onclick={checkOllamaModels}
+                class="text-xs text-blue-600 hover:text-blue-800 font-medium mt-1"
+              >
+                Refresh models
+              </button>
+            </div>
+          {/if}
 
           <div class="flex items-center gap-4 pt-2">
             <button

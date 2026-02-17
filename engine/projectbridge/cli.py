@@ -79,6 +79,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Use heuristic recommendations only (no AI provider).",
     )
     analyze.add_argument(
+        "--provider",
+        choices=["none", "openai", "anthropic", "ollama"],
+        default=None,
+        help="AI provider to use. Overrides config file. 'none' = heuristic only.",
+    )
+    analyze.add_argument(
         "--no-cache",
         action="store_true",
         default=False,
@@ -243,6 +249,7 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
             local_repos=args.local_repos,
             resume_text=resume_text,
             no_ai=args.no_ai,
+            provider_name=args.provider,
             example=args.example,
             no_cache=args.no_cache,
             progress=Progress(),

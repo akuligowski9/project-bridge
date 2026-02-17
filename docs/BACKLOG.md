@@ -1099,7 +1099,7 @@ The Tauri input form currently has a binary "Heuristic only" checkbox but no way
 
 **Metadata:**
 
-- **Status:** Planned
+- **Status:** Done
 - **Priority:** High
 - **Depends on:** PB-007, PB-019
 - **Blocks:** —
@@ -1531,5 +1531,13 @@ Added feature request issue template, CHANGELOG.md (v0.1.0, v0.1.1, v0.2.0), Git
 **Status:** Done
 
 Added "Load from file..." button next to the resume textarea label. Uses `tauri-plugin-dialog` `open()` for native file picker (filtered to `.txt`, `.md`, `.text`) and `tauri-plugin-fs` `readTextFile()` to populate the textarea. Cancel is a no-op. Manual paste still works. No backend changes — loaded text flows through existing `resumeText` binding.
+
+---
+
+### PB-055: Add AI provider selection to input form
+
+**Status:** Done
+
+Replaced the binary "Heuristic only" checkbox with a full provider dropdown (None / OpenAI / Anthropic / Ollama). Selecting OpenAI or Anthropic reveals a masked API key input; selecting Ollama triggers a live server check via new `list_ollama_models` Tauri IPC command (raw `TcpStream` to `localhost:11434/api/tags`) and populates a model selector with status indicator. Added `--provider` CLI flag (`choices: none/openai/anthropic/ollama`) that overrides the config file; `--no-ai` kept for backward compat. API keys passed via env var on the subprocess (`OPENAI_API_KEY` / `ANTHROPIC_API_KEY`) — never logged, cached, or in CLI args. Extracted `execute_pb` helper in Rust backend to support env var injection. 11 new tests (5 CLI + 6 orchestrator). All checks passing: 245 Python tests (excl. optional deps), svelte-check clean, cargo check clean, lint clean.
 
 ---
