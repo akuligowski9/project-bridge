@@ -13,6 +13,7 @@ import subprocess
 from typing import Any
 
 import projectbridge.ai.anthropic_provider  # noqa: F401  — register the "anthropic" provider
+import projectbridge.ai.gemini_provider  # noqa: F401  — register the "gemini" provider
 import projectbridge.ai.no_ai  # noqa: F401  — register the "none" provider
 import projectbridge.ai.ollama_provider  # noqa: F401  — register the "ollama" provider
 import projectbridge.ai.openai_provider  # noqa: F401  — register the "openai" provider
