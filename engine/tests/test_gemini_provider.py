@@ -130,6 +130,16 @@ class TestGenerateRecommendations:
                 provider.generate_recommendations(gaps)
 
 
+def _has_google_genai():
+    try:
+        import importlib.util
+
+        return importlib.util.find_spec("google.genai") is not None
+    except (ModuleNotFoundError, ValueError):
+        return False
+
+
+@pytest.mark.skipif(not _has_google_genai(), reason="google-genai not installed")
 class TestChatErrors:
     def _make_provider(self):
         with patch("projectbridge.ai.gemini_provider.GeminiProvider._create_client"):

@@ -1,5 +1,6 @@
 # ProjectBridge
 
+[![CodeRabbit Reviews](https://img.shields.io/coderabbit/prs/github/akuligowski9/project-bridge?labelColor=171717&color=FF570A&label=CodeRabbit+Reviews)](https://coderabbit.ai)
 [![CI](https://github.com/akuligowski9/project-bridge/actions/workflows/test.yml/badge.svg)](https://github.com/akuligowski9/project-bridge/actions/workflows/test.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
