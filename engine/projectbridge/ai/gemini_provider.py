@@ -69,7 +69,11 @@ class GeminiProvider(AIProvider):
                     temperature=0.7,
                 ),
             )
-            return response.text or ""
+            if not response.text:
+                raise GeminiProviderError(
+                    "Gemini returned an empty response (possibly blocked by safety filters)."
+                )
+            return response.text
         except errors.APIError as exc:
             if exc.code == 401:
                 raise GeminiProviderError(
@@ -80,6 +84,10 @@ class GeminiProvider(AIProvider):
                     "Gemini API rate limit exceeded. Please wait and try again."
                 ) from exc
             raise GeminiProviderError(f"Gemini API error: {exc}") from exc
+        except ConnectionError as exc:
+            raise GeminiProviderError(
+                "Could not connect to the Gemini API. Check your network connection."
+            ) from exc
         except Exception as exc:
             raise GeminiProviderError(f"Gemini API error: {exc}") from exc
 

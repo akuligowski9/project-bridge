@@ -6,6 +6,34 @@ ProjectBridge is intentionally designed to be simple, local-first, and extensibl
 
 ---
 
+## Code of Conduct
+
+Be kind, respectful, and constructive. We're building something useful together — treat fellow contributors the way you'd want to be treated. Harassment, dismissive behavior, and unconstructive criticism have no place here.
+
+---
+
+## New to Contributing?
+
+If this is your first open source contribution, welcome! Here's how to get started:
+
+1. **Find an issue** — Look for issues labeled [`good first issue`](https://github.com/akuligowski9/project-bridge/labels/good%20first%20issue) for beginner-friendly tasks.
+2. **Fork the repo** — Click "Fork" on GitHub, then clone your fork locally.
+3. **Create a branch** — See [Branch Naming](#branch-naming) below.
+4. **Make your changes** — Follow the setup instructions and run `make check` before submitting.
+5. **Open a PR** — Push your branch and open a pull request against `main`.
+
+If you're new to Git and GitHub, [GitHub's guide](https://docs.github.com/en/get-started/quickstart/contributing-to-projects) is a great place to start.
+
+---
+
+## Issue Etiquette
+
+- **Comment before you start** — If you'd like to work on an issue, leave a comment so others know it's being tackled. This avoids duplicate effort.
+- **Ask questions in the issue thread** — If you're stuck or unsure about the approach, ask! We're happy to help.
+- **Don't go silent** — If you claimed an issue but can't finish it, that's totally fine. Just leave a comment so someone else can pick it up.
+
+---
+
 ## Philosophy
 
 - Prefer simple solutions over clever ones.
@@ -86,27 +114,29 @@ AI providers live in `engine/projectbridge/ai/` and implement the `AIProvider` a
 
 1. **Copy an existing provider** (e.g., `ollama_provider.py` for a local provider, `openai_provider.py` for a cloud API).
 
-2. **Implement the interface:**
+2. **Implement the interface** — you only need to implement `_chat`; the base class handles prompt loading, JSON parsing, and fallback logic via `analyze_context` and `generate_recommendations`:
 
 ```python
-from projectbridge.ai.provider import AIProvider, register_provider
+from projectbridge.ai.provider import AIProvider, AIProviderError, register_provider
+
+class MyProviderError(AIProviderError):
+    """Raised when MyProvider encounters an error."""
 
 class MyProvider(AIProvider):
-    def analyze_context(self, context: dict) -> dict:
-        # Enhance the developer context using your AI backend.
-        # Return the enriched context dict.
+    _error_class = MyProviderError
+
+    def __init__(self, api_key=None, model="default-model"):
+        # Set up your client here.
         ...
 
-    def generate_recommendations(self, gaps: dict) -> list[dict]:
-        # Generate project recommendations from skill gaps.
-        # Return a list of dicts with: title, description,
-        # skills_addressed, estimated_scope.
+    def _chat(self, system_prompt: str, user_message: str) -> str:
+        # Send the prompt to your AI backend and return the response text.
         ...
 
 register_provider("my-provider", MyProvider)
 ```
 
-3. **Import your module** in `engine/projectbridge/ai/__init__.py` so it auto-registers.
+3. **Import your module** in `engine/projectbridge/orchestrator.py` so it auto-registers.
 
 4. **Add tests** in `engine/tests/` — see existing provider tests for patterns (mock API responses, test registry integration).
 
@@ -119,6 +149,33 @@ Language or framework detection lives in `engine/projectbridge/analysis/`. Keep 
 ### Recommendations
 
 Project generation logic lives in `engine/projectbridge/recommend/`. Recommendations should remain realistic and scoped for completion.
+
+---
+
+## Branch Naming
+
+Use a descriptive branch name with a prefix:
+
+- `feature/add-gemini-provider`
+- `fix/empty-response-handling`
+- `docs/update-contributing`
+
+Keep it short, lowercase, and hyphen-separated.
+
+---
+
+## Commit Messages
+
+- Use the imperative mood: "Add provider" not "Added provider"
+- Keep the first line under 72 characters
+- Add a blank line before any extended description
+
+```
+Add connection error handling to Gemini provider
+
+Catches ConnectionError separately from generic exceptions and
+provides a user-friendly network error message.
+```
 
 ---
 

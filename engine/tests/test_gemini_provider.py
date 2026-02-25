@@ -166,10 +166,30 @@ class TestChatErrors:
     def test_connection_error(self):
         provider = self._make_provider()
         mock_client = MagicMock()
-        mock_client.models.generate_content.side_effect = Exception("connection refused")
+        mock_client.models.generate_content.side_effect = ConnectionError("connection refused")
+        provider._client = mock_client
+
+        with pytest.raises(GeminiProviderError, match="Check your network connection"):
+            provider._chat("system", "user")
+
+    def test_generic_exception(self):
+        provider = self._make_provider()
+        mock_client = MagicMock()
+        mock_client.models.generate_content.side_effect = Exception("something unexpected")
         provider._client = mock_client
 
         with pytest.raises(GeminiProviderError, match="Gemini API error"):
+            provider._chat("system", "user")
+
+    def test_empty_response_raises(self):
+        provider = self._make_provider()
+        mock_client = MagicMock()
+        mock_response = MagicMock()
+        mock_response.text = None
+        mock_client.models.generate_content.return_value = mock_response
+        provider._client = mock_client
+
+        with pytest.raises(GeminiProviderError, match="empty response"):
             provider._chat("system", "user")
 
 
