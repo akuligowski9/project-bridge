@@ -1281,6 +1281,30 @@ _Known limitations accepted by design._
 
 ## Done
 
+### PB-067: Merge Gemini provider PR and improve error handling
+
+**Status:** Done
+
+Reviewed and merged PR #7 from @Manu6259 adding Google Gemini AI provider (`google-genai` SDK, registered as `"gemini"`). Applied follow-up improvements: empty/safety-filtered responses now raise `GeminiProviderError` instead of silently returning empty string, added `ConnectionError` catch with user-friendly network message (matching Anthropic provider pattern). 3 new tests (connection error, generic exception, empty response). 18 Gemini provider tests passing.
+
+---
+
+### PB-068: Improve CONTRIBUTING.md for external contributors
+
+**Status:** Done
+
+Added Code of Conduct section, first-time contributor guide (fork/branch/PR walkthrough with link to GitHub's guide), issue etiquette ("comment before you start" to avoid duplicate effort), branch naming conventions (`feature/`/`fix/`/`docs/` prefixes), and commit message guidelines (imperative mood, 72 char limit). Updated AI provider example code to reflect current `_chat` interface instead of outdated `analyze_context`/`generate_recommendations` overrides. Fixed import location reference (`orchestrator.py` instead of `__init__.py`).
+
+---
+
+### PB-069: Create contributor-facing GitHub issues for v2 features
+
+**Status:** Done
+
+Created GitHub issue #8 (custom skill taxonomies via YAML override) and #9 (VSCode extension for skill gap insights), both labeled `enhancement` + `help wanted`. Closed issue #1 (Gemini provider) as addressed by PR #7. Directed @sakievmi-dev to issues #3 and #4 as alternative good first issues.
+
+---
+
 ### PB-052: Accept GitHub profile URL in username field
 
 **Status:** Done
