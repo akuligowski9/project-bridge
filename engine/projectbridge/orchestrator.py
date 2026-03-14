@@ -38,6 +38,7 @@ from projectbridge.input.validation import (
 from projectbridge.progress import Progress
 from projectbridge.recommend.engine import generate_recommendations
 from projectbridge.schema import AnalysisResult
+from projectbridge.triage_client import emit_pipeline_error, emit_validation_warning
 
 logger = logging.getLogger(__name__)
 
@@ -216,6 +217,10 @@ def run_analysis(
                 "(rate limited to 60 requests/hour). Set GITHUB_TOKEN env var "
                 "or add github.token to projectbridge.config.yaml."
             )
+            emit_validation_warning(
+                "No GitHub token — using unauthenticated access (60 req/hr limit)",
+                stage="github_analyzer",
+            )
 
         logger.info("Analyzing GitHub profile: %s", github_user)
         progress.start_spinner(f"Fetching GitHub data for {github_user}...")
@@ -229,6 +234,7 @@ def run_analysis(
             dev_context = analyzer.analyze(github_user)
         except Exception as exc:
             progress.stop_spinner()
+            emit_pipeline_error("github_analyzer", exc)
             raise PipelineError("github_analyzer", str(exc)) from exc
         progress.stop_spinner()
 
@@ -259,6 +265,7 @@ def run_analysis(
         dev_context = provider.analyze_context(dev_context)
     except Exception as exc:
         progress.stop_spinner()
+        emit_pipeline_error("ai_context", exc)
         raise PipelineError("ai_context", str(exc)) from exc
     progress.stop_spinner()
 
