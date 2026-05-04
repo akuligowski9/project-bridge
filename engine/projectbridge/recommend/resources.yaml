@@ -8,6 +8,8 @@ Python:
 JavaScript:
   - label: "MDN JavaScript Guide"
     url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide"
+  - label: "freeCodeCamp JavaScript Course"
+    url: "https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/"
 TypeScript:
   - label: "TypeScript Handbook"
     url: "https://www.typescriptlang.org/docs/handbook/"
@@ -51,6 +53,8 @@ FastAPI:
 React:
   - label: "React Documentation"
     url: "https://react.dev/"
+  - label: "freeCodeCamp React Course"
+    url: "https://www.freecodecamp.org/learn/front-end-development-libraries/"
 Vue:
   - label: "Vue.js Documentation"
     url: "https://vuejs.org/guide/"
@@ -157,6 +161,8 @@ Socket.IO:
 Git:
   - label: "Git Documentation"
     url: "https://git-scm.com/doc"
+  - label: "freeCodeCamp Git & GitHub Course"
+    url: "https://www.freecodecamp.org/news/git-and-github-for-beginners/"
 Linux:
   - label: "Linux Documentation Project"
     url: "https://tldp.org/"
@@ -169,3 +175,6 @@ RabbitMQ:
 Kafka:
   - label: "Apache Kafka Documentation"
     url: "https://kafka.apache.org/documentation/"
+HTML:
+  - label: "MDN HTML Guide"
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTML"
