@@ -54,7 +54,7 @@ React:
   - label: "React Documentation"
     url: "https://react.dev/"
   - label: "freeCodeCamp React Course"
-    url: "https://www.freecodecamp.org/learn/front-end-development-libraries/"
+    url: "https://www.freecodecamp.org/news/learn-react-js-full-course/"
 Vue:
   - label: "Vue.js Documentation"
     url: "https://vuejs.org/guide/"
@@ -161,7 +161,7 @@ Socket.IO:
 Git:
   - label: "Git Documentation"
     url: "https://git-scm.com/doc"
-  - label: "freeCodeCamp Git & GitHub Course"
+  - label: "Git & GitHub Guide"
     url: "https://www.freecodecamp.org/news/git-and-github-for-beginners/"
 Linux:
   - label: "Linux Documentation Project"
